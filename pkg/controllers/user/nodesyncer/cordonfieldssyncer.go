@@ -79,15 +79,28 @@ func (d *nodeDrain) drainNode(key string, obj *v3.Node) (runtime.Object, error) 
 			nodeMapLock.Unlock()
 			return nil, nil
 		}
-		ctx, cancel := context.WithCancel(d.ctx)
-		d.nodesToContext[obj.Name] = cancel
-		go d.drain(ctx, obj, cancel)
 		nodeMapLock.Unlock()
+
+		node, err := nodehelper.GetNodeForMachine(obj, d.nodeLister)
+		if err != nil {
+			return nil, err
+		}
+		if node == nil {
+			return nil, fmt.Errorf("nodeDrain: error finding node [%s]", obj.Spec.RequestedHostname)
+		}
+		ctx, cancel := context.WithCancel(d.ctx)
+
+		nodeMapLock.Lock()
+		d.nodesToContext[obj.Name] = cancel
+		nodeMapLock.Unlock()
+
+		go d.drain(ctx, obj, node.Name, cancel)
 
 	} else if obj.Spec.DesiredNodeUnschedulable == "stopDrain" {
 		nodeMapLock.Lock()
 		cancelFunc, ok := d.nodesToContext[obj.Name]
 		nodeMapLock.Unlock()
+
 		if ok {
 			cancelFunc()
 		}
@@ -119,7 +132,7 @@ func (d *nodeDrain) updateNode(node *v3.Node, updateFunc func(node *v3.Node, ori
 	return updatedObj, err
 }
 
-func (d *nodeDrain) drain(ctx context.Context, obj *v3.Node, cancel context.CancelFunc) {
+func (d *nodeDrain) drain(ctx context.Context, obj *v3.Node, nodeName string, cancel context.CancelFunc) {
 	defer deleteFromContextMap(d.nodesToContext, obj.Name)
 
 	for {
@@ -130,7 +143,6 @@ func (d *nodeDrain) drain(ctx context.Context, obj *v3.Node, cancel context.Canc
 		}
 
 		stopped := false
-		nodeName := obj.Spec.RequestedHostname
 		updatedObj, err := v3.NodeConditionDrained.DoUntilTrue(obj, func() (runtime.Object, error) {
 			kubeConfig, err := d.getKubeConfig()
 			if err != nil {
@@ -144,8 +156,8 @@ func (d *nodeDrain) drain(ctx context.Context, obj *v3.Node, cancel context.Canc
 				return obj, err
 			}
 			logrus.Infof("Draining node %s in %s with flags %v", nodeName, obj.Namespace,
-				strings.Join(getFlags(nodeObj.Spec.NodeDrainInput), " "))
-			_, msg, err := kubectl.Drain(ctx, kubeConfig, nodeName, getFlags(nodeObj.Spec.NodeDrainInput))
+				strings.Join(nodehelper.GetDrainFlags(nodeObj), " "))
+			_, msg, err := kubectl.Drain(ctx, kubeConfig, nodeName, nodehelper.GetDrainFlags(nodeObj))
 			if err != nil {
 				if ctx.Err() == context.Canceled {
 					stopped = true
@@ -166,7 +178,7 @@ func (d *nodeDrain) drain(ctx context.Context, obj *v3.Node, cancel context.Canc
 						obj.Spec.NodeDrainInput.Timeout))
 				} else {
 					// log before ignoring
-					logrus.Errorf("nodeDrain: kubectl error draining node [%s] in cluster [%s]: %v", nodeName,
+					logrus.Errorf("nodeDrain: kubectl error ignore draining node [%s] in cluster [%s]: %v", nodeName,
 						d.clusterName, kubeErr)
 				}
 				kubeErr = nil
@@ -222,11 +234,17 @@ func (d *nodeDrain) getKubeConfig() (*clientcmdapi.Config, error) {
 }
 
 func getFlags(input *v3.NodeDrainInput) []string {
+	var ignoreDaemonSets bool
+	if input.IgnoreDaemonSets == nil {
+		ignoreDaemonSets = true
+	} else {
+		ignoreDaemonSets = *input.IgnoreDaemonSets
+	}
 	return []string{
 		fmt.Sprintf("--delete-local-data=%v", input.DeleteLocalData),
 		fmt.Sprintf("--force=%v", input.Force),
 		fmt.Sprintf("--grace-period=%v", input.GracePeriod),
-		fmt.Sprintf("--ignore-daemonsets=%v", input.IgnoreDaemonSets),
+		fmt.Sprintf("--ignore-daemonsets=%v", ignoreDaemonSets),
 		fmt.Sprintf("--timeout=%s", convert.ToString(input.Timeout)+"s")}
 }
 

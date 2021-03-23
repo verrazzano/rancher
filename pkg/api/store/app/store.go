@@ -8,7 +8,7 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	pv3app "github.com/rancher/rancher/pkg/api/customization/app"
-	catUtil "github.com/rancher/rancher/pkg/catalog/utils"
+	"github.com/rancher/rancher/pkg/catalog/manager"
 	hcommon "github.com/rancher/rancher/pkg/controllers/user/helm/common"
 	"github.com/rancher/rancher/pkg/namespace"
 	"github.com/rancher/rancher/pkg/ref"
@@ -23,6 +23,8 @@ type Store struct {
 	types.Store
 	Apps                  pv3.AppLister
 	TemplateVersionLister v3.CatalogTemplateVersionLister
+	CatalogManager        manager.CatalogManager
+	ClusterLister         v3.ClusterLister
 }
 
 func (s *Store) Create(apiContext *types.APIContext, schema *types.Schema, data map[string]interface{}) (map[string]interface{}, error) {
@@ -34,8 +36,11 @@ func (s *Store) Create(apiContext *types.APIContext, schema *types.Schema, data 
 		return nil, err
 	}
 
-	if err := s.validateRancherVersion(data); err != nil {
-		return nil, err
+	projectID, _ := data["projectId"].(string)
+	clusterName, _ := ref.Parse(projectID)
+
+	if err := s.validateChartCompatibility(clusterName, data); err != nil {
+		return nil, httperror.NewAPIError(httperror.InvalidBodyContent, err.Error())
 	}
 
 	return s.Store.Create(apiContext, schema, data)
@@ -57,12 +62,15 @@ func (s *Store) Update(apiContext *types.APIContext, schema *types.Schema, data 
 		return nil, err
 	}
 
-	if err := s.validateRancherVersion(data); err != nil {
+	if err := s.validateForMultiClusterApp(id, "update"); err != nil {
 		return nil, err
 	}
 
-	if err := s.validateForMultiClusterApp(id, "update"); err != nil {
-		return nil, err
+	projectID, _ := data["projectId"].(string)
+	clusterName, _ := ref.Parse(projectID)
+
+	if err := s.validateChartCompatibility(clusterName, data); err != nil {
+		return nil, httperror.NewAPIError(httperror.InvalidBodyContent, err.Error())
 	}
 
 	return s.Store.Update(apiContext, schema, data, id)
@@ -86,7 +94,7 @@ func (s *Store) validateForMultiClusterApp(id string, msg string) error {
 	return nil
 }
 
-func (s *Store) validateRancherVersion(data map[string]interface{}) error {
+func (s *Store) validateChartCompatibility(clusterName string, data map[string]interface{}) error {
 	externalID := convert.ToString(data["externalId"])
 	if externalID == "" {
 		return nil
@@ -102,13 +110,17 @@ func (s *Store) validateRancherVersion(data map[string]interface{}) error {
 		return err
 	}
 
-	return catUtil.ValidateRancherVersion(template)
+	return s.CatalogManager.ValidateChartCompatibility(template, clusterName)
 }
 
 func (s *Store) checkAccessToTemplateVersion(apiContext *types.APIContext, data map[string]interface{}) error {
 	templateVersionID, ns, err := s.parseAppExternalID(data)
 	if err != nil {
 		return err
+	}
+	if templateVersionID == "" && ns == "" {
+		// all users can use a local template to create apps
+		return nil
 	}
 	if ns == namespace.GlobalNamespace {
 		// all users have read access to global catalogs, and can use their template versions to create apps
@@ -133,8 +145,8 @@ func (s *Store) verifyAppExternalIDMatchesProject(data map[string]interface{}, i
 	if err != nil {
 		return err
 	}
-	if catalogNs == namespace.GlobalNamespace {
-		// apps from global catalog can be launched in any clusters
+	if catalogNs == namespace.GlobalNamespace || catalogNs == "" {
+		// apps from global catalog or local template can be launched in any cluster
 		return nil
 	}
 

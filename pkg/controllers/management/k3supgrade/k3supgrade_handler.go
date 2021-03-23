@@ -5,8 +5,7 @@ import (
 	"strings"
 
 	"github.com/coreos/go-semver/semver"
-	utils2 "github.com/rancher/rancher/pkg/app/utils"
-	"github.com/rancher/rancher/pkg/catalog/utils"
+	"github.com/rancher/rancher/pkg/app/utils"
 	"github.com/rancher/rancher/pkg/namespace"
 	"github.com/rancher/rancher/pkg/project"
 	"github.com/rancher/rancher/pkg/ref"
@@ -92,7 +91,7 @@ func (h *handler) deployK3sUpgradeController(clusterName string) error {
 		return err
 	}
 
-	latestTemplateVersion, err := utils.LatestAvailableTemplateVersion(template)
+	latestTemplateVersion, err := h.catalogManager.LatestAvailableTemplateVersion(template, clusterName)
 	if err != nil {
 		return err
 	}
@@ -105,7 +104,7 @@ func (h *handler) deployK3sUpgradeController(clusterName string) error {
 	_, systemProjectName := ref.Parse(systemProjectID)
 
 	nsClient := userCtx.Core.Namespaces("")
-	appProjectName, err := utils2.EnsureAppProjectName(nsClient, systemProjectName, clusterName, systemUpgradeNS, creator.Name)
+	appProjectName, err := utils.EnsureAppProjectName(nsClient, systemProjectName, clusterName, systemUpgradeNS, creator.Name)
 	if err != nil {
 		return err
 	}
@@ -170,15 +169,15 @@ func (h *handler) deployK3sUpgradeController(clusterName string) error {
 // isNewerVersion returns true if updated versions semver is newer and false if its
 // semver is older. If semver is equal then metadata is alphanumerically compared.
 func IsNewerVersion(prevVersion, updatedVersion string) (bool, error) {
-	parseErrMsg := "failed to parse version: %v"
+	parseErrMsg := "failed to parse version [%s]: %v"
 	prevVer, err := semver.NewVersion(strings.TrimPrefix(prevVersion, "v"))
 	if err != nil {
-		return false, fmt.Errorf(parseErrMsg, err)
+		return false, fmt.Errorf(parseErrMsg, prevVersion, err)
 	}
 
 	updatedVer, err := semver.NewVersion(strings.TrimPrefix(updatedVersion, "v"))
 	if err != nil {
-		return false, fmt.Errorf(parseErrMsg, err)
+		return false, fmt.Errorf(parseErrMsg, updatedVersion, err)
 	}
 
 	switch updatedVer.Compare(*prevVer) {

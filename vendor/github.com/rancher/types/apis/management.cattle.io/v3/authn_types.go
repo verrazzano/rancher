@@ -2,6 +2,7 @@ package v3
 
 import (
 	"github.com/rancher/norman/condition"
+	"github.com/rancher/norman/types"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -143,6 +144,15 @@ type AuthConfig struct {
 	AllowedPrincipalIDs []string `json:"allowedPrincipalIds,omitempty" norman:"type=array[reference[principal]]"`
 }
 
+type SamlToken struct {
+	types.Namespaced
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Token     string `json:"token" norman:"writeOnly,noupdate"`
+	ExpiresAt string `json:"expiresAt"`
+}
+
 type LocalConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -229,6 +239,7 @@ type ActiveDirectoryConfig struct {
 	Servers                      []string `json:"servers,omitempty"                     norman:"type=array[string],required"`
 	Port                         int64    `json:"port,omitempty"                        norman:"default=389"`
 	TLS                          bool     `json:"tls,omitempty"                         norman:"default=false"`
+	StartTLS                     bool     `json:"starttls,omitempty"                    norman:"default=false"`
 	Certificate                  string   `json:"certificate,omitempty"`
 	DefaultLoginDomain           string   `json:"defaultLoginDomain,omitempty"`
 	ServiceAccountUsername       string   `json:"serviceAccountUsername,omitempty"      norman:"required"`
@@ -264,6 +275,7 @@ type LdapFields struct {
 	Servers                         []string `json:"servers,omitempty"                         norman:"type=array[string],notnullable,required"`
 	Port                            int64    `json:"port,omitempty"                            norman:"default=389,notnullable,required"`
 	TLS                             bool     `json:"tls,omitempty"                             norman:"default=false,notnullable,required"`
+	StartTLS                        bool     `json:"starttls,omitempty"                        norman:"default=false"`
 	Certificate                     string   `json:"certificate,omitempty"`
 	ServiceAccountDistinguishedName string   `json:"serviceAccountDistinguishedName,omitempty" norman:"required"`
 	ServiceAccountPassword          string   `json:"serviceAccountPassword,omitempty"          norman:"type=password,required"`

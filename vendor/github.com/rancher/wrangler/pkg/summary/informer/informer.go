@@ -17,6 +17,7 @@ limitations under the License.
 package informer
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -125,13 +126,19 @@ func NewFilteredSummaryInformer(client client.Interface, gvr schema.GroupVersion
 					if tweakListOptions != nil {
 						tweakListOptions(&options)
 					}
-					return client.Resource(gvr).Namespace(namespace).List(options)
+					// If ResourceVersion is set to 0 then the Limit is ignored on the API side. Usually
+					// that's not a problem, but with very large counts of a single object type the client will
+					// hit it's connection timeout
+					if options.ResourceVersion == "0" {
+						options.ResourceVersion = ""
+					}
+					return client.Resource(gvr).Namespace(namespace).List(context.TODO(), options)
 				},
 				WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
 					if tweakListOptions != nil {
 						tweakListOptions(&options)
 					}
-					return client.Resource(gvr).Namespace(namespace).Watch(options)
+					return client.Resource(gvr).Namespace(namespace).Watch(context.TODO(), options)
 				},
 			},
 			&summary.SummarizedObject{},

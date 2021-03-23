@@ -132,6 +132,7 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.RoleTemplateType,
 		client.CisConfigType,
 		client.CisBenchmarkVersionType,
+		client.SamlTokenType,
 		client.SettingType,
 		client.TemplateType,
 		client.TemplateVersionType,
@@ -257,8 +258,10 @@ func Clusters(schemas *types.Schemas, managementContext *config.ScaledContext, c
 	handler := ccluster.ActionHandler{
 		NodepoolGetter:                managementContext.Management,
 		ClusterClient:                 managementContext.Management.Clusters(""),
+		CatalogManager:                managementContext.CatalogManager,
 		UserMgr:                       managementContext.UserManager,
 		ClusterManager:                clusterManager,
+		CatalogTemplateVersionLister:  managementContext.Management.CatalogTemplateVersions("").Controller().Lister(),
 		NodeTemplateGetter:            managementContext.Management,
 		BackupClient:                  managementContext.Management.EtcdBackups(""),
 		ClusterScanClient:             managementContext.Management.ClusterScans(""),
@@ -397,9 +400,11 @@ func Tokens(ctx context.Context, schemas *types.Schemas, mgmt *config.ScaledCont
 func NodeTemplates(schemas *types.Schemas, management *config.ScaledContext) {
 	schema := schemas.Schema(&managementschema.Version, client.NodeTemplateType)
 	npl := management.Management.NodePools("").Controller().Lister()
+	nl := management.Management.Nodes("").Controller().Lister()
 	userLister := management.Management.Users("").Controller().Lister()
 	f := nodetemplate.Formatter{
 		NodePoolLister: npl,
+		NodeLister:     nl,
 		UserLister:     userLister,
 	}
 	schema.Formatter = f.Formatter
@@ -410,7 +415,7 @@ func NodeTemplates(schemas *types.Schemas, management *config.ScaledContext) {
 	globalSecretLister := management.Core.Secrets(namespace.GlobalNamespace).Controller().Lister()
 	nodeTemplateClient := management.Management.NodeTemplates("")
 
-	s := nodeTemplateStore.Wrap(nodeTemplateGlobalStore, npl, globalSecretLister, nodeTemplateClient)
+	s := nodeTemplateStore.Wrap(nodeTemplateGlobalStore, npl, nl, globalSecretLister, nodeTemplateClient)
 	schema.Store = s
 	schema.Validator = nodetemplate.Validator
 }
@@ -501,7 +506,11 @@ func NodeTypes(schemas *types.Schemas, management *config.ScaledContext) error {
 		NodeTemplateLister: ntl,
 	}
 	schema.Formatter = f.Formatter
-	schema.Validator = nodepool.Validator
+
+	nodepoolValidator := nodepool.Validator{
+		NodePoolLister: management.Management.NodePools("").Controller().Lister(),
+	}
+	schema.Validator = nodepoolValidator.Validator
 	return nil
 }
 
@@ -511,10 +520,13 @@ func App(schemas *types.Schemas, management *config.ScaledContext, kubeConfigGet
 		Store:                 schema.Store,
 		Apps:                  management.Project.Apps("").Controller().Lister(),
 		TemplateVersionLister: management.Management.CatalogTemplateVersions("").Controller().Lister(),
+		CatalogManager:        management.CatalogManager,
+		ClusterLister:         management.Management.Clusters("").Controller().Lister(),
 	}
 	schema.Store = store
 	wrapper := app.Wrapper{
 		Clusters:              management.Management.Clusters(""),
+		CatalogManager:        management.CatalogManager,
 		TemplateVersionClient: management.Management.CatalogTemplateVersions(""),
 		TemplateVersionLister: management.Management.CatalogTemplateVersions("").Controller().Lister(),
 		KubeConfigGetter:      kubeConfigGetter,
@@ -775,6 +787,7 @@ func MultiClusterApps(schemas *types.Schemas, management *config.ScaledContext) 
 		ClusterLister:                 management.Management.Clusters("").Controller().Lister(),
 		Apps:                          management.Project.Apps(""),
 		TemplateVersionLister:         management.Management.CatalogTemplateVersions("").Controller().Lister(),
+		CatalogManager:                management.CatalogManager,
 	}
 	schema.Formatter = wrapper.Formatter
 	schema.ActionHandler = wrapper.ActionHandler

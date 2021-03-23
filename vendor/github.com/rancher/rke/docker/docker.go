@@ -34,6 +34,10 @@ const (
 	StopTimeout = 5
 	// RetryCount is the amount of retries for Docker operations
 	RetryCount = 3
+	// WaitTimeout in seconds
+	WaitTimeout = 300
+	// WaitTimeoutContextKey name
+	WaitTimeoutContextKey = "wait_timeout"
 )
 
 type dockerConfig struct {
@@ -133,6 +137,23 @@ func DoRunOnetimeContainer(ctx context.Context, dClient *client.Client, imageCfg
 		return nil
 	}
 	return err
+}
+
+func DoCopyToContainer(ctx context.Context, dClient *client.Client, plane, containerName, hostname, destinationDir string, tarFile io.Reader) error {
+	if dClient == nil {
+		return fmt.Errorf("[%s] Failed to run container: docker client is nil for container [%s] on host [%s]", plane, containerName, hostname)
+	}
+	// Need container.ID for CopyToContainer function
+	container, err := InspectContainer(ctx, dClient, hostname, containerName)
+	if err != nil {
+		return fmt.Errorf("Could not inspect container [%s] on host [%s]: %s", containerName, hostname, err)
+	}
+
+	err = dClient.CopyToContainer(ctx, container.ID, destinationDir, tarFile, types.CopyToContainerOptions{})
+	if err != nil {
+		return fmt.Errorf("Error while copying file to container [%s] on host [%s]: %v", containerName, hostname, err)
+	}
+	return nil
 }
 
 func DoRollingUpdateContainer(ctx context.Context, dClient *client.Client, imageCfg *container.Config, hostCfg *container.HostConfig, containerName, hostname, plane string, prsMap map[string]v3.PrivateRegistry) error {
@@ -475,22 +496,36 @@ func WaitForContainer(ctx context.Context, dClient *client.Client, hostname stri
 	if dClient == nil {
 		return 1, fmt.Errorf("Failed waiting for container: docker client is nil for container [%s] on host [%s]", containerName, hostname)
 	}
-	// 5 minutes timeout, especially for transferring snapshots
-	for retries := 0; retries < 300; retries++ {
+	// Set containerTimeout value from context or default. Especially for transferring snapshots
+	containerTimeout := WaitTimeout
+	if v, ok := ctx.Value(WaitTimeoutContextKey).(int); ok && v > 0 {
+		containerTimeout = v
+	}
+	for retries := 0; retries < containerTimeout; retries++ {
 		log.Infof(ctx, "Waiting for [%s] container to exit on host [%s]", containerName, hostname)
 		container, err := InspectContainer(ctx, dClient, hostname, containerName)
 		if err != nil {
 			return 1, fmt.Errorf("Could not inspect container [%s] on host [%s]: %s", containerName, hostname, err)
 		}
 		if container.State.Running {
-			log.Infof(ctx, "Container [%s] is still running on host [%s]", containerName, hostname)
+			stderr, stdout, err := GetContainerLogsStdoutStderr(ctx, dClient, containerName, "1", false)
+			if err != nil {
+				logrus.Warnf("Failed to get container logs from container [%s] on host [%s]: %v", containerName, hostname, err)
+			}
+
+			log.Infof(ctx, "Container [%s] is still running on host [%s]: stderr: [%s], stdout: [%s]", containerName, hostname, stderr, stdout)
 			time.Sleep(1 * time.Second)
 			continue
 		}
 		logrus.Debugf("Exit code for [%s] container on host [%s] is [%d]", containerName, hostname, int64(container.State.ExitCode))
 		return int64(container.State.ExitCode), nil
 	}
-	return 1, fmt.Errorf("Container [%s] did not exit in time on host [%s]", containerName, hostname)
+	stderr, stdout, err := GetContainerLogsStdoutStderr(ctx, dClient, containerName, "1", false)
+	if err != nil {
+		logrus.Warnf("Failed to get container logs from container [%s] on host [%s]", containerName, hostname)
+	}
+
+	return 1, fmt.Errorf("Container [%s] did not exit in time on host [%s]: stderr: [%s], stdout: [%s]", containerName, hostname, stderr, stdout)
 }
 
 func IsContainerUpgradable(ctx context.Context, dClient *client.Client, imageCfg *container.Config, hostCfg *container.HostConfig, containerName string, hostname string, plane string) (bool, error) {
@@ -705,7 +740,7 @@ func GetKubeletDockerConfig(prsMap map[string]v3.PrivateRegistry) (string, error
 	auths := map[string]authConfig{}
 
 	for url, pr := range prsMap {
-		auth := base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", pr.User, pr.Password)))
+		auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", pr.User, pr.Password)))
 		auths[url] = authConfig{Auth: auth}
 	}
 	cfg, err := json.Marshal(dockerConfig{auths})

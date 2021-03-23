@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rancher/kontainer-engine/drivers/gke"
 	"github.com/rancher/norman/controller"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
@@ -25,7 +26,9 @@ import (
 	"github.com/rancher/types/config"
 	"github.com/rancher/types/config/dialer"
 	rbacv1 "github.com/rancher/wrangler-api/pkg/generated/controllers/rbac/v1"
+	"github.com/rancher/wrangler/pkg/ratelimit"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 	"golang.org/x/sync/semaphore"
 	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -120,20 +123,21 @@ func (m *Manager) start(ctx context.Context, cluster *v3.Cluster, controllers, c
 		m.Stop(obj.(*record).clusterRec)
 	}
 
-	controller, err := m.toRecord(ctx, cluster)
+	clusterRecord, err := m.toRecord(ctx, cluster)
 	if err != nil {
 		m.markUnavailable(cluster.Name)
 		return nil, err
 	}
-	if controller == nil {
+	if clusterRecord == nil {
 		return nil, httperror.NewAPIError(httperror.ClusterUnavailable, "cluster not found")
 	}
 
-	obj, _ = m.controllers.LoadOrStore(cluster.UID, controller)
+	obj, _ = m.controllers.LoadOrStore(cluster.UID, clusterRecord)
 	if err := m.startController(obj.(*record), controllers, clusterOwner); err != nil {
 		m.markUnavailable(cluster.Name)
 		return nil, err
 	}
+
 	return obj.(*record), nil
 }
 
@@ -184,7 +188,7 @@ func (m *Manager) doStart(rec *record, clusterOwner bool) (exit error) {
 		// Prior to k8s v1.14, we simply did a DiscoveryClient.Version() check to see if the user cluster is alive
 		// As of k8s v1.14, kubeapi returns a successful version response even if etcd is not available.
 		// To work around this, now we try to get a namespace from the API, even if not found, it means the API is up.
-		if _, err := rec.cluster.K8sClient.CoreV1().Namespaces().Get("kube-system", v1.GetOptions{}); err != nil && !apierrors.IsNotFound(err) {
+		if _, err := rec.cluster.K8sClient.CoreV1().Namespaces().Get(rec.ctx, "kube-system", v1.GetOptions{}); err != nil && !apierrors.IsNotFound(err) {
 			if i == 2 {
 				m.markUnavailable(rec.cluster.ClusterName)
 			}
@@ -220,6 +224,10 @@ func (m *Manager) doStart(rec *record, clusterOwner bool) (exit error) {
 	done := make(chan error, 1)
 	go func() {
 		defer close(done)
+
+		logrus.Debugf("[clustermanager] creating AccessControl for cluster %v", rec.cluster.ClusterName)
+		rec.accessControl = rbac.NewAccessControl(rec.ctx, rec.cluster.ClusterName, rec.cluster.RBACw)
+
 		err := rec.cluster.Start(rec.ctx)
 		if err == nil {
 			transaction.Commit()
@@ -290,12 +298,25 @@ func ToRESTConfig(cluster *v3.Cluster, context *config.ScaledContext) (*rest.Con
 		TLSClientConfig: rest.TLSClientConfig{
 			CAData: append(caBytes, suffix...),
 		},
-		Timeout: 30 * time.Second,
+		Timeout:     45 * time.Second,
+		RateLimiter: ratelimit.None,
+		UserAgent:   rest.DefaultKubernetesUserAgent() + " cluster " + cluster.Name,
 		WrapTransport: func(rt http.RoundTripper) http.RoundTripper {
 			if ht, ok := rt.(*http.Transport); ok {
 				ht.DialContext = nil
 				ht.DialTLS = tlsDialer
 				ht.Dial = clusterDialer
+			}
+			if cluster.Status.Driver == "googleKubernetesEngine" && cluster.Spec.GenericEngineConfig != nil {
+				cred, _ := (*cluster.Spec.GenericEngineConfig)["credential"].(string)
+				ts, err := gke.GetTokenSource(context.RunContext, cred)
+				if err == nil {
+					return &oauth2.Transport{
+						Source: ts,
+						Base:   rt,
+					}
+				}
+				logrus.Errorf("unable to retrieve token source for GKE oauth2: %v", err)
 			}
 			return rt
 		},
@@ -383,9 +404,8 @@ func (m *Manager) toRecord(ctx context.Context, cluster *v3.Cluster) (*record, e
 	}
 
 	s := &record{
-		cluster:       clusterContext,
-		clusterRec:    cluster,
-		accessControl: rbac.NewAccessControl(ctx, cluster.Name, clusterContext.RBACw),
+		cluster:    clusterContext,
+		clusterRec: cluster,
 	}
 	s.ctx, s.cancel = context.WithCancel(ctx)
 
@@ -399,6 +419,10 @@ func (m *Manager) AccessControl(apiContext *types.APIContext, storageContext typ
 	}
 	if record == nil {
 		return m.accessControl, nil
+	}
+
+	if record.accessControl == nil {
+		return nil, httperror.NewAPIError(httperror.ClusterUnavailable, "cannot determine access, cluster is unavailable")
 	}
 
 	return record.accessControl, nil

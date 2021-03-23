@@ -22,6 +22,11 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
+const (
+	clusterContext = "cluster"
+	projectContext = "project"
+)
+
 var commonClusterAndProjectMgmtPlaneResources = map[string]bool{
 	"catalogtemplates":        true,
 	"catalogtemplateversions": true,
@@ -333,24 +338,31 @@ func (m *manager) reconcileMembershipBindingForDelete(namespace, roleToKeep, rtb
 		return err
 	}
 
-	for _, rb := range roleBindings {
-		objMeta, err := meta.Accessor(rb)
+	for _, elt := range roleBindings {
+		obj, ok := elt.(runtime.Object)
+		if !ok {
+			continue
+		}
+
+		// copy so we don't modify object in cache
+		objCopy := obj.DeepCopyObject()
+
+		objMeta, err := meta.Accessor(objCopy)
 		if err != nil {
 			return err
 		}
 
-		roleName := convert(rb)
+		roleName := convert(objCopy)
 		if roleName == roleToKeep {
 			continue
 		}
 
 		var otherOwners bool
-
 		for k, v := range objMeta.GetLabels() {
 			if k == rtbUID && v == membershipBindingOwner {
 				delete(objMeta.GetLabels(), k)
 			} else if v == membershipBindingOwner {
-				// Another crtb is also linked to this roleBinding so don't delete
+				// Another rtb is also linked to this roleBinding so don't delete
 				otherOwners = true
 			}
 		}
@@ -365,10 +377,8 @@ func (m *manager) reconcileMembershipBindingForDelete(namespace, roleToKeep, rtb
 			}
 		} else {
 			logrus.Infof("[%v] Updating owner label for roleBinding %v", m.controller, objMeta.GetName())
-			if rb, ok := rb.(runtime.Object); ok {
-				if _, err := client.Update(objMeta.GetName(), rb); err != nil {
-					return err
-				}
+			if _, err := client.Update(objMeta.GetName(), objCopy); err != nil {
+				return err
 			}
 		}
 	}
@@ -752,20 +762,39 @@ func buildRule(resource string, verbs map[string]bool) v1.PolicyRule {
 	}
 }
 
-func (m *manager) checkReferencedRoles(roleTemplateName string) (bool, error) {
+func (m *manager) checkReferencedRoles(roleTemplateName, roleTemplateContext string) (bool, error) {
 	roleTemplate, err := m.rtLister.Get("", roleTemplateName)
 	if err != nil {
 		return false, err
 	}
 
-	if projectScopedAdminRoles[roleTemplate.Name] || roleTemplate.Administrative {
+	// Only check if we are in the same context, if the roleTemplate is from a different context then
+	// it can't possibly be a owner in the callers context.
+	if roleTemplate.Context != roleTemplateContext {
+		return false, nil
+	}
+
+	// upon upgrades, crtb/prtbs are reconciled before roletemplates.
+	// So these roles won't have the "own" verb at the time of this check added 2.4.6 onwards
+	if roleTemplate.Builtin && roleTemplate.Context == projectContext && roleTemplateName == "project-owner" {
 		return true, nil
+	}
+	if roleTemplate.Builtin && roleTemplate.Context == clusterContext && roleTemplateName == "cluster-owner" {
+		return true, nil
+	}
+
+	for _, rule := range roleTemplate.Rules {
+		if slice.ContainsString(rule.Resources, projectResource) || slice.ContainsString(rule.Resources, clusterResource) {
+			if slice.ContainsString(rule.Verbs, "own") {
+				return true, nil
+			}
+		}
 	}
 	isOwnerRole := false
 	if len(roleTemplate.RoleTemplateNames) > 0 {
 		// get referenced roletemplate
 		for _, rtName := range roleTemplate.RoleTemplateNames {
-			isOwnerRole, err = m.checkReferencedRoles(rtName)
+			isOwnerRole, err = m.checkReferencedRoles(rtName, roleTemplateContext)
 			if err != nil {
 				return false, err
 			}

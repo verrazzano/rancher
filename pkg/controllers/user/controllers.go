@@ -24,9 +24,9 @@ import (
 	"github.com/rancher/rancher/pkg/controllers/user/logging"
 	"github.com/rancher/rancher/pkg/controllers/user/monitoring"
 	"github.com/rancher/rancher/pkg/controllers/user/networkpolicy"
-	"github.com/rancher/rancher/pkg/controllers/user/noderemove"
 	"github.com/rancher/rancher/pkg/controllers/user/nodesyncer"
 	"github.com/rancher/rancher/pkg/controllers/user/nslabels"
+	"github.com/rancher/rancher/pkg/controllers/user/nsserviceaccount"
 	"github.com/rancher/rancher/pkg/controllers/user/pipeline"
 	"github.com/rancher/rancher/pkg/controllers/user/rbac"
 	"github.com/rancher/rancher/pkg/controllers/user/rbac/podsecuritypolicy"
@@ -51,7 +51,6 @@ func Register(ctx context.Context, cluster *config.UserContext, clusterRec *mana
 	logging.Register(ctx, cluster)
 	networkpolicy.Register(ctx, cluster)
 	cis.Register(ctx, cluster)
-	noderemove.Register(ctx, cluster)
 	nodesyncer.Register(ctx, cluster, kubeConfigGetter)
 	pipeline.Register(ctx, cluster)
 	podsecuritypolicy.RegisterCluster(ctx, cluster)
@@ -73,6 +72,7 @@ func Register(ctx context.Context, cluster *config.UserContext, clusterRec *mana
 	certsexpiration.Register(ctx, cluster)
 	ingresshostgen.Register(ctx, cluster.UserOnlyContext())
 	windows.Register(ctx, clusterRec, cluster)
+	nsserviceaccount.Register(ctx, cluster)
 
 	// register controller for API
 	cluster.APIAggregation.APIServices("").Controller()
@@ -96,6 +96,7 @@ func Register(ctx context.Context, cluster *config.UserContext, clusterRec *mana
 }
 
 func RegisterFollower(ctx context.Context, cluster *config.UserContext, kubeConfigGetter common.KubeConfigGetter, clusterManager healthsyncer.ClusterControllerLifecycle) error {
+	cluster.Core.Pods("").Controller()
 	cluster.Core.Namespaces("").Controller()
 	cluster.Core.Services("").Controller()
 	cluster.RBAC.ClusterRoleBindings("").Controller()

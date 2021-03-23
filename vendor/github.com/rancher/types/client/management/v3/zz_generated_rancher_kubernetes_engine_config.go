@@ -26,6 +26,7 @@ const (
 	RancherKubernetesEngineConfigFieldServices            = "services"
 	RancherKubernetesEngineConfigFieldUpgradeStrategy     = "upgradeStrategy"
 	RancherKubernetesEngineConfigFieldVersion             = "kubernetesVersion"
+	RancherKubernetesEngineConfigFieldWindowsPrefixPath   = "winPrefixPath"
 )
 
 type RancherKubernetesEngineConfig struct {
@@ -38,7 +39,7 @@ type RancherKubernetesEngineConfig struct {
 	CloudProvider       *CloudProvider       `json:"cloudProvider,omitempty" yaml:"cloudProvider,omitempty"`
 	ClusterName         string               `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
 	DNS                 *DNSConfig           `json:"dns,omitempty" yaml:"dns,omitempty"`
-	IgnoreDockerVersion bool                 `json:"ignoreDockerVersion,omitempty" yaml:"ignoreDockerVersion,omitempty"`
+	IgnoreDockerVersion *bool                `json:"ignoreDockerVersion,omitempty" yaml:"ignoreDockerVersion,omitempty"`
 	Ingress             *IngressConfig       `json:"ingress,omitempty" yaml:"ingress,omitempty"`
 	Monitoring          *MonitoringConfig    `json:"monitoring,omitempty" yaml:"monitoring,omitempty"`
 	Network             *NetworkConfig       `json:"network,omitempty" yaml:"network,omitempty"`
@@ -53,4 +54,5 @@ type RancherKubernetesEngineConfig struct {
 	Services            *RKEConfigServices   `json:"services,omitempty" yaml:"services,omitempty"`
 	UpgradeStrategy     *NodeUpgradeStrategy `json:"upgradeStrategy,omitempty" yaml:"upgradeStrategy,omitempty"`
 	Version             string               `json:"kubernetesVersion,omitempty" yaml:"kubernetesVersion,omitempty"`
+	WindowsPrefixPath   string               `json:"winPrefixPath,omitempty" yaml:"winPrefixPath,omitempty"`
 }

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/services/containerservice/mgmt/2018-03-31/containerservice"
+	"github.com/Azure/azure-sdk-for-go/services/containerservice/mgmt/2019-10-01/containerservice"
 	"github.com/Azure/azure-sdk-for-go/services/preview/operationalinsights/mgmt/2015-11-01-preview/operationalinsights"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources"
 	"github.com/Azure/go-autorest/autorest"
@@ -76,10 +76,10 @@ type state struct {
 	AgentName string `json:"agentPoolName,omitempty"`
 	// AgentOsdiskSizeGB specifies the disk size for every machine in the agent pool. [optional only when creating]
 	AgentOsdiskSizeGB int64 `json:"agentOsdiskSize,omitempty"`
-	// AgentStorageProfile specifies the storage profile in the agent pool. [optional only when creating]
-	AgentStorageProfile string `json:"agentStorageProfile,omitempty"`
 	// AgentVMSize specifies the VM size in the agent pool. [optional only when creating]
 	AgentVMSize string `json:"agentVmSize,omitempty"`
+	// LoadBalancerSku specifies the LoadBalancer SKU of the cluster. [optional only when creating]
+	LoadBalancerSku string `json:"loadBalancerSku,omitempty"`
 	// VirtualNetworkResourceGroup specifies the Azure Virtual Network located int which resource group. Composite of agent virtual network subnet ID. [optional only when creating]
 	VirtualNetworkResourceGroup string `json:"virtualNetworkResourceGroup,omitempty"`
 	// VirtualNetwork specifies an existing Azure Virtual Network. Composite of agent virtual network subnet ID. [optional only when creating]
@@ -235,15 +235,14 @@ func (d *Driver) GetDriverCreateOptions(ctx context.Context) (*types.DriverFlags
 		Usage: `GB size to be used to specify the disk for every machine in the agent pool. If you specify 0, it will apply the default according to the "agent vm size" specified.`,
 	}
 
-	driverFlag.Options["agent-storage-profile"] = &types.Flag{
-		Type:  types.StringType,
-		Usage: fmt.Sprintf("Storage profile specifies what kind of storage used on machine in the agent pool. Chooses from %v.", containerservice.PossibleStorageProfileTypesValues()),
-		Value: string(containerservice.ManagedDisks),
-	}
 	driverFlag.Options["agent-vm-size"] = &types.Flag{
 		Type:  types.StringType,
 		Usage: "Size of machine in the agent pool.",
-		Value: string(containerservice.StandardD1V2),
+		Value: string(containerservice.VMSizeTypesStandardD1V2),
+	}
+	driverFlag.Options["load-balancer-sku"] = &types.Flag{
+		Type:  types.StringType,
+		Usage: "The LoadBalancer SKU of the cluster.",
 	}
 	driverFlag.Options["virtual-network-resource-group"] = &types.Flag{
 		Type:  types.StringType,
@@ -429,7 +428,6 @@ func getStateFromOptions(driverOptions *types.DriverOptions) (state, error) {
 	state.AgentMaxPods = options.GetValueFromDriverOptions(driverOptions, types.IntType, "max-pods", "maxPods").(int64)
 	state.AgentName = options.GetValueFromDriverOptions(driverOptions, types.StringType, "agent-pool-name", "agentPoolName").(string)
 	state.AgentOsdiskSizeGB = options.GetValueFromDriverOptions(driverOptions, types.IntType, "agent-osdisk-size", "agentOsdiskSize", "os-disk-size", "osDiskSizeGb").(int64)
-	state.AgentStorageProfile = options.GetValueFromDriverOptions(driverOptions, types.StringType, "agent-storage-profile", "agentStorageProfile").(string)
 	state.AgentVMSize = options.GetValueFromDriverOptions(driverOptions, types.StringType, "agent-vm-size", "agentVmSize").(string)
 	state.VirtualNetworkResourceGroup = options.GetValueFromDriverOptions(driverOptions, types.StringType, "virtual-network-resource-group", "virtualNetworkResourceGroup").(string)
 	state.VirtualNetwork = options.GetValueFromDriverOptions(driverOptions, types.StringType, "virtual-network", "virtualNetwork").(string)
@@ -437,6 +435,7 @@ func getStateFromOptions(driverOptions *types.DriverOptions) (state, error) {
 
 	state.LinuxAdminUsername = options.GetValueFromDriverOptions(driverOptions, types.StringType, "admin-username", "adminUsername").(string)
 	state.LinuxSSHPublicKeyContents = options.GetValueFromDriverOptions(driverOptions, types.StringType, "ssh-public-key-contents", "sshPublicKeyContents", "public-key-contents", "publicKeyContents").(string)
+	state.LoadBalancerSku = options.GetValueFromDriverOptions(driverOptions, types.StringType, "load-balancer-sku", "loadBalancerSku").(string)
 
 	state.NetworkDNSServiceIP = options.GetValueFromDriverOptions(driverOptions, types.StringType, "dns-service-ip", "dnsServiceIp").(string)
 	state.NetworkDockerBridgeCIDR = options.GetValueFromDriverOptions(driverOptions, types.StringType, "docker-bridge-cidr", "dockerBridgeCidr").(string)
@@ -618,6 +617,7 @@ const failedStatus = "Failed"
 const succeededStatus = "Succeeded"
 const creatingStatus = "Creating"
 const updatingStatus = "Updating"
+const upgradingStatus = "Upgrading"
 
 const pollInterval = 30
 
@@ -629,7 +629,7 @@ func (d *Driver) Update(ctx context.Context, info *types.ClusterInfo, options *t
 	return d.createOrUpdate(ctx, options, false)
 }
 
-func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOptions, sendRBAC bool) (*types.ClusterInfo, error) {
+func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOptions, create bool) (*types.ClusterInfo, error) {
 	driverState, err := getStateFromOptions(options)
 	if err != nil {
 		return nil, err
@@ -684,7 +684,7 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 	}
 
 	if !exists {
-		logrus.Infof("resource group %v does not exist, creating", driverState.ResourceGroup)
+		logrus.Infof("[azurekubernetesservice] resource group %v does not exist, creating", driverState.ResourceGroup)
 		err = d.createResourceGroup(ctx, resourceGroupsClient, driverState)
 		if err != nil {
 			return info, err
@@ -735,7 +735,7 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 	}
 
 	var vmNetSubnetID *string
-	var networkProfile *containerservice.NetworkProfile
+	networkProfile := &containerservice.NetworkProfileType{}
 	if driverState.hasCustomVirtualNetwork() {
 		virtualNetworkResourceGroup := driverState.ResourceGroup
 
@@ -752,11 +752,9 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 			driverState.Subnet,
 		))
 
-		networkProfile = &containerservice.NetworkProfile{
-			DNSServiceIP:     to.StringPtr(driverState.NetworkDNSServiceIP),
-			DockerBridgeCidr: to.StringPtr(driverState.NetworkDockerBridgeCIDR),
-			ServiceCidr:      to.StringPtr(driverState.NetworkServiceCIDR),
-		}
+		networkProfile.DNSServiceIP = to.StringPtr(driverState.NetworkDNSServiceIP)
+		networkProfile.DockerBridgeCidr = to.StringPtr(driverState.NetworkDockerBridgeCIDR)
+		networkProfile.ServiceCidr = to.StringPtr(driverState.NetworkServiceCIDR)
 
 		if driverState.NetworkPlugin == "" {
 			networkProfile.NetworkPlugin = containerservice.Azure
@@ -772,6 +770,11 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 		if driverState.NetworkPolicy != "" {
 			networkProfile.NetworkPolicy = containerservice.NetworkPolicy(driverState.NetworkPolicy)
 		}
+	}
+
+	loadBalancerSku := containerservice.LoadBalancerSku(driverState.LoadBalancerSku)
+	if create && containerservice.Standard == loadBalancerSku {
+		networkProfile.LoadBalancerSku = loadBalancerSku
 	}
 
 	var agentPoolProfiles *[]containerservice.ManagedClusterAgentPoolProfile
@@ -795,26 +798,20 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 			osDiskSizeGBPointer = to.Int32Ptr(int32(driverState.AgentOsdiskSizeGB))
 		}
 
-		agentStorageProfile := containerservice.ManagedDisks
-		if driverState.AgentStorageProfile != "" {
-			agentStorageProfile = containerservice.StorageProfileTypes(driverState.AgentStorageProfile)
-		}
-
-		agentVMSize := containerservice.StandardD1V2
+		agentVMSize := containerservice.VMSizeTypesStandardD1V2
 		if driverState.AgentVMSize != "" {
 			agentVMSize = containerservice.VMSizeTypes(driverState.AgentVMSize)
 		}
 
 		agentPoolProfiles = &[]containerservice.ManagedClusterAgentPoolProfile{
 			{
-				Count:          countPointer,
-				MaxPods:        maxPodsPointer,
-				Name:           to.StringPtr(driverState.AgentName),
-				OsDiskSizeGB:   osDiskSizeGBPointer,
-				OsType:         containerservice.Linux,
-				StorageProfile: agentStorageProfile,
-				VMSize:         agentVMSize,
-				VnetSubnetID:   vmNetSubnetID,
+				Count:        countPointer,
+				MaxPods:      maxPodsPointer,
+				Name:         to.StringPtr(driverState.AgentName),
+				OsDiskSizeGB: osDiskSizeGBPointer,
+				OsType:       containerservice.Linux,
+				VMSize:       agentVMSize,
+				VnetSubnetID: vmNetSubnetID,
 			},
 		}
 	}
@@ -851,7 +848,7 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 		},
 	}
 
-	if sendRBAC {
+	if create {
 		managedCluster.ManagedClusterProperties.EnableRBAC = to.BoolPtr(true)
 	}
 
@@ -861,7 +858,7 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 		return info, err
 	}
 
-	logrus.Info("Request submitted, waiting for cluster to finish creating")
+	logrus.Infof("[azurekubernetesservice] Request submitted, waiting for cluster [%s] to finish creating", driverState.Name)
 
 	failedCount := 0
 
@@ -880,24 +877,24 @@ func (d *Driver) createOrUpdate(ctx context.Context, options *types.DriverOption
 			}
 
 			failedCount = failedCount + 1
-			logrus.Infof("cluster marked as failed but waiting for recovery: retries left %v", 3-failedCount)
+			logrus.Infof("[azurekubernetesservice] cluster [%s] marked as failed but waiting for recovery: retries left %v", driverState.Name, 3-failedCount)
 			time.Sleep(pollInterval * time.Second)
 		}
 
 		if state == succeededStatus {
-			logrus.Info("Cluster provisioned successfully")
+			logrus.Infof("[azurekubernetesservice] Cluster [%s] provisioned successfully", driverState.Name)
 			info := &types.ClusterInfo{}
 			err := storeState(info, driverState)
 
 			return info, err
 		}
 
-		if state != creatingStatus && state != updatingStatus {
+		if state != creatingStatus && state != updatingStatus && state != upgradingStatus {
 			logrus.Errorf("Azure failed to provision cluster with state: %v", state)
 			return info, fmt.Errorf("failed to provision Azure cluster")
 		}
 
-		logrus.Infof("Cluster has not yet completed provisioning, waiting another %v seconds", pollInterval)
+		logrus.Infof("[azurekubernetesservice] Cluster [%s] has not yet completed provisioning, waiting another %v seconds", driverState.Name, pollInterval)
 
 		time.Sleep(pollInterval * time.Second)
 	}
@@ -1023,7 +1020,7 @@ func (d *Driver) ensureLogAnalyticsWorkspaceForMonitoring(ctx context.Context, c
 		return *gotRet.ID, nil
 	}
 
-	logrus.Infof("Create Azure Log Analytics Workspace %q on Resource Group %q", workspaceName, workspaceResourceGroup)
+	logrus.Infof("[azurekubernetesservice] Create Azure Log Analytics Workspace %q on Resource Group %q", workspaceName, workspaceResourceGroup)
 
 	asyncRet, asyncErr := client.CreateOrUpdate(ctx, workspaceResourceGroup, workspaceName, operationalinsights.Workspace{
 		Location: to.StringPtr(workspaceRegion),
@@ -1253,7 +1250,7 @@ type UserInfo struct {
 const retries = 5
 
 func (d *Driver) PostCheck(ctx context.Context, info *types.ClusterInfo) (*types.ClusterInfo, error) {
-	logrus.Info("starting post-check")
+	logrus.Info("[azurekubernetesservice] starting post-check")
 
 	clientset, err := getClientset(info)
 	if err != nil {
@@ -1266,11 +1263,11 @@ func (d *Driver) PostCheck(ctx context.Context, info *types.ClusterInfo) (*types
 		info.ServiceAccountToken, err = util.GenerateServiceAccountToken(clientset)
 
 		if err == nil {
-			logrus.Info("service account token generated successfully")
+			logrus.Info("[azurekubernetesservice] service account token generated successfully")
 			break
 		} else {
 			if failureCount < retries {
-				logrus.Infof("service account token generation failed, retries left: %v", retries-failureCount)
+				logrus.Infof("[azurekubernetesservice] service account token generation failed, retries left: %v", retries-failureCount)
 				failureCount = failureCount + 1
 
 				time.Sleep(pollInterval * time.Second)
@@ -1281,7 +1278,7 @@ func (d *Driver) PostCheck(ctx context.Context, info *types.ClusterInfo) (*types
 		}
 	}
 
-	logrus.Info("post-check completed successfully")
+	logrus.Info("[azurekubernetesservice] post-check completed successfully")
 
 	return info, nil
 }
@@ -1378,7 +1375,7 @@ func (d *Driver) Remove(ctx context.Context, info *types.ClusterInfo) error {
 		return err
 	}
 
-	logrus.Infof("Cluster %v removed successfully", state.Name)
+	logrus.Infof("[azurekubernetesservice] Cluster [%v] removed successfully", state.Name)
 
 	return nil
 }

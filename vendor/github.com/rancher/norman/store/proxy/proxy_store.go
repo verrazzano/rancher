@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/rest"
 	restclientwatch "k8s.io/client-go/rest/watch"
+	"k8s.io/utils/trace"
 )
 
 var (
@@ -134,7 +135,7 @@ func (s *Store) doAuthed(apiContext *types.APIContext, request *rest.Request) re
 	for _, header := range authHeaders {
 		request.SetHeader(header, apiContext.Request.Header[http.CanonicalHeaderKey(header)]...)
 	}
-	return request.Do()
+	return request.Do(apiContext.Request.Context())
 }
 
 func (s *Store) k8sClient(apiContext *types.APIContext) (rest.Interface, error) {
@@ -195,6 +196,8 @@ func (s *Store) Context() types.StorageContext {
 func (s *Store) List(apiContext *types.APIContext, schema *types.Schema, opt *types.QueryOptions) ([]map[string]interface{}, error) {
 	var resultList unstructured.UnstructuredList
 
+	listTrace := trace.New("Proxy Store List", trace.Field{Key: "resource", Value: s.resourcePlural})
+	defer listTrace.LogIfLong(10 * time.Second)
 	// if there are no namespaces field in options, a single request is made
 	if opt == nil || opt.Namespaces == nil {
 		ns := getNamespace(apiContext, opt)
@@ -230,13 +233,24 @@ func (s *Store) List(apiContext *types.APIContext, schema *types.Schema, opt *ty
 		}
 	}
 
+	listTrace.Step("Completed List", trace.Field{Key: "list-len", Value: len(resultList.Items)})
+
 	var result []map[string]interface{}
 
 	for _, obj := range resultList.Items {
 		result = append(result, s.fromInternal(apiContext, schema, obj.Object))
 	}
 
-	return apiContext.AccessControl.FilterList(apiContext, schema, result, s.authContext), nil
+	listTrace.Step("Completed fromInternal")
+
+	filtered := apiContext.AccessControl.FilterList(apiContext, schema, result, s.authContext)
+
+	listTrace.Step("Completed FilterList")
+
+	if logrus.IsLevelEnabled(logrus.TraceLevel) {
+		listTrace.Log()
+	}
+	return filtered, nil
 }
 
 func (s *Store) retryList(namespace string, apiContext *types.APIContext) (*unstructured.UnstructuredList, error) {
@@ -250,7 +264,7 @@ func (s *Store) retryList(namespace string, apiContext *types.APIContext) (*unst
 		req := s.common(namespace, k8sClient.Get())
 		start := time.Now()
 		resultList = &unstructured.UnstructuredList{}
-		err = req.Do().Into(resultList)
+		err = req.Do(apiContext.Request.Context()).Into(resultList)
 		logrus.Tracef("LIST: %v, %v", time.Now().Sub(start), s.resourcePlural)
 		if err != nil {
 			if i < 2 && strings.Contains(err.Error(), "Client.Timeout exceeded") {
@@ -296,7 +310,7 @@ func (s *Store) realWatch(apiContext *types.APIContext, schema *types.Schema, op
 		ResourceVersion: "0",
 	}, metav1.ParameterCodec)
 
-	body, err := req.Stream()
+	body, err := req.Stream(s.close)
 	if err != nil {
 		return nil, err
 	}
@@ -305,7 +319,7 @@ func (s *Store) realWatch(apiContext *types.APIContext, schema *types.Schema, op
 	decoder := streaming.NewDecoder(framer, &unstructuredDecoder{})
 	watcher := watch.NewStreamWatcher(restclientwatch.NewDecoder(decoder, &unstructuredDecoder{}), &errorReporter{})
 
-	watchingContext, cancelWatchingContext := context.WithCancel(apiContext.Request.Context())
+	watchingContext, cancelWatchingContext := context.WithCancel(s.close)
 	go func() {
 		<-watchingContext.Done()
 		logrus.Tracef("stopping watcher for %s", schema.ID)

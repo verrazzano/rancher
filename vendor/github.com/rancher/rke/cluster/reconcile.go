@@ -80,7 +80,7 @@ func reconcileWorker(ctx context.Context, currentCluster, kubeCluster *Cluster, 
 			return fmt.Errorf("Failed to delete worker node [%s] from cluster: %v", toDeleteHost.Address, err)
 		}
 		// attempting to clean services/files on the host
-		if err := reconcileHost(ctx, toDeleteHost, true, false, currentCluster.SystemImages.Alpine, currentCluster.DockerDialerFactory, currentCluster.PrivateRegistriesMap, currentCluster.PrefixPath, currentCluster.Version); err != nil {
+		if err := reconcileHost(ctx, toDeleteHost, true, false, currentCluster); err != nil {
 			log.Warnf(ctx, "[reconcile] Couldn't clean up worker node [%s]: %v", toDeleteHost.Address, err)
 			continue
 		}
@@ -133,12 +133,12 @@ func reconcileControl(ctx context.Context, currentCluster, kubeCluster *Cluster,
 	return nil
 }
 
-func reconcileHost(ctx context.Context, toDeleteHost *hosts.Host, worker, etcd bool, cleanerImage string, dialerFactory hosts.DialerFactory, prsMap map[string]v3.PrivateRegistry, clusterPrefixPath string, clusterVersion string) error {
+func reconcileHost(ctx context.Context, toDeleteHost *hosts.Host, worker, etcd bool, cluster *Cluster) error {
 	var retryErr error
 	retries := 3
 	sleepSeconds := 3
 	for i := 0; i < retries; i++ {
-		if retryErr = toDeleteHost.TunnelUp(ctx, dialerFactory, clusterPrefixPath, clusterVersion); retryErr != nil {
+		if retryErr = toDeleteHost.TunnelUp(ctx, cluster.DockerDialerFactory, cluster.getPrefixPath(toDeleteHost.OS()), cluster.Version); retryErr != nil {
 			logrus.Debugf("Failed to dial the host %s trying again in %d seconds", toDeleteHost.Address, sleepSeconds)
 			time.Sleep(time.Second * time.Duration(sleepSeconds))
 			toDeleteHost.DClient = nil
@@ -153,21 +153,21 @@ func reconcileHost(ctx context.Context, toDeleteHost *hosts.Host, worker, etcd b
 		if err := services.RemoveWorkerPlane(ctx, []*hosts.Host{toDeleteHost}, false); err != nil {
 			return fmt.Errorf("Couldn't remove worker plane: %v", err)
 		}
-		if err := toDeleteHost.CleanUpWorkerHost(ctx, cleanerImage, prsMap); err != nil {
+		if err := toDeleteHost.CleanUpWorkerHost(ctx, cluster.SystemImages.Alpine, cluster.PrivateRegistriesMap); err != nil {
 			return fmt.Errorf("Not able to clean the host: %v", err)
 		}
 	} else if etcd {
 		if err := services.RemoveEtcdPlane(ctx, []*hosts.Host{toDeleteHost}, false); err != nil {
 			return fmt.Errorf("Couldn't remove etcd plane: %v", err)
 		}
-		if err := toDeleteHost.CleanUpEtcdHost(ctx, cleanerImage, prsMap); err != nil {
+		if err := toDeleteHost.CleanUpEtcdHost(ctx, cluster.SystemImages.Alpine, cluster.PrivateRegistriesMap); err != nil {
 			return fmt.Errorf("Not able to clean the host: %v", err)
 		}
 	} else {
 		if err := services.RemoveControlPlane(ctx, []*hosts.Host{toDeleteHost}, false); err != nil {
 			return fmt.Errorf("Couldn't remove control plane: %v", err)
 		}
-		if err := toDeleteHost.CleanUpControlHost(ctx, cleanerImage, prsMap); err != nil {
+		if err := toDeleteHost.CleanUpControlHost(ctx, cluster.SystemImages.Alpine, cluster.PrivateRegistriesMap); err != nil {
 			return fmt.Errorf("Not able to clean the host: %v", err)
 		}
 	}
@@ -194,7 +194,7 @@ func reconcileEtcd(ctx context.Context, currentCluster, kubeCluster *Cluster, ku
 		}
 	}
 	// handle etcd member delete
-	if err := deleteEtcdMembers(ctx, currentCluster, kubeCluster, kubeClient, clientCert, clientKey, etcdToDelete); err != nil {
+	if err := deleteEtcdMembers(ctx, currentCluster, kubeCluster, kubeClient, svcOptionData, clientCert, clientKey, etcdToDelete); err != nil {
 		return err
 	}
 	// handle etcd member add
@@ -227,7 +227,7 @@ func addEtcdMembers(ctx context.Context, currentCluster, kubeCluster *Cluster, k
 			if err != nil {
 				return err
 			}
-			etcdNodePlanMap[etcdReadyHost.Address] = BuildRKEConfigNodePlan(ctx, kubeCluster, etcdReadyHost, etcdReadyHost.DockerInfo, svcOptions)
+			etcdNodePlanMap[etcdReadyHost.Address] = BuildRKEConfigNodePlan(ctx, kubeCluster, etcdReadyHost, svcOptions)
 		}
 		// this will start the newly added etcd node and make sure it started correctly before restarting other node
 		// https://github.com/etcd-io/etcd/blob/master/Documentation/op-guide/runtime-configuration.md#add-a-new-member
@@ -238,11 +238,20 @@ func addEtcdMembers(ctx context.Context, currentCluster, kubeCluster *Cluster, k
 	return nil
 }
 
-func deleteEtcdMembers(ctx context.Context, currentCluster, kubeCluster *Cluster, kubeClient *kubernetes.Clientset, clientCert, clientKey []byte, etcdToDelete []*hosts.Host) error {
+func deleteEtcdMembers(ctx context.Context, currentCluster, kubeCluster *Cluster, kubeClient *kubernetes.Clientset, svcOptionData map[string]*v3.KubernetesServicesOptions, clientCert, clientKey []byte, etcdToDelete []*hosts.Host) error {
 	log.Infof(ctx, "[reconcile] Check etcd hosts to be deleted")
+	etcdNodePlanMap := make(map[string]v3.RKEConfigNodePlan)
+	for _, etcdMapHost := range kubeCluster.EtcdHosts {
+		svcOptions, err := kubeCluster.GetKubernetesServicesOptions(etcdMapHost.DockerInfo.OSType, svcOptionData)
+		if err != nil {
+			return err
+		}
+		etcdNodePlanMap[etcdMapHost.Address] = BuildRKEConfigNodePlan(ctx, kubeCluster, etcdMapHost, svcOptions)
+	}
+
 	for _, etcdHost := range etcdToDelete {
 		etcdHost.IsEtcd = false
-		if err := services.RemoveEtcdMember(ctx, etcdHost, kubeCluster.EtcdHosts, currentCluster.LocalConnDialerFactory, clientCert, clientKey); err != nil {
+		if err := services.RemoveEtcdMember(ctx, etcdHost, kubeCluster.EtcdHosts, currentCluster.LocalConnDialerFactory, clientCert, clientKey, etcdNodePlanMap); err != nil {
 			log.Warnf(ctx, "[reconcile] %v", err)
 			continue
 		}
@@ -251,7 +260,7 @@ func deleteEtcdMembers(ctx context.Context, currentCluster, kubeCluster *Cluster
 			continue
 		}
 		// attempting to clean services/files on the host
-		if err := reconcileHost(ctx, etcdHost, false, true, currentCluster.SystemImages.Alpine, currentCluster.DockerDialerFactory, currentCluster.PrivateRegistriesMap, currentCluster.PrefixPath, currentCluster.Version); err != nil {
+		if err := reconcileHost(ctx, etcdHost, false, true, currentCluster); err != nil {
 			log.Warnf(ctx, "[reconcile] Couldn't clean up etcd node [%s]: %v", etcdHost.Address, err)
 			continue
 		}
@@ -314,7 +323,7 @@ func cleanControlNode(ctx context.Context, kubeCluster, currentCluster *Cluster,
 		}
 	}
 	// attempting to clean services/files on the host
-	if err := reconcileHost(ctx, toDeleteHost, false, false, currentCluster.SystemImages.Alpine, currentCluster.DockerDialerFactory, currentCluster.PrivateRegistriesMap, currentCluster.PrefixPath, currentCluster.Version); err != nil {
+	if err := reconcileHost(ctx, toDeleteHost, false, false, currentCluster); err != nil {
 		log.Warnf(ctx, "[reconcile] Couldn't clean up controlplane node [%s]: %v", toDeleteHost.Address, err)
 	}
 	return nil

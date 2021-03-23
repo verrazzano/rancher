@@ -54,6 +54,7 @@ const (
 	DefaultMonitoringProvider            = "metrics-server"
 	DefaultEtcdBackupConfigIntervalHours = 12
 	DefaultEtcdBackupConfigRetention     = 6
+	DefaultEtcdBackupConfigTimeout       = docker.WaitTimeout
 
 	DefaultDNSProvider = "kube-dns"
 	K8sVersionCoreDNS  = "1.14.0"
@@ -89,10 +90,13 @@ const (
 	DefaultMaxUnavailableControlplane = "1"
 	DefaultNodeDrainTimeout           = 120
 	DefaultNodeDrainGracePeriod       = -1
-	DefaultNodeDrainIgnoreDaemonsets  = true
+	DefaultHTTPPort                   = 80
+	DefaultHTTPSPort                  = 443
+	DefaultNetworkMode                = "hostNetwork"
 )
 
 var (
+	DefaultNodeDrainIgnoreDaemonsets      = true
 	DefaultDaemonSetMaxUnavailable        = intstr.FromInt(1)
 	DefaultDeploymentUpdateStrategyParams = intstr.FromString("25%")
 	DefaultDaemonSetUpdateStrategy        = v3.DaemonSetUpdateStrategy{
@@ -120,6 +124,7 @@ type ExternalFlags struct {
 	GenerateCSR      bool
 	Local            bool
 	UpdateOnly       bool
+	UseLocalState    bool
 }
 
 func setDefaultIfEmptyMapValue(configMap map[string]string, key string, value string) {
@@ -242,7 +247,7 @@ func (c *Cluster) setNodeUpgradeStrategy() {
 	}
 	if c.UpgradeStrategy.DrainInput == nil {
 		c.UpgradeStrategy.DrainInput = &v3.NodeDrainInput{
-			IgnoreDaemonSets: DefaultNodeDrainIgnoreDaemonsets,
+			IgnoreDaemonSets: &DefaultNodeDrainIgnoreDaemonsets,
 			// default to 120 seems to work better for controlplane nodes
 			Timeout: DefaultNodeDrainTimeout,
 			//Period of time in seconds given to each pod to terminate gracefully.
@@ -300,6 +305,9 @@ func (c *Cluster) setClusterServicesDefaults() {
 		}
 		if c.Services.Etcd.BackupConfig.Retention == 0 {
 			c.Services.Etcd.BackupConfig.Retention = DefaultEtcdBackupConfigRetention
+		}
+		if c.Services.Etcd.BackupConfig.Timeout == 0 {
+			c.Services.Etcd.BackupConfig.Timeout = DefaultEtcdBackupConfigTimeout
 		}
 	}
 
@@ -606,13 +614,14 @@ func (c *Cluster) setCloudProvider() error {
 	return nil
 }
 
-func GetExternalFlags(local, updateOnly, disablePortCheck bool, configDir, clusterFilePath string) ExternalFlags {
+func GetExternalFlags(local, updateOnly, disablePortCheck, useLocalState bool, configDir, clusterFilePath string) ExternalFlags {
 	return ExternalFlags{
 		Local:            local,
 		UpdateOnly:       updateOnly,
 		DisablePortCheck: disablePortCheck,
 		ConfigDir:        configDir,
 		ClusterFilePath:  clusterFilePath,
+		UseLocalState:    useLocalState,
 	}
 }
 
@@ -627,6 +636,19 @@ func (c *Cluster) setAddonsDefaults() {
 	if c.Monitoring.Replicas == nil {
 		c.Monitoring.Replicas = &DefaultMonitoringAddonReplicas
 	}
+
+	if c.Ingress.NetworkMode == "" {
+		c.Ingress.NetworkMode = DefaultNetworkMode
+	}
+
+	if c.Ingress.HTTPPort == 0 {
+		c.Ingress.HTTPPort = DefaultHTTPPort
+	}
+
+	if c.Ingress.HTTPSPort == 0 {
+		c.Ingress.HTTPSPort = DefaultHTTPSPort
+	}
+
 }
 
 func setDaemonsetAddonDefaults(updateStrategy *v3.DaemonSetUpdateStrategy) *v3.DaemonSetUpdateStrategy {

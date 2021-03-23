@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+
 	"github.com/pkg/errors"
 	v3 "github.com/rancher/types/apis/management.cattle.io/v3"
 	"github.com/rancher/types/config"
@@ -115,6 +117,7 @@ func addRoles(management *config.ManagementContext) (string, error) {
 	// Cluster roles
 	rb.addRoleTemplate("Cluster Owner", "cluster-owner", "cluster", false, false, true).
 		addRule().apiGroups("*").resources("*").verbs("*").
+		addRule().apiGroups("management.cattle.io").resources("clusters").verbs("own").
 		addRule().apiGroups().nonResourceURLs("*").verbs("*")
 
 	rb.addRoleTemplate("Cluster Member", "cluster-member", "cluster", false, false, false).
@@ -212,6 +215,7 @@ func addRoles(management *config.ManagementContext) (string, error) {
 		addRule().apiGroups("authentication.istio.io").resources("policies").verbs("*").
 		addRule().apiGroups("rbac.istio.io").resources("rbacconfigs", "serviceroles", "servicerolebindings").verbs("*").
 		addRule().apiGroups("security.istio.io").resources("authorizationpolicies").verbs("*").
+		addRule().apiGroups("management.cattle.io").resources("projects").verbs("own").
 		setRoleTemplateNames("admin")
 
 	rb.addRoleTemplate("Project Member", "project-member", "project", false, false, false).
@@ -389,7 +393,7 @@ func bootstrapAdmin(management *config.ManagementContext) (string, error) {
 		adminName = admins.Items[0].Name
 	}
 
-	if _, err := management.K8sClient.CoreV1().ConfigMaps(cattleNamespace).Get(bootstrapAdminConfig, v1.GetOptions{}); err != nil {
+	if _, err := management.K8sClient.CoreV1().ConfigMaps(cattleNamespace).Get(context.TODO(), bootstrapAdminConfig, v1.GetOptions{}); err != nil {
 		if !apierrors.IsNotFound(err) {
 			logrus.Warnf("Unable to determine if admin user already created: %v", err)
 			return "", nil
@@ -451,7 +455,7 @@ func bootstrapAdmin(management *config.ManagementContext) (string, error) {
 		},
 	}
 
-	_, err = management.K8sClient.CoreV1().ConfigMaps(cattleNamespace).Create(&adminConfigMap)
+	_, err = management.K8sClient.CoreV1().ConfigMaps(cattleNamespace).Create(context.TODO(), &adminConfigMap, v1.CreateOptions{})
 	if err != nil {
 		if !apierrors.IsAlreadyExists(err) {
 			logrus.Warnf("Error creating admin config map: %v", err)

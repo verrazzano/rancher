@@ -31,7 +31,7 @@ import (
 	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -41,68 +41,125 @@ const (
 )
 
 var amiForRegionAndVersion = map[string]map[string]string{
-	"1.15": map[string]string{
-		"us-east-2":      "ami-0da2b71057dfd9557",
-		"us-east-1":      "ami-0dc7713312a7ec987",
-		"us-west-2":      "ami-0e710550577202c55",
-		"ap-east-1":      "ami-00649306f8926416e",
-		"ap-south-1":     "ami-04655e6da8951ba94",
-		"ap-northeast-1": "ami-0a1fe8c2cd382c5ec",
-		"ap-northeast-2": "ami-03ffb5acc344c1163",
-		"ap-southeast-1": "ami-088e05a9da0f9443c",
-		"ap-southeast-2": "ami-03f56833860168a9c",
-		"ca-central-1":   "ami-0e540959ff231faf7",
-		"eu-central-1":   "ami-010f558f32c219ed7",
-		"eu-west-1":      "ami-01405dd0b035082f4",
-		"eu-west-2":      "ami-0603ab80fed1ae251",
-		"eu-west-3":      "ami-034e51e2c162589c1",
-		"eu-north-1":     "ami-05c92845df930f61e",
-		"me-south-1":     "ami-0e0fa92ee748fc593",
-		"sa-east-1":      "ami-02dfdb540a8de052a",
-		"cn-north-1":     "ami-05b179a26f95a62db",
-		"cn-northwest-1": "ami-039044adc28bd70e9",
+	"1.18": {
+		"af-south-1":     "ami-0dcfa2d757494da7c",
+		"eu-north-1":     "ami-0a674c329567c6456",
+		"ap-south-1":     "ami-0b53169adb5906e18",
+		"eu-west-3":      "ami-02444825d174fbd7b",
+		"eu-west-2":      "ami-062c2b6eee26e5603",
+		"eu-south-1":     "ami-0d236a46607b78f5e",
+		"eu-west-1":      "ami-0ca9e57915fd7e017",
+		"ap-northeast-2": "ami-09b14b49f6e5be4a1",
+		"me-south-1":     "ami-058f6a482ed37d011",
+		"ap-northeast-1": "ami-0e9f5606a6d10ffb1",
+		"sa-east-1":      "ami-0bfae48e8718fde5f",
+		"ca-central-1":   "ami-0becc01e0dd0dd238",
+		"ap-east-1":      "ami-0824aac4c54c763d3",
+		"ap-southeast-1": "ami-0042bc79e92fb3c8a",
+		"ap-southeast-2": "ami-0dadf836fc8220165",
+		"eu-central-1":   "ami-045e4ecd708ac12ba",
+		"us-east-1":      "ami-0fae38e27c6113140",
+		"us-east-2":      "ami-0dc6bc43da1b962d8",
+		"us-west-1":      "ami-002e04ca6d86d255e",
+		"us-west-2":      "ami-04f0f3d381d07e0b6",
+		"cn-north-1":     "ami-05f4602d53296019a",
+		"cn-northwest-1": "ami-0fd4593eac92f686f",
 	},
-	"1.14": map[string]string{
-		"us-east-2":      "ami-020a35f771eac7c58",
-		"us-east-1":      "ami-0d373fa5015bc43be",
-		"us-west-2":      "ami-0cd99c894d101fe9b",
-		"ap-east-1":      "ami-08c176ca7ce87ff08",
-		"ap-south-1":     "ami-0ce7ac18a662f8a8f",
-		"ap-northeast-1": "ami-094212029d0e30f1e",
-		"ap-northeast-2": "ami-036c8013bc6bd6051",
-		"ap-southeast-1": "ami-0ee513e646a4c80ad",
-		"ap-southeast-2": "ami-09faeb84db2d6bf65",
-		"ca-central-1":   "ami-01c010bfa33435bf4",
-		"eu-central-1":   "ami-064fd5681ed51a08c",
-		"eu-west-1":      "ami-01792b82b6c726feb",
-		"eu-west-2":      "ami-0629ecddd4398f0cf",
-		"eu-west-3":      "ami-0364d13003881da58",
-		"eu-north-1":     "ami-0d40170cbe0b51e62",
-		"me-south-1":     "ami-02bc0950bbb9dab0c",
-		"sa-east-1":      "ami-07148f3511562b4eb",
+	"1.17": {
+		"af-south-1":     "ami-00e923e1e72dd6127",
+		"eu-north-1":     "ami-067bfa3d76de7a6b7",
+		"ap-south-1":     "ami-0cd8562db082e8c1a",
+		"eu-west-3":      "ami-0c1f4efd77302f897",
+		"eu-west-2":      "ami-08c210420094a901b",
+		"eu-south-1":     "ami-03c6f34023cdadbfe",
+		"eu-west-1":      "ami-0c504dda1302b182f",
+		"ap-northeast-2": "ami-025592e84db381916",
+		"me-south-1":     "ami-01b2fefee93216e1a",
+		"ap-northeast-1": "ami-0aa15614ef924fd1e",
+		"sa-east-1":      "ami-040a741cd6e254cad",
+		"ca-central-1":   "ami-032321703c4a51e39",
+		"ap-east-1":      "ami-068cd0572b507ae91",
+		"ap-southeast-1": "ami-084ea7596600d9844",
+		"ap-southeast-2": "ami-056a5f106add4d37a",
+		"eu-central-1":   "ami-06cfd5b2a2d58e09a",
+		"us-east-1":      "ami-07250434f8a7bc5f1",
+		"us-east-2":      "ami-0135903686f192ffe",
+		"us-west-1":      "ami-05bfd72ad17ebedb8",
+		"us-west-2":      "ami-0c62450bce8f4f57f",
+		"cn-north-1":     "ami-05f4602d53296019a",
+		"cn-northwest-1": "ami-0fd4593eac92f686f",
+	},
+	"1.16": {
+		"af-south-1":     "ami-004caadd8fd18aee6",
+		"eu-north-1":     "ami-0b483af7cd3079758",
+		"ap-south-1":     "ami-0c37aec140141b5fa",
+		"eu-west-3":      "ami-0d1badbc7843bf2eb",
+		"eu-west-2":      "ami-0afeda8fcb3e79571",
+		"eu-south-1":     "ami-0cfe17838ad3a6710",
+		"eu-west-1":      "ami-0313d49570831d7f4",
+		"ap-northeast-2": "ami-024c291fb23ec5253",
+		"me-south-1":     "ami-06c259406da782e50",
+		"ap-northeast-1": "ami-0e75cf37211a7b9c1",
+		"sa-east-1":      "ami-073549ba2423737e4",
+		"ca-central-1":   "ami-0215927206ce98fed",
+		"ap-east-1":      "ami-0bf06ed6ab00bdc8b",
+		"ap-southeast-1": "ami-071bba9de77f5666a",
+		"ap-southeast-2": "ami-02fdbc9449e2edac5",
+		"eu-central-1":   "ami-0951ecbcce367c97b",
+		"us-east-1":      "ami-0b0dffffb5ba92f97",
+		"us-east-2":      "ami-0f8d6052f6e3a19d2",
+		"us-west-1":      "ami-009a9a6ad7a1670c6",
+		"us-west-2":      "ami-04445f1c3b2132901",
+		"cn-north-1":     "ami-0d8224847193197f7",
+		"cn-northwest-1": "ami-0664d08e603e6e72e",
+	},
+	"1.15": {
+		"af-south-1":     "ami-04072d5b282afb06b",
+		"eu-north-1":     "ami-0b88d4ed6217a3018",
+		"ap-south-1":     "ami-0d93857f3c351a307",
+		"eu-west-3":      "ami-01c1194e8e2743a0b",
+		"eu-west-2":      "ami-0af730da10ac8b0b7",
+		"eu-south-1":     "ami-0e1ac6e3bac59db7a",
+		"eu-west-1":      "ami-0e454bb2832574b25",
+		"ap-northeast-2": "ami-03de2b93e19fc1e32",
+		"me-south-1":     "ami-07ba1047a42f3ff55",
+		"ap-northeast-1": "ami-0fad58b4886213487",
+		"sa-east-1":      "ami-0fae027dad99aaefa",
+		"ca-central-1":   "ami-04957e41a52bfc38f",
+		"ap-east-1":      "ami-05581693aaba1f770",
+		"ap-southeast-1": "ami-0aaecfe8a45d922dd",
+		"ap-southeast-2": "ami-086f3dbe335a7bc71",
+		"eu-central-1":   "ami-010266493fc743a3d",
+		"us-east-1":      "ami-0ef76ba092ce4e253",
+		"us-east-2":      "ami-0eda59dcbd424485d",
+		"us-west-1":      "ami-0a8d9b717b89fdd17",
+		"us-west-2":      "ami-0d552892d1327b499",
+		"cn-north-1":     "ami-08a0b75e41967d789",
+		"cn-northwest-1": "ami-02112f277d6eb2c4c",
+	},
+	"1.14": {
+		"af-south-1":     "ami-016b65c518c4d3419",
+		"eu-north-1":     "ami-059855484758944d6",
+		"ap-south-1":     "ami-0c16646c85f24652d",
+		"eu-west-3":      "ami-0cac45c390722111a",
+		"eu-west-2":      "ami-02832b3dffa1f8432",
+		"eu-south-1":     "ami-08f6162a9cfbb1e0c",
+		"eu-west-1":      "ami-0f5a80cfb11fbda5b",
+		"ap-northeast-2": "ami-08449bd0854b50a4a",
+		"me-south-1":     "ami-0adacffc1cb1840cd",
+		"ap-northeast-1": "ami-0c04b46d5b7c69191",
+		"sa-east-1":      "ami-038f4c5db2d62203f",
+		"ca-central-1":   "ami-048c87a0c93e3bd79",
+		"ap-east-1":      "ami-03e902f04ba30efb5",
+		"ap-southeast-1": "ami-0cb794a6e40561558",
+		"ap-southeast-2": "ami-087315adc4086bcef",
+		"eu-central-1":   "ami-0e941b21b7ccd9fff",
+		"us-east-1":      "ami-0fc7c80d4d288ab2c",
+		"us-east-2":      "ami-08984d8491de17ca0",
+		"us-west-1":      "ami-0e796ccc93168da3a",
+		"us-west-2":      "ami-0f8fb024d10446ce1",
 		"cn-north-1":     "ami-0e4cb8067782b693a",
 		"cn-northwest-1": "ami-047594a1f70bab3e2",
-	},
-	"1.13": map[string]string{
-		"us-east-2":      "ami-01505c630227fa3f8",
-		"us-east-1":      "ami-0795ae6584e7f8070",
-		"us-west-2":      "ami-04e247c4613de71fa",
-		"ap-east-1":      "ami-061c919d6ecc3fdb4",
-		"ap-south-1":     "ami-0b667ccbbae9214e3",
-		"ap-northeast-2": "ami-053959c7a4a9cb654",
-		"ap-southeast-1": "ami-0baa81231c278c1ac",
-		"ap-southeast-2": "ami-091a252b3e9cabcc2",
-		"ap-northeast-1": "ami-01fd7f32ab8a9e032",
-		"ca-central-1":   "ami-0808a5ff743eb2806",
-		"eu-central-1":   "ami-0a9ad7a4ae50e8e77",
-		"eu-west-1":      "ami-08684dce117829aa8",
-		"eu-west-2":      "ami-07bf4afe6ca486eeb",
-		"eu-west-3":      "ami-095de5b6bd8b1acf0",
-		"eu-north-1":     "ami-0b9403c917e4f92b5",
-		"me-south-1":     "ami-02ec1b153ae90c2c3",
-		"sa-east-1":      "ami-035e63ad35c591df8",
-		"cn-north-1":     "ami-06afea3bd7ff238c0",
-		"cn-northwest-1": "ami-01900c85f05f1f2b3",
 	},
 }
 
@@ -515,7 +572,7 @@ func toStringLiteralSlice(strings []*string) []string {
 }
 
 func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *types.ClusterInfo) (*types.ClusterInfo, error) {
-	logrus.Infof("Starting create")
+	logrus.Infof("[amazonelasticcontainerservice] Starting create")
 
 	state, err := getStateFromOptions(options)
 	if err != nil {
@@ -547,7 +604,7 @@ func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *ty
 	var subnetIds []*string
 	var securityGroups []*string
 	if state.VirtualNetwork == "" {
-		logrus.Infof("Bringing up vpc")
+		logrus.Infof("[amazonelasticcontainerservice] Bringing up vpc")
 
 		stack, err := d.createStack(svc, getVPCStackName(state.DisplayName), displayName, vpcTemplate, []string{},
 			[]*cloudformation.Parameter{})
@@ -578,7 +635,7 @@ func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *ty
 			}
 		}
 	} else {
-		logrus.Infof("VPC info provided, skipping create")
+		logrus.Infof("[amazonelasticcontainerservice] VPC info provided, skipping create")
 
 		vpcid = state.VirtualNetwork
 		subnetIds = toStringPointerSlice(state.Subnets)
@@ -587,7 +644,7 @@ func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *ty
 
 	var roleARN string
 	if state.ServiceRole == "" {
-		logrus.Infof("Creating service role")
+		logrus.Infof("[amazonelasticcontainerservice] Creating service role")
 
 		stack, err := d.createStack(svc, getServiceRoleName(state.DisplayName), displayName, serviceRoleTemplate,
 			[]string{cloudformation.CapabilityCapabilityIam}, nil)
@@ -600,7 +657,7 @@ func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *ty
 			return info, fmt.Errorf("no RoleARN was returned")
 		}
 	} else {
-		logrus.Infof("Retrieving existing service role")
+		logrus.Infof("[amazonelasticcontainerservice] Retrieving existing service role")
 		iamClient := iam.New(sess, aws.NewConfig().WithRegion(state.Region))
 		role, err := iamClient.GetRole(&iam.GetRoleInput{
 			RoleName: aws.String(state.ServiceRole),
@@ -612,7 +669,7 @@ func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *ty
 		roleARN = *role.Role.Arn
 	}
 
-	logrus.Infof("Creating EKS cluster")
+	logrus.Infof("[amazonelasticcontainerservice] Creating EKS cluster")
 
 	eksService := eks.New(sess)
 	_, err = eksService.CreateCluster(&eks.CreateClusterInput{
@@ -633,7 +690,7 @@ func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *ty
 		return info, err
 	}
 
-	logrus.Infof("Cluster provisioned successfully")
+	logrus.Infof("[amazonelasticcontainerservice] Cluster [%s] provisioned successfully", state.ClusterName)
 
 	capem, err := base64.StdEncoding.DecodeString(*cluster.Cluster.CertificateAuthority.Data)
 	if err != nil {
@@ -659,7 +716,7 @@ func (d *Driver) Create(ctx context.Context, options *types.DriverOptions, _ *ty
 		return info, fmt.Errorf("error creating key pair %v", err)
 	}
 
-	logrus.Infof("Creating worker nodes")
+	logrus.Infof("[amazonelasticcontainerservice] Creating worker nodes")
 
 	var amiID string
 	if state.AMI != "" {
@@ -786,21 +843,21 @@ func (d *Driver) createConfigMap(state state, endpoint string, capem []byte, nod
 		return fmt.Errorf("error marshalling map roles: %v", err)
 	}
 
-	logrus.Infof("Applying ConfigMap")
+	logrus.Infof("[amazonelasticcontainerservice] Applying ConfigMap")
 
-	_, err = clientset.CoreV1().ConfigMaps("kube-system").Create(&v1.ConfigMap{
-		TypeMeta: v12.TypeMeta{
+	_, err = clientset.CoreV1().ConfigMaps("kube-system").Create(context.TODO(), &v1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
 			APIVersion: "v1",
 		},
-		ObjectMeta: v12.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:      "aws-auth",
 			Namespace: "kube-system",
 		},
 		Data: map[string]string{
 			"mapRoles": string(mapRoles),
 		},
-	})
+	}, metav1.CreateOptions{})
 	if err != nil && !errors.IsConflict(err) {
 		return fmt.Errorf("error creating config map: %v", err)
 	}
@@ -895,7 +952,7 @@ func (d *Driver) waitForClusterReady(svc *eks.EKS, state state) (*eks.DescribeCl
 	for status != eks.ClusterStatusActive {
 		time.Sleep(30 * time.Second)
 
-		logrus.Infof("Waiting for cluster to finish provisioning")
+		logrus.Infof("[amazonelasticcontainerservice] Waiting for cluster [%s] to finish provisioning", state.ClusterName)
 
 		cluster, err = svc.DescribeCluster(&eks.DescribeClusterInput{
 			Name: aws.String(state.DisplayName),
@@ -962,7 +1019,7 @@ func getParameterValueFromOutput(key string, outputs []*cloudformation.Output) s
 }
 
 func (d *Driver) Update(ctx context.Context, info *types.ClusterInfo, options *types.DriverOptions) (*types.ClusterInfo, error) {
-	logrus.Infof("Starting update")
+	logrus.Infof("[amazonelasticcontainerservice] Starting update")
 	oldstate := &state{}
 	state, err := getState(info)
 	if err != nil {
@@ -990,7 +1047,7 @@ func (d *Driver) Update(ctx context.Context, info *types.ClusterInfo, options *t
 	}
 
 	if !sendUpdate {
-		logrus.Infof("Update complete")
+		logrus.Infof("[amazonelasticcontainerservice] Update complete for cluster [%s]", state.ClusterName)
 		return info, storeState(info, state)
 	}
 
@@ -999,19 +1056,19 @@ func (d *Driver) Update(ctx context.Context, info *types.ClusterInfo, options *t
 		return info, err
 	}
 
-	logrus.Infof("Update complete")
+	logrus.Infof("[amazonelasticcontainerservice] Update complete for cluster [%s]", state.ClusterName)
 	return info, storeState(info, state)
 }
 
 func (d *Driver) PostCheck(ctx context.Context, info *types.ClusterInfo) (*types.ClusterInfo, error) {
-	logrus.Infof("Starting post-check")
+	logrus.Infof("[amazonelasticcontainerservice] Starting post-check")
 
 	clientset, err := getClientset(info)
 	if err != nil {
 		return nil, err
 	}
 
-	logrus.Infof("Generating service account token")
+	logrus.Infof("[amazonelasticcontainerservice] Generating service account token")
 
 	info.ServiceAccountToken, err = util.GenerateServiceAccountToken(clientset)
 	if err != nil {
@@ -1089,7 +1146,7 @@ func getClientset(info *types.ClusterInfo) (*kubernetes.Clientset, error) {
 }
 
 func (d *Driver) Remove(ctx context.Context, info *types.ClusterInfo) error {
-	logrus.Infof("Starting delete cluster")
+	logrus.Infof("[amazonelasticcontainerservice] Starting delete cluster")
 
 	state, err := getState(info)
 	if err != nil {
@@ -1274,7 +1331,7 @@ func (d *Driver) getClusterStats(ctx context.Context, info *types.ClusterInfo) (
 }
 
 func (d *Driver) SetVersion(ctx context.Context, info *types.ClusterInfo, version *types.KubernetesVersion) error {
-	logrus.Info("updating kubernetes version")
+	logrus.Info("[amazonelasticcontainerservice] updating kubernetes version")
 	state, err := getState(info)
 	if err != nil {
 		return err
@@ -1285,7 +1342,7 @@ func (d *Driver) SetVersion(ctx context.Context, info *types.ClusterInfo, versio
 		return err
 	}
 
-	logrus.Info("kubernetes version update success")
+	logrus.Info("[amazonelasticcontainerservice] kubernetes version update success")
 	return nil
 }
 
@@ -1342,7 +1399,7 @@ func (d *Driver) updateClusterAndWait(ctx context.Context, state state) error {
 }
 
 func (d *Driver) waitForClusterUpdateReady(ctx context.Context, svc *eks.EKS, state state, updateID string) error {
-	logrus.Infof("waiting for update id[%s] state", updateID)
+	logrus.Infof("[amazonelasticcontainerservice] waiting for update id[%s] state", updateID)
 	var update *eks.DescribeUpdateOutput
 	var err error
 
@@ -1350,7 +1407,7 @@ func (d *Driver) waitForClusterUpdateReady(ctx context.Context, svc *eks.EKS, st
 	for status != "Successful" {
 		time.Sleep(30 * time.Second)
 
-		logrus.Infof("Waiting for cluster update to finish updating")
+		logrus.Infof("[amazonelasticcontainerservice] Waiting for cluster [%s] update to finish updating", state.ClusterName)
 
 		update, err = svc.DescribeUpdateWithContext(ctx, &eks.DescribeUpdateInput{
 			Name:     aws.String(state.DisplayName),

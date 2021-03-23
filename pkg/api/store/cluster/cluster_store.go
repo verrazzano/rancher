@@ -38,6 +38,7 @@ import (
 	managementschema "github.com/rancher/types/apis/management.cattle.io/v3/schema"
 	managementv3 "github.com/rancher/types/client/management/v3"
 	"github.com/rancher/types/config"
+	"github.com/rancher/types/config/dialer"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -58,6 +59,7 @@ type Store struct {
 	ClusterTemplateRevisionLister v3.ClusterTemplateRevisionLister
 	NodeLister                    v3.NodeLister
 	ClusterLister                 v3.ClusterLister
+	DialerFactory                 dialer.Factory
 }
 
 type transformer struct {
@@ -129,6 +131,7 @@ func GetClusterStore(schema *types.Schema, mgmt *config.ScaledContext, clusterMa
 		ClusterTemplateRevisionLister: mgmt.Management.ClusterTemplateRevisions("").Controller().Lister(),
 		ClusterLister:                 mgmt.Management.Clusters("").Controller().Lister(),
 		NodeLister:                    mgmt.Management.Nodes("").Controller().Lister(),
+		DialerFactory:                 mgmt.Dialer,
 	}
 	schema.Store = s
 	return s
@@ -230,7 +233,7 @@ func (r *Store) Create(apiContext *types.APIContext, schema *types.Schema, data 
 	if err = setInitialConditions(data); err != nil {
 		return nil, err
 	}
-	if err := validateS3Credentials(data); err != nil {
+	if err := validateS3Credentials(data, nil); err != nil {
 		return nil, err
 	}
 
@@ -309,6 +312,18 @@ func loadDataFromTemplate(clusterTemplateRevision *v3.ClusterTemplateRevision, c
 	finalAnswerMap["values"] = allAnswers
 	dataFromTemplate[managementv3.ClusterSpecFieldClusterTemplateAnswers] = finalAnswerMap
 	dataFromTemplate[managementv3.ClusterSpecFieldClusterTemplateQuestions] = revisionQuestions
+
+	dataFromTemplate[managementv3.ClusterSpecFieldDescription] = convert.ToString(data[managementv3.ClusterSpecFieldDescription])
+
+	annotations, ok := data[managementv3.MetadataUpdateFieldAnnotations]
+	if ok {
+		dataFromTemplate[managementv3.MetadataUpdateFieldAnnotations] = convert.ToMapInterface(annotations)
+	}
+
+	labels, ok := data[managementv3.MetadataUpdateFieldLabels]
+	if ok {
+		dataFromTemplate[managementv3.MetadataUpdateFieldLabels] = convert.ToMapInterface(labels)
+	}
 
 	//validate that the data loaded is valid clusterSpec
 	var spec v3.ClusterSpec
@@ -475,6 +490,15 @@ func (r *Store) Update(apiContext *types.APIContext, schema *types.Schema, data 
 		}
 
 		data = clusterUpdate
+
+		//keep monitoring and alerting flags on the cluster as is, no turning off these flags from templaterevision.
+		if !clusterTemplateRevision.Spec.ClusterConfig.EnableClusterMonitoring {
+			data[managementv3.ClusterSpecFieldEnableClusterMonitoring] = existingCluster[managementv3.ClusterSpecFieldEnableClusterMonitoring]
+		}
+		if !clusterTemplateRevision.Spec.ClusterConfig.EnableClusterAlerting {
+			data[managementv3.ClusterSpecFieldEnableClusterAlerting] = existingCluster[managementv3.ClusterSpecFieldEnableClusterAlerting]
+		}
+
 	} else if existingCluster[managementv3.ClusterSpecFieldClusterTemplateRevisionID] != nil {
 		return nil, httperror.NewFieldAPIError(httperror.MissingRequired, "ClusterTemplateRevision", "this cluster is created from a clusterTemplateRevision, please pass the clusterTemplateRevision")
 	}
@@ -499,13 +523,36 @@ func (r *Store) Update(apiContext *types.APIContext, schema *types.Schema, data 
 	setPrivateRegistryPasswordIfNotExists(existingCluster, data)
 	setCloudProviderPasswordFieldsIfNotExists(existingCluster, data)
 	setWeavePasswordFieldsIfNotExists(existingCluster, data)
-	if err := validateUpdatedS3Credentials(existingCluster, data); err != nil {
+	dialer, err := r.DialerFactory.ClusterDialer(id)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting dialer")
+	}
+	if err := validateUpdatedS3Credentials(existingCluster, data, dialer); err != nil {
 		return nil, err
 	}
 	handleScheduledScan(data)
 	if err := r.validateUnavailableNodes(data, existingCluster, id); err != nil {
 		return nil, err
 	}
+
+	// Replace rancherKubernetesEngineConfig.cloudProvider.vsphereCloudProvider.virtualCenter value to properly update virtualCenter removal
+	if newVCenter, ok := values.GetValue(data, "rancherKubernetesEngineConfig", "cloudProvider", "vsphereCloudProvider", "virtualCenter"); ok && newVCenter != nil {
+		oldVCenter, ok := values.GetValue(existingCluster, "rancherKubernetesEngineConfig", "cloudProvider", "vsphereCloudProvider", "virtualCenter")
+		if ok && oldVCenter != nil && !reflect.DeepEqual(newVCenter, oldVCenter) {
+			newData := map[string]interface{}{}
+			for k, v := range data {
+				newData[k] = v
+			}
+			// Update virtualCenter value to nil
+			values.PutValue(newData, nil, "rancherKubernetesEngineConfig", "cloudProvider", "vsphereCloudProvider", "virtualCenter")
+			if _, err := r.Store.Update(apiContext, schema, newData, id); err != nil {
+				return nil, err
+			}
+			// Set virtualCenter value to newVCenter
+			values.PutValue(data, newVCenter, "rancherKubernetesEngineConfig", "cloudProvider", "vsphereCloudProvider", "virtualCenter")
+		}
+	}
+
 	return r.Store.Update(apiContext, schema, data, id)
 }
 
@@ -710,8 +757,9 @@ func setNodeUpgradeStrategy(newData, oldData map[string]interface{}) error {
 		if oldDrainInput != nil {
 			nodeDrainInput = oldDrainInput
 		} else {
+			ignoreDaemonSets := true
 			nodeDrainInput = &v3.NodeDrainInput{
-				IgnoreDaemonSets: true,
+				IgnoreDaemonSets: &ignoreDaemonSets,
 				GracePeriod:      -1,
 				Timeout:          120,
 			}
@@ -828,7 +876,7 @@ func setWeavePasswordFieldsIfNotExists(oldData, newData map[string]interface{}) 
 	}
 }
 
-func validateUpdatedS3Credentials(oldData, newData map[string]interface{}) error {
+func validateUpdatedS3Credentials(oldData, newData map[string]interface{}, dialer dialer.Dialer) error {
 	newConfig := convert.ToMapInterface(values.GetValueN(newData, "rancherKubernetesEngineConfig", "services", "etcd", "backupConfig", "s3BackupConfig"))
 	if newConfig == nil {
 		return nil
@@ -836,17 +884,17 @@ func validateUpdatedS3Credentials(oldData, newData map[string]interface{}) error
 
 	oldConfig := convert.ToMapInterface(values.GetValueN(oldData, "rancherKubernetesEngineConfig", "services", "etcd", "backupConfig", "s3BackupConfig"))
 	if oldConfig == nil {
-		return validateS3Credentials(newData)
+		return validateS3Credentials(newData, dialer)
 	}
 	// remove "type" since it's added to the object by API, and it's not present in newConfig yet.
 	delete(oldConfig, "type")
 	if !reflect.DeepEqual(newConfig, oldConfig) {
-		return validateS3Credentials(newData)
+		return validateS3Credentials(newData, dialer)
 	}
 	return nil
 }
 
-func validateS3Credentials(data map[string]interface{}) error {
+func validateS3Credentials(data map[string]interface{}, dialer dialer.Dialer) error {
 	s3BackupConfig := values.GetValueN(data, "rancherKubernetesEngineConfig", "services", "etcd", "backupConfig", "s3BackupConfig")
 	if s3BackupConfig == nil {
 		return nil
@@ -867,7 +915,7 @@ func validateS3Credentials(data map[string]interface{}) error {
 	if bucket == "" {
 		return fmt.Errorf("Empty bucket name")
 	}
-	s3Client, err := etcdbackup.GetS3Client(sbc, s3TransportTimeout)
+	s3Client, err := etcdbackup.GetS3Client(sbc, s3TransportTimeout, dialer)
 	if err != nil {
 		return err
 	}

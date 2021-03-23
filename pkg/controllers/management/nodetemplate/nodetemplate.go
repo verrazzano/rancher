@@ -100,14 +100,14 @@ func (nt *nodeTemplateController) sync(key string, nodeTemplate *v3.NodeTemplate
 	}
 
 	// Create Role and RBs if they do not exist
-	if err := rbac.CreateRoleAndRoleBinding(rbac.NodeTemplateResource, nodeTemplate.Name, namespace.NodeTemplateGlobalNamespace,
-		rbac.RancherManagementAPIVersion, creatorID, []string{rbac.RancherManagementAPIVersion},
+	if err := rbac.CreateRoleAndRoleBinding(rbac.NodeTemplateResource, v3.NodeTemplateGroupVersionKind.Kind, nodeTemplate.Name, namespace.NodeTemplateGlobalNamespace,
+		rbac.RancherManagementAPIVersion, creatorID, []string{rbac.RancherManagementAPIGroup},
 		nodeTemplate.UID,
 		[]v3.Member{}, nt.mgmtCtx); err != nil {
 		return nil, err
 	}
 
-	dynamicNodeTemplate, err := nt.ntDynamicClient.Namespace(namespace.NodeTemplateGlobalNamespace).Get(nodeTemplate.Name, metav1.GetOptions{})
+	dynamicNodeTemplate, err := nt.ntDynamicClient.Namespace(namespace.NodeTemplateGlobalNamespace).Get(context.TODO(), nodeTemplate.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (nt *nodeTemplateController) sync(key string, nodeTemplate *v3.NodeTemplate
 	annotations[ownerBindingsAnno] = "true"
 	dynamicNodeTemplate.SetAnnotations(annotations)
 
-	if _, err = nt.ntDynamicClient.Namespace(namespace.NodeTemplateGlobalNamespace).Update(dynamicNodeTemplate, metav1.UpdateOptions{}); err != nil {
+	if _, err = nt.ntDynamicClient.Namespace(namespace.NodeTemplateGlobalNamespace).Update(context.TODO(), dynamicNodeTemplate, metav1.UpdateOptions{}); err != nil {
 		return nil, err
 	}
 
@@ -138,7 +138,7 @@ func (nt *nodeTemplateController) migrateNodeTemplate(ntDynamicClient dynamic.Na
 	fullLegacyNTName := fmt.Sprintf("%s:%s", nodeTemplate.Namespace, nodeTemplate.Name)
 	fullMigratedNTName := fmt.Sprintf("%s:%s", namespace.NodeTemplateGlobalNamespace, migratedNTName)
 
-	dynamicNodeTemplate, err := ntDynamicClient.Namespace(nodeTemplate.Namespace).Get(nodeTemplate.Name, metav1.GetOptions{})
+	dynamicNodeTemplate, err := ntDynamicClient.Namespace(nodeTemplate.Namespace).Get(context.TODO(), nodeTemplate.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ func (nt *nodeTemplateController) createGlobalNodeTemplateClone(legacyName, clon
 
 		vsphereLegacyNormalizer(globalNodeTemplate)
 
-		if _, err = client.Namespace(namespace.NodeTemplateGlobalNamespace).Create(globalNodeTemplate, metav1.CreateOptions{}); err != nil {
+		if _, err = client.Namespace(namespace.NodeTemplateGlobalNamespace).Create(context.TODO(), globalNodeTemplate, metav1.CreateOptions{}); err != nil {
 			return err
 		}
 	}

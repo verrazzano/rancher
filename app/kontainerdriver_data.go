@@ -58,9 +58,9 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 
 	if err := creator.addCustomDriver(
 		"aliyunkubernetescontainerservice",
-		"https://drivers.rancher.cn/kontainer-engine-driver-aliyun/0.2.5/kontainer-engine-driver-aliyun-linux",
-		"31aa0a44450c5a5eb128dd0956292dfd91aab726d1a548f6d527a9212a27db9b",
-		"",
+		"https://drivers.rancher.cn/kontainer-engine-driver-aliyun/0.2.6/kontainer-engine-driver-aliyun-linux",
+		"8a5360269ec803e3d8cf2c9cc94c66879da03a1fd2b580912c1a83454509c84c",
+		"https://drivers.rancher.cn/pandaria/ui/cluster-driver-aliyun/0.1.1/component.js",
 		false,
 		"*.aliyuncs.com",
 	); err != nil {
@@ -69,8 +69,8 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 
 	if err := creator.addCustomDriver(
 		"tencentkubernetesengine",
-		"https://drivers.rancher.cn/kontainer-engine-driver-tencent/0.2.3/kontainer-engine-driver-tencent-linux",
-		"144f785473290ee2f63cf35da0c6bde12bc307878078500a47a0a8d04422ae53",
+		"https://drivers.rancher.cn/kontainer-engine-driver-tencent/0.3.0/kontainer-engine-driver-tencent-linux",
+		"ad5406502daf826874889963d7bdaed78db4689f147889ecf97394bc4e8d3d76",
 		"",
 		false,
 		"*.tencentcloudapi.com", "*.qcloud.com",
@@ -90,8 +90,8 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 	}
 	if err := creator.addCustomDriver(
 		"oraclecontainerengine",
-		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.4.0/kontainer-engine-driver-oke-linux",
-		"a42bd8b14e780edc426119f143acbc54a93a07f8b62f193b9e261ddd85db6e9c",
+		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.5.2/kontainer-engine-driver-oke-linux",
+		"7c43b1e5af81670bcb6204301e6d17db3bdf2890d0fe8b18d1be99f645ca1bc9",
 		"",
 		false,
 		"*.oraclecloud.com",

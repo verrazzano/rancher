@@ -15,11 +15,11 @@ import (
 )
 
 const (
-	commandFormat         = "kubectl apply -f %s"
-	insecureCommandFormat = "curl --insecure -sfL %s | kubectl apply -f -"
-	nodeCommandFormat     = "sudo docker run -d --privileged --restart=unless-stopped --net=host -v /etc/kubernetes:/etc/kubernetes -v /var/run:/var/run %s --server %s --token %s%s"
-
-	windowsNodeCommandFormat = `PowerShell -NoLogo -NonInteractive -Command "& {docker run -v c:/:c:/host %s%s bootstrap --server %s --token %s%s | iex}"`
+	commandFormat            = "kubectl apply -f %s"
+	insecureCommandFormat    = "curl --insecure -sfL %s | kubectl apply -f -"
+	nodeCommandFormat        = "sudo docker run -d --privileged --restart=unless-stopped --net=host -v /etc/kubernetes:/etc/kubernetes -v /var/run:/var/run %s --server %s --token %s%s"
+	loginCommandFormat       = "echo \"%s\" | sudo docker login --username %s --password-stdin %s"
+	windowsNodeCommandFormat = `PowerShell -NoLogo -NonInteractive -Command "& {docker run -v c:\:c:\host %s%s bootstrap --server %s --token %s%s%s | iex}"`
 )
 
 type Formatter struct {
@@ -63,13 +63,34 @@ func (f *Formatter) Formatter(request *types.APIContext, resource *types.RawReso
 			// patch the AGENT_IMAGE env
 			agentImageDockerEnv = fmt.Sprintf("-e AGENT_IMAGE=%s ", agentImage)
 		}
+
 		resource.Values["windowsNodeCommand"] = fmt.Sprintf(windowsNodeCommandFormat,
 			agentImageDockerEnv,
 			agentImage,
 			rootURL,
 			token,
-			ca)
+			ca,
+			getWindowsPrefixPathArg(cluster.Spec.RancherKubernetesEngineConfig))
 	}
+}
+
+func getWindowsPrefixPathArg(rkeConfig *v3.RancherKubernetesEngineConfig) string {
+	if rkeConfig == nil {
+		return ""
+	}
+	// default to prefix path
+	prefixPath := rkeConfig.PrefixPath
+
+	// if windows prefix path set, override
+	if rkeConfig.WindowsPrefixPath != "" {
+		prefixPath = rkeConfig.WindowsPrefixPath
+	}
+
+	if prefixPath != "" {
+		return fmt.Sprintf(" --prefix-path %s", prefixPath)
+	}
+
+	return ""
 }
 
 func NodeCommand(token string, cluster *v3.Cluster) string {
@@ -83,6 +104,30 @@ func NodeCommand(token string, cluster *v3.Cluster) string {
 		getRootURL(nil),
 		token,
 		ca)
+}
+
+func LoginCommand(reg v3.PrivateRegistry) string {
+	return fmt.Sprintf(
+		loginCommandFormat,
+		// escape password special characters so it is interpreted correctly when command is executed
+		escapeSpecialChars(reg.Password),
+		reg.User,
+		reg.URL,
+	)
+}
+
+// escapeSpecialChars escapes ", `, $, \ from a string s
+func escapeSpecialChars(s string) string {
+	var escaped []rune
+	for _, r := range s {
+		switch r {
+		case '"', '`', '$', '\\': // escape
+			escaped = append(escaped, '\\', r)
+		default: // no escape
+			escaped = append(escaped, r)
+		}
+	}
+	return string(escaped)
 }
 
 func getRootURL(request *types.APIContext) string {

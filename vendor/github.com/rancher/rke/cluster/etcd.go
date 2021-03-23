@@ -18,7 +18,12 @@ import (
 func (c *Cluster) SnapshotEtcd(ctx context.Context, snapshotName string) error {
 	backupImage := c.getBackupImage()
 	for _, host := range c.EtcdHosts {
-		if err := services.RunEtcdSnapshotSave(ctx, host, c.PrivateRegistriesMap, backupImage, snapshotName, true, c.Services.Etcd); err != nil {
+		containerTimeout := DefaultEtcdBackupConfigTimeout
+		if c.Services.Etcd.BackupConfig != nil && c.Services.Etcd.BackupConfig.Timeout > 0 {
+			containerTimeout = c.Services.Etcd.BackupConfig.Timeout
+		}
+		newCtx := context.WithValue(ctx, docker.WaitTimeoutContextKey, containerTimeout)
+		if err := services.RunEtcdSnapshotSave(newCtx, host, c.PrivateRegistriesMap, backupImage, snapshotName, true, c.Services.Etcd); err != nil {
 			return err
 		}
 	}
@@ -36,7 +41,40 @@ func (c *Cluster) DeployRestoreCerts(ctx context.Context, clusterCerts map[strin
 		errgrp.Go(func() error {
 			var errList []error
 			for host := range hostsQueue {
-				err := pki.DeployCertificatesOnPlaneHost(ctx, host.(*hosts.Host), c.RancherKubernetesEngineConfig, restoreCerts, c.SystemImages.CertDownloader, c.PrivateRegistriesMap, false)
+				h := host.(*hosts.Host)
+				var env []string
+				if h.IsWindows() {
+					env = c.getWindowsEnv(h)
+				}
+				if err := pki.DeployCertificatesOnPlaneHost(
+					ctx,
+					h,
+					c.RancherKubernetesEngineConfig,
+					restoreCerts,
+					c.SystemImages.CertDownloader,
+					c.PrivateRegistriesMap,
+					false,
+					env); err != nil {
+					errList = append(errList, err)
+				}
+			}
+			return util.ErrList(errList)
+		})
+	}
+	if err := errgrp.Wait(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Cluster) DeployStateFile(ctx context.Context, stateFilePath, snapshotName string) error {
+	var errgrp errgroup.Group
+	hostsQueue := util.GetObjectQueue(c.EtcdHosts)
+	for w := 0; w < WorkerThreads; w++ {
+		errgrp.Go(func() error {
+			var errList []error
+			for host := range hostsQueue {
+				err := pki.DeployStateOnPlaneHost(ctx, host.(*hosts.Host), c.SystemImages.CertDownloader, c.PrivateRegistriesMap, stateFilePath, snapshotName)
 				if err != nil {
 					errList = append(errList, err)
 				}
@@ -48,6 +86,19 @@ func (c *Cluster) DeployRestoreCerts(ctx context.Context, clusterCerts map[strin
 		return err
 	}
 	return nil
+}
+
+func (c *Cluster) GetStateFileFromSnapshot(ctx context.Context, snapshotName string) (string, error) {
+	backupImage := c.getBackupImage()
+	for _, host := range c.EtcdHosts {
+		stateFile, err := services.RunGetStateFileFromSnapshot(ctx, host, c.PrivateRegistriesMap, backupImage, snapshotName, c.Services.Etcd)
+		if err != nil || stateFile == "" {
+			logrus.Infof("Could not extract state file from snapshot [%s] on host [%s]", snapshotName, host.Address)
+			continue
+		}
+		return stateFile, nil
+	}
+	return "", fmt.Errorf("Unable to find statefile in snapshot [%s]", snapshotName)
 }
 
 func (c *Cluster) PrepareBackup(ctx context.Context, snapshotPath string) error {
@@ -129,7 +180,12 @@ func (c *Cluster) RestoreEtcdSnapshot(ctx context.Context, snapshotPath string) 
 	initCluster := services.GetEtcdInitialCluster(c.EtcdHosts)
 	backupImage := c.getBackupImage()
 	for _, host := range c.EtcdHosts {
-		if err := services.RestoreEtcdSnapshot(ctx, host, c.PrivateRegistriesMap, c.SystemImages.Etcd, backupImage,
+		containerTimeout := DefaultEtcdBackupConfigTimeout
+		if c.Services.Etcd.BackupConfig != nil && c.Services.Etcd.BackupConfig.Timeout > 0 {
+			containerTimeout = c.Services.Etcd.BackupConfig.Timeout
+		}
+		newCtx := context.WithValue(ctx, docker.WaitTimeoutContextKey, containerTimeout)
+		if err := services.RestoreEtcdSnapshot(newCtx, host, c.PrivateRegistriesMap, c.SystemImages.Etcd, backupImage,
 			snapshotPath, initCluster, c.Services.Etcd); err != nil {
 			return fmt.Errorf("[etcd] Failed to restore etcd snapshot: %v", err)
 		}

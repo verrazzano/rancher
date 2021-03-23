@@ -24,6 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -33,6 +34,8 @@ const (
 
 	IngressAddonJobName            = "rke-ingress-controller-deploy-job"
 	MetricsServerAddonJobName      = "rke-metrics-addon-deploy-job"
+	UserAddonJobName               = "rke-user-addon-deploy-job"
+	UserAddonIncludeJobName        = "rke-user-includes-addons-deploy-job"
 	MetricsServerAddonResourceName = "rke-metrics-addon"
 	NginxIngressAddonAppName       = "ingress-nginx"
 	KubeDNSAddonAppName            = "kube-dns"
@@ -60,7 +63,11 @@ type ingressOptions struct {
 	AlpineImage       string
 	IngressImage      string
 	IngressBackend    string
+	HTTPPort          int
+	HTTPSPort         int
+	NetworkMode       string
 	UpdateStrategy    *appsv1.DaemonSetUpdateStrategy
+	Tolerations       []v1.Toleration
 }
 
 type MetricsServerOptions struct {
@@ -71,6 +78,7 @@ type MetricsServerOptions struct {
 	Version            string
 	UpdateStrategy     *appsv1.DeploymentStrategy
 	Replicas           *int32
+	Tolerations        []v1.Toleration
 }
 
 type CoreDNSOptions struct {
@@ -84,6 +92,7 @@ type CoreDNSOptions struct {
 	NodeSelector           map[string]string
 	UpdateStrategy         *appsv1.DeploymentStrategy
 	LinearAutoscalerParams string
+	Tolerations            []v1.Toleration
 }
 
 type KubeDNSOptions struct {
@@ -100,6 +109,7 @@ type KubeDNSOptions struct {
 	NodeSelector           map[string]string
 	UpdateStrategy         *appsv1.DeploymentStrategy
 	LinearAutoscalerParams string
+	Tolerations            []v1.Toleration
 }
 
 type NodelocalOptions struct {
@@ -156,10 +166,34 @@ func (c *Cluster) deployUserAddOns(ctx context.Context) error {
 		if err := c.doAddonDeploy(ctx, c.Addons, UserAddonResourceName, false); err != nil {
 			return err
 		}
+	} else {
+		addonJobExists, err := addons.AddonJobExists(UserAddonJobName, c.LocalKubeConfigPath, c.K8sWrapTransport)
+		if err != nil {
+			return nil
+		}
+		if addonJobExists {
+			log.Infof(ctx, "[addons] Removing user addons")
+			if err := c.doAddonDelete(ctx, UserAddonResourceName, false); err != nil {
+				return err
+			}
+
+			log.Infof(ctx, "[addons] User addons removed successfully")
+		}
 	}
 	if len(c.AddonsInclude) > 0 {
 		if err := c.deployAddonsInclude(ctx); err != nil {
 			return err
+		}
+	} else {
+		addonJobExists, err := addons.AddonJobExists(UserAddonIncludeJobName, c.LocalKubeConfigPath, c.K8sWrapTransport)
+		if err != nil {
+			return nil
+		}
+
+		if addonJobExists {
+			if err := c.doAddonDelete(ctx, UserAddonsIncludeResourceName, false); err != nil {
+				return err
+			}
 		}
 	}
 	if c.Addons == "" && len(c.AddonsInclude) == 0 {
@@ -293,6 +327,7 @@ func (c *Cluster) deployKubeDNS(ctx context.Context, data map[string]interface{}
 			Type:          c.DNS.UpdateStrategy.Strategy,
 			RollingUpdate: c.DNS.UpdateStrategy.RollingUpdate,
 		},
+		Tolerations: c.DNS.Tolerations,
 	}
 	linearModeBytes, err := json.Marshal(c.DNS.LinearAutoscalerParams)
 	if err != nil {
@@ -329,6 +364,7 @@ func (c *Cluster) deployCoreDNS(ctx context.Context, data map[string]interface{}
 			Type:          c.DNS.UpdateStrategy.Strategy,
 			RollingUpdate: c.DNS.UpdateStrategy.RollingUpdate,
 		},
+		Tolerations: c.DNS.Tolerations,
 	}
 	linearModeBytes, err := json.Marshal(c.DNS.LinearAutoscalerParams)
 	if err != nil {
@@ -382,7 +418,8 @@ func (c *Cluster) deployMetricServer(ctx context.Context, data map[string]interf
 			Type:          c.Monitoring.UpdateStrategy.Strategy,
 			RollingUpdate: c.Monitoring.UpdateStrategy.RollingUpdate,
 		},
-		Replicas: c.Monitoring.Replicas,
+		Replicas:    c.Monitoring.Replicas,
+		Tolerations: c.Monitoring.Tolerations,
 	}
 	tmplt, err := templates.GetVersionedTemplates(kdm.MetricsServer, data, c.Version)
 	if err != nil {
@@ -469,7 +506,6 @@ func (c *Cluster) doAddonDelete(ctx context.Context, resourceName string, isCrit
 	if err := k8s.DeleteK8sSystemJob(deleteJob, k8sClient, c.AddonJobTimeout); err != nil {
 		return err
 	}
-
 	return nil
 
 }
@@ -540,10 +576,14 @@ func (c *Cluster) deployIngress(ctx context.Context, data map[string]interface{}
 		ExtraEnvs:         c.Ingress.ExtraEnvs,
 		ExtraVolumes:      c.Ingress.ExtraVolumes,
 		ExtraVolumeMounts: c.Ingress.ExtraVolumeMounts,
+		HTTPPort:          c.Ingress.HTTPPort,
+		HTTPSPort:         c.Ingress.HTTPSPort,
+		NetworkMode:       c.Ingress.NetworkMode,
 		UpdateStrategy: &appsv1.DaemonSetUpdateStrategy{
 			Type:          c.Ingress.UpdateStrategy.Strategy,
 			RollingUpdate: c.Ingress.UpdateStrategy.RollingUpdate,
 		},
+		Tolerations: c.Ingress.Tolerations,
 	}
 	// since nginx ingress controller 0.16.0, it can be run as non-root and doesn't require privileged anymore.
 	// So we can use securityContext instead of setting privileges via initContainer.
