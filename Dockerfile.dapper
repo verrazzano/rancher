@@ -96,7 +96,7 @@ ENV KUBECTL_URL=https://storage.googleapis.com/kubernetes-release/release/v1.11.
 RUN wget -O - ${KUBECTL_URL} > /usr/bin/kubectl && chmod +x /usr/bin/kubectl
 
 RUN microdnf update && \
-    microdnf install libffi
+    microdnf install libffi glibc-utils
 
 ENV HELM_HOME /root/.helm
 ENV DAPPER_ENV REPO TAG DRONE_TAG SYSTEM_CHART_DEFAULT_BRANCH

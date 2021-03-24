@@ -8,7 +8,7 @@ TARGETS := $(shell ls scripts)
 	@mv .dapper.tmp .dapper
 
 $(TARGETS): .dapper
-	./.dapper -d $@
+	./.dapper $@
 
 trash: .dapper
 	./.dapper -m bind trash
