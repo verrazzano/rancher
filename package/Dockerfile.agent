@@ -1,6 +1,10 @@
 # Copyright (C) 2020, 2021, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+ARG RANCHER_TAG=dev
+ARG RANCHER_REPO=rancher
+FROM ${RANCHER_REPO}/rancher:${RANCHER_TAG} as rancher
+
 FROM container-registry.oracle.com/os/oraclelinux:8-slim@sha256:65343e6b87ef30945a6e418c66ad3efbe6eed7437cf685cf0cdc1cbfb0f2168d
 ARG ARCH=amd64
 ENV DOCKER_URL_amd64=https://get.docker.com/builds/Linux/x86_64/docker-1.10.3 \
