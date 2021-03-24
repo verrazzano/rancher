@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Copyright (C) 2020, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 set -e
 
 ./k3s-images.sh
@@ -14,6 +18,7 @@ CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH:-"release-v2.5"}
 cd $(dirname $0)/../package
 
 cp ../bin/rancher.yaml ../bin/rancher-namespace.yaml ../bin/rancher ../bin/agent ../bin/data.json ../bin/k3s-airgap-images.tar .
+cp ../LICENSE ../README.md ../THIRD_PARTY_LICENSES.txt .
 
 IMAGE=${REPO}/rancher:${TAG}
 AGENT_IMAGE=${REPO}/rancher-agent:${AGENT_TAG}
