@@ -17,8 +17,9 @@ echo "RUNTIME_TAG: $RUNTIME_TAG"
 echo "Building rancherd executable..."
 uname -a
 cat /etc/oracle-release
-ls /usr/lib64
 echo $(pwd)
+df -h
+ls /usr/lib64
 K8S_VERSION=$(grep 'ARG RKE2_VERSION=' ../../package/Dockerfile.runtime | sed 's/.*RKE2_VERSION=//')
 echo CGO_ENABLED=0 go build -x -o ../../bin/rancherd-${ARCH} \
     -ldflags '-w -s -extldflags "-static"
@@ -27,13 +28,19 @@ echo CGO_ENABLED=0 go build -x -o ../../bin/rancherd-${ARCH} \
     -X github.com/rancher/k3s/pkg/version.Program=rke2
     -X github.com/rancher/k3s/pkg/version.Version='$RUNTIME_TAG \
     -tags "netgo osusergo selinux no_stage static_build sqlite_omit_load_extension"
-CGO_ENABLED=0 go build -x -o ../../bin/rancherd-${ARCH} \
+if ! CGO_ENABLED=0 go build -x -o ../../bin/rancherd-${ARCH} \
     -ldflags '-w -s -extldflags "-static"
     -X github.com/rancher/rke2/pkg/images.KubernetesVersion='$K8S_VERSION'-'$ARCH'
     -X github.com/rancher/rke2/pkg/images.RuntimeImageName=rancher-runtime
     -X github.com/rancher/k3s/pkg/version.Program=rke2
     -X github.com/rancher/k3s/pkg/version.Version='$RUNTIME_TAG \
-    -tags "netgo osusergo selinux no_stage static_build sqlite_omit_load_extension"
+    -tags "netgo osusergo selinux no_stage static_build sqlite_omit_load_extension" ; then
+  echo "Building rancherd executable failed!"
+  df -h
+  exit 1
+else
+  echo "Building rancherd executable successful!"
+fi
 if [ "$ARCH" = "amd64" ]; then
     cp ../../bin/rancherd-${ARCH} ../../bin/rancherd
 fi
