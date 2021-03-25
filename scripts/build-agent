@@ -7,4 +7,12 @@ cd $(dirname $0)/..
 
 mkdir -p bin
 [ "$(uname)" != "Darwin" ] && LINKFLAGS="-extldflags -static -s"
+
+echo "Building agent executable..."
+uname -a
+cat /etc/oracle-release
+ls /usr/lib64
+echo CGO_ENABLED=0 go build -i -tags k8s -ldflags "-X main.VERSION=$VERSION $LINKFLAGS" -o bin/agent ./cmd/agent
 CGO_ENABLED=0 go build -i -tags k8s -ldflags "-X main.VERSION=$VERSION $LINKFLAGS" -o bin/agent ./cmd/agent
+
+echo "Building agent executable done."
