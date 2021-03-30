@@ -7,10 +7,6 @@ set -e
 
 cd $(dirname $0)
 
-echo "dapper ci build"
 ./build
-echo "dapper ci package"
 ./package
-echo "dapper ci chart"
 ./chart/ci
-echo "done"
