@@ -1,3 +1,5 @@
+// Copyright (C) 2021, Oracle and/or its affiliates.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 package settings
 
 import (
@@ -89,7 +91,7 @@ var (
 	ChartDefaultBranch                = NewSetting("chart-default-branch", "release-v2.5")
 	PartnerChartDefaultBranch         = NewSetting("partner-chart-default-branch", "main")
 	FleetDefaultWorkspaceName         = NewSetting("fleet-default-workspace-name", "fleet-default") // fleetWorkspaceName to assign to clusters with none
-	ShellImage                        = NewSetting("shell-image", "rancher/shell:v0.1.6-20210330213313-7db8651")
+	ShellImage                        = NewSetting("shell-image", "rancher-shell:v0.1.6-20210331143844-7db8651")
 	IgnoreNodeName                    = NewSetting("ignore-node-name", "") // nodes to ignore when syncing v1.node to v3.node
 	NoDefaultAdmin                    = NewSetting("no-default-admin", "")
 	RestrictedDefaultAdmin            = NewSetting("restricted-default-admin", "false") // When bootstrapping the admin for the first time, give them the global role restricted-admin
