@@ -5,7 +5,7 @@ ARG RANCHER_TAG=dev
 ARG RANCHER_REPO=rancher
 FROM ${RANCHER_REPO}/rancher:${RANCHER_TAG} as rancher
 
-FROM container-registry.oracle.com/os/oraclelinux:8-slim@sha256:29191e1faaab162e05eb349a150ac8b8b701a2200cc19eb28b6a8b84927966eb
+FROM container-registry.oracle.com/os/oraclelinux:8-slim@sha256:832e1c0725232d2fe8a157505e500e6f2a98996d51433910866a8b78d37eaaeb
 ARG ARCH=amd64
 ENV DOCKER_URL_amd64=https://get.docker.com/builds/Linux/x86_64/docker-1.10.3 \
     DOCKER_URL_arm64=https://github.com/rancher/docker/releases/download/v1.10.3-ros1/docker-1.10.3_arm64 \
