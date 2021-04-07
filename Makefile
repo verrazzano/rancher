@@ -8,8 +8,7 @@ TARGETS := $(shell ls scripts)
 	@mv .dapper.tmp .dapper
 
 $(TARGETS): .dapper
-	REPO=ghcr.io/verrazzano \
-	./.dapper -d $@
+	./.dapper $@
 
 trash: .dapper
 	./.dapper -m bind trash

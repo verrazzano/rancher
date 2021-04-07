@@ -162,10 +162,6 @@ func checkImage(image string) error {
 	if len(imageNameTag) != 2 {
 		return fmt.Errorf("Can't extract tag from image [%s]", image)
 	}
-	// Removing this check to allow images other repos
-	//if !strings.HasPrefix(imageNameTag[0], "rancher/") {
-	//	return fmt.Errorf("Image [%s] does not start with rancher/", image)
-	//}
 	if strings.HasSuffix(imageNameTag[0], "-") {
 		return fmt.Errorf("Image [%s] has trailing '-', probably an error in image substitution", image)
 	}
