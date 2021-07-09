@@ -17,8 +17,9 @@ fi
 #echo Running: golangci-lint
 #golangci-lint run
 
-echo Tidying up modules
-go mod tidy
+# Disable tidy due to invalid findings.
+#echo Tidying up modules
+#go mod tidy
 
 echo Verifying modules
 go mod verify
