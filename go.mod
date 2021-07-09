@@ -11,7 +11,7 @@ replace (
 	github.com/rancher/rancher/pkg/client => ./pkg/client
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20190921190940-14da1ac737cc // This is because docker/docker/pkg/archive has a dependency on an old x/sys
 	google.golang.org/grpc => google.golang.org/grpc v1.29.1 // etcd depends on google.golang.org/grpc/naming which was removed in grpc v1.30.0
-	helm.sh/helm/v3 => github.com/rancher/helm/v3 v3.3.0-rancher1
+	helm.sh/helm/v3 => igithub.com/verrazzano/helm v0.0.0-20210629150803-ee407bdf3649_
 
 	k8s.io/api => k8s.io/api v0.20.6
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.20.6
