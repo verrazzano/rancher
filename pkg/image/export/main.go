@@ -1,3 +1,6 @@
+// Copyright (C) 2020, 2021, Oracle and/or its affiliates.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 package main
 
 import (
@@ -186,9 +189,6 @@ func checkImage(image string) error {
 	imageNameTag := strings.Split(image, ":")
 	if len(imageNameTag) != 2 {
 		return fmt.Errorf("Can't extract tag from image [%s]", image)
-	}
-	if !strings.HasPrefix(imageNameTag[0], "rancher/") {
-		return fmt.Errorf("Image [%s] does not start with rancher/", image)
 	}
 	if strings.HasSuffix(imageNameTag[0], "-") {
 		return fmt.Errorf("Image [%s] has trailing '-', probably an error in image substitution", image)

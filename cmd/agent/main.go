@@ -1,3 +1,6 @@
+// Copyright (C) 2020, 2021, Oracle and/or its affiliates.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 package main
 
 import (
@@ -8,6 +11,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"github.com/onsi/ginkgo/reporters/stenographer/support/go-colorable"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -331,7 +335,7 @@ func run() error {
 		if !isConnect() {
 			wsURL += "/register"
 		}
-		logrus.Infof("Connecting to %s with token %s", wsURL, token)
+		logrus.Infof("Connecting to %s with token", wsURL)
 		remotedialer.ClientConnect(context.Background(), wsURL, http.Header(headers), nil, func(proto, address string) bool {
 			switch proto {
 			case "tcp":
