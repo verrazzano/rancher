@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Copyright (C) 2020, 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 set -e
 
 NAME=$1
@@ -26,7 +30,7 @@ fi
 
 cp -r /lib /opt/jail/$NAME
 cp -r /usr/lib /opt/jail/$NAME/usr
-cp /etc/ssl/certs/ca-certificates.crt /opt/jail/$NAME/etc/ssl/certs
+cp /etc/ssl/certs/*crt /opt/jail/$NAME/etc/ssl/certs
 cp /etc/resolv.conf /opt/jail/$NAME/etc/
 cp /etc/passwd /opt/jail/$NAME/etc/
 cp /etc/hosts /opt/jail/$NAME/etc/
