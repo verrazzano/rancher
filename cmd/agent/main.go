@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/onsi/ginkgo/reporters/stenographer/support/go-colorable"
 	"io/ioutil"
 	"log"
 	"net/http"

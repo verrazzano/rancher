@@ -79,6 +79,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/mrjones/oauth v0.0.0-20180629183705-f4e24b6d100c
+	github.com/onsi/ginkgo v1.11.0
 	github.com/oracle/oci-go-sdk v18.0.0+incompatible
 	github.com/pborman/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
