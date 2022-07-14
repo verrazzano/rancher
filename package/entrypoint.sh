@@ -1,11 +1,16 @@
 #!/bin/bash
-
+# Copyright (C) 2020, 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 set -e
 
 if [ ! -e /run/secrets/kubernetes.io/serviceaccount ] && [ ! -e /dev/kmsg ]; then
     echo "ERROR: Rancher must be ran with the --privileged flag when running outside of Kubernetes"
     exit 1
 fi
+
+# Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
+source /etc/profile.d/git.sh
+
 rm -f /var/lib/rancher/k3s/server/cred/node-passwd
 if [ -e /var/lib/rancher/management-state/etcd ] && [ ! -e /var/lib/rancher/k3s/server/db/etcd ]; then
   mkdir -p /var/lib/rancher/k3s/server/db

@@ -1,0 +1,5 @@
+images:
+  ghcr.io/verrazzano/rancher:
+    ELSA-2021-9344: glibc
+  ghcr.io/verrazzano/rancher-agent:
+    ELSA-2021-9344: glibc

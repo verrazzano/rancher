@@ -1,66 +1,17 @@
-# Security Policy
+# Reporting Security Vulnerabilities
 
-## Supported Versions
+Oracle values the independent security research community and believes that responsible disclosure of security vulnerabilities helps us ensure the security and privacy of all our users.
 
-Please review our [support maintenance and terms](https://rancher.com/support-maintenance-terms/) to view the current support lifecycle.
+Please do NOT raise a GitHub Issue to report a security vulnerability. If you believe you have found a security vulnerability, please submit a report to secalert_us@oracle.com preferably with a proof of concept. We provide additional information on [how to report security vulnerabilities to Oracle](https://www.oracle.com/corporate/security-practices/assurance/vulnerability/reporting.html) which includes public encryption keys for secure email.
 
-## Reporting a Vulnerability
+We ask that you do not use other channels or contact project contributors directly. 
 
-SUSE Rancher supports responsible disclosure and endeavors to resolve security issues in a reasonable timeframe. To report a security vulnerability, email security-rancher@suse.com . You may (but are not required to) use the GPG key `rsa4096/C9DF50BDAC351DA9` for encrypted communication.
+Non-vulnerability related security issues such as new great new ideas for security features are welcome on GitHub Issues. 
 
-### GPG Key - `security-rancher@suse.com`
+## Security Updates, Alerts and Bulletins
 
-```
------BEGIN PGP PUBLIC KEY BLOCK-----
+Security updates will be released on a regular cadence. Many of our projects will typically release security fixes in conjunction with the [Oracle Critical Patch Update](https://www.oracle.com/security-alerts/) program. Security updates are released on the Tuesday closest to the 17th day of January, April, July and October. A pre-release announcement will be published on the Thursday preceding each release. Additional information, including past advisories, is available on our [Security Alerts](https://www.oracle.com/security-alerts/) page.
 
-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
-ArCzVjxOM8JhL941OADyL1A=
-=l4yT
------END PGP PUBLIC KEY BLOCK-----
-```
+## Security-Related Information
+
+We will provide security related information such as a threat model, considerations for secure use, or any known security issues in our documentation. Please note that labs and sample code are intended to demonstrate a concept and may not be sufficiently hardened for production use.
