@@ -163,11 +163,11 @@ RUN ln -s /usr/bin/cni /usr/bin/bridge && \
     ln -s /usr/bin/cni /usr/bin/loopback && \
     ln -s /usr/bin/cni /usr/bin/portmap && \
     ln -s /usr/bin/k3s /usr/bin/crictl && \
-    ln -s /usr/bin/k3s /usr/bin/ctr && \
+    #ln -s /usr/bin/k3s /usr/bin/ctr && \
     ln -s /usr/bin/k3s /usr/bin/k3s-agent && \
     ln -s /usr/bin/k3s /usr/bin/k3s-etcd-snapshot && \
     ln -s /usr/bin/k3s /usr/bin/k3s-server && \
-    ln -s /usr/bin/k3s /usr/bin/kubectl && \
+    #ln -s /usr/bin/k3s /usr/bin/kubectl && \
     ln -s /usr/bin/pigz /usr/bin/unpigz && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-save && \
