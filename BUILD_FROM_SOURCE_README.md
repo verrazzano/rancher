@@ -1,24 +1,32 @@
 # Build Instructions
 
-The base tag this release is branched from is `v2.6.5`
+The upstream tag this release is branched from is `v2.6.6`
 
-Create Environment Variables
+### Create Environment Variables
 
 ```
 export DOCKER_REPO=<Docker Repository>
 export DOCKER_NAMESPACE=<Docker Namespace>
-export DOCKER_TAG=v2.6.5-BFS
+export DOCKER_TAG=<Docker Tag>
 ```
 
-Build and Push Images
+### Build and Push Images
 
+By default, Rancher uses the latest tag on the Git branch as the image tag, so create the tag and run `make`:
 ```
-# Build and push Rancher
-git tag -d v2.6.5
-git tag  v2.6.5
+git tag ${DOCKER_TAG}
 make
-docker tag rancher/rancher:v2.6.5 ${DOCKER_REPO}/${DOCKER_NAMESPACE}/rancher:${DOCKER_TAG}
-docker tag rancher/rancher-agent:v2.6.5 ${DOCKER_REPO}/${DOCKER_NAMESPACE}/rancher/rancher-agent:${DOCKER_TAG}
+```
+
+Alternatively you can skip creating the tag and simply pass an environment variable to `make`:
+```
+TAG=${DOCKER_TAG} make
+```
+
+Once the build completes successfully, tag and push the images:
+```
+docker tag rancher/rancher:${DOCKER_TAG} ${DOCKER_REPO}/${DOCKER_NAMESPACE}/rancher:${DOCKER_TAG}
+docker tag rancher/rancher-agent:${DOCKER_TAG} ${DOCKER_REPO}/${DOCKER_NAMESPACE}/rancher/rancher-agent:${DOCKER_TAG}
 docker push ${DOCKER_REPO}/${DOCKER_NAMESPACE}/rancher:${DOCKER_TAG}
 docker push ${DOCKER_REPO}/${DOCKER_NAMESPACE}/rancher/rancher-agent:${DOCKER_TAG}
 ```
