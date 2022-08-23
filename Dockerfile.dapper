@@ -105,7 +105,7 @@ RUN ln -s /usr/bin/bash /bin/bash && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-save && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-restore && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-translate && \
-    ln -s /etc/rancher/k3s/k3s.yaml /go/src/github.com/rancher/rancher/.kube/k3s.yaml;
+    ln -s /etc/rancher/k3s/k3s.yaml /go/src/github.com/rancher/rancher/.kube/k3s.yaml
 
 RUN curl -sLf https://github.com/rancher/k3s/releases/download/${CATTLE_K3S_VERSION}/k3s-images.txt -o /usr/tmp/k3s-images.txt
 
