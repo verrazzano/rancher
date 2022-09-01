@@ -1,6 +1,6 @@
 # Build Instructions
 
-The upstream tag this release is branched from is `v2.6.7`
+The upstream tag this release is branched from is `v2.6.8`
 
 ### Create Environment Variables
 
