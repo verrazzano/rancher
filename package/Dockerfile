@@ -1,7 +1,7 @@
 # Copyright (C) 2020, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-ARG K3S_BUILDER=rancher/k3s:v1.23.6-k3s1
+ARG K3S_BUILDER=rancher/k3s:v1.24.1-k3s1
 FROM ${K3S_BUILDER} as k3s_builder
 
 FROM ghcr.io/oracle/oraclelinux:7-slim
