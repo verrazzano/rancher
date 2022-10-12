@@ -121,9 +121,10 @@ ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin
 
 RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum -y install kubectl-1.20.11-4.el7.x86_64 && \
     yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
     yum -y install etcd-3.4.13-1.el7.x86_64 && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
+    yum -y install kubectl-1.23.11-1.el7.x86_64 && \
     yum clean all
 
 # set up helm 2
