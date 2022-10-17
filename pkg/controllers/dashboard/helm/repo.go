@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	catalog "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
@@ -14,10 +15,12 @@ import (
 	helmhttp "github.com/rancher/rancher/pkg/catalogv2/http"
 	catalogcontrollers "github.com/rancher/rancher/pkg/generated/controllers/catalog.cattle.io/v1"
 	namespaces "github.com/rancher/rancher/pkg/namespace"
+	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/wrangler/pkg/apply"
 	"github.com/rancher/wrangler/pkg/condition"
 	corev1controllers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	name2 "github.com/rancher/wrangler/pkg/name"
+	"github.com/sirupsen/logrus"
 	"helm.sh/helm/v3/pkg/repo"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -74,6 +77,16 @@ func RegisterReposForFollowers(ctx context.Context,
 }
 
 func (r *repoHandler) ClusterRepoDownloadEnsureStatusHandler(repo *catalog.ClusterRepo, status catalog.RepoStatus) (catalog.RepoStatus, error) {
+	name := repo.Name
+	isBundledCharts := strings.ToLower(settings.SystemCatalog.Get()) == "bundled"
+	if isBundledCharts && (name == "rancher-charts" || name == "rancher-partner-charts" || name == "rancher-rke2-charts") {
+		// do not force the chart git repo to match the commit from the ClusterRepo, otherwise we could end up using old chart data
+		// if the ClusterRepo commit has not been updated by the new Rancher pod (also no reason to EnqueueAfter since we will just
+		// skip it anyway)
+		logrus.Infof("Skipping ensure for bundled chart ClusterRepo %s at commit %s", name, status.Commit)
+		return status, nil
+	}
+
 	r.clusterRepos.EnqueueAfter(repo.Name, interval)
 	return r.ensure(&repo.Spec, status, &repo.ObjectMeta)
 }
