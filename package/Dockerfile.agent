@@ -2,22 +2,21 @@ ARG RANCHER_TAG=dev
 ARG RANCHER_REPO=rancher
 FROM ${RANCHER_REPO}/rancher:${RANCHER_TAG} as rancher
 
-FROM ubuntu:18.04
+FROM ghcr.io/oracle/oraclelinux:7-slim
 ARG ARCH=amd64
-ENV DOCKER_URL_amd64=https://get.docker.com/builds/Linux/x86_64/docker-1.10.3 \
-    DOCKER_URL_arm64=https://github.com/rancher/docker/releases/download/v1.10.3-ros1/docker-1.10.3_arm64 \
-    DOCKER_URL=DOCKER_URL_${ARCH}
 
 RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
 ENV KUBECTL_VERSION v1.19.7
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends git curl ca-certificates jq iproute2 vim-tiny less bash-completion unzip sysstat acl ssh && \
-    curl -sLf ${!DOCKER_URL} > /usr/bin/docker && \
-    chmod +x /usr/bin/docker && \
-    curl -sLf https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl > /usr/bin/kubectl && \
-    chmod +x /usr/bin/kubectl && \
-    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN yum-config-manager --enable ol7_optional_latest && \
+    yum-config-manager --enable ol7_addons
+
+RUN yum update -y && \
+    yum install -y git curl docker-cli ca-certificates jq iproute vim less bash-completion unzip sysstat acl tar hostname openssl && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
+    yum -y install kubectl-1.23.7-1.el7.x86_64 && \
+    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64
+
 ENV LOGLEVEL_VERSION v0.1.3
 
 RUN curl -sLf https://github.com/rancher/loglevel/releases/download/${LOGLEVEL_VERSION}/loglevel-${ARCH}-${LOGLEVEL_VERSION}.tar.gz | tar xvzf - -C /usr/bin
@@ -32,5 +31,7 @@ ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
 COPY --from=rancher /var/lib/rancher-data /var/lib/rancher-data
 COPY --from=rancher /usr/bin/tini /usr/bin/
 COPY agent run.sh kubectl-shell.sh shell-setup.sh share-root.sh /usr/bin/
+RUN mkdir /license
+COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 WORKDIR /var/lib/rancher
 ENTRYPOINT ["run.sh"]

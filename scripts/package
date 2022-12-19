@@ -1,5 +1,8 @@
 #!/bin/bash
+
 set -e
+source /etc/profile.d/git.sh
+git version
 
 ./k3s-images.sh
 
@@ -14,6 +17,7 @@ CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH:-"release-v2.5"}
 cd $(dirname $0)/../package
 
 cp ../bin/rancher.yaml ../bin/rancher-namespace.yaml ../bin/rancher ../bin/agent ../bin/data.json ../bin/k3s-airgap-images.tar .
+cp ../LICENSE ../README.md ../THIRD_PARTY_LICENSES.txt .
 
 IMAGE=${REPO}/rancher:${TAG}
 AGENT_IMAGE=${REPO}/rancher-agent:${AGENT_TAG}
@@ -40,7 +44,8 @@ cd ../bin
 
 if [ ! -d build/system-charts ]; then
     mkdir -p build
-    git clone --depth=1 --no-tags --branch $SYSTEM_CHART_DEFAULT_BRANCH https://github.com/rancher/system-charts $SYSTEM_CHART_REPO_DIR
+    # Oracle - Removed the --no-tags option since we are using oraclelinux:7-slim as the base image, and that has an older version of git that does not support this option
+    git clone --depth=1 --branch $SYSTEM_CHART_DEFAULT_BRANCH https://github.com/rancher/system-charts $SYSTEM_CHART_REPO_DIR
 fi
 
 if [ ! -d $CHART_REPO_DIR ]; then

@@ -1,8 +1,19 @@
-FROM ubuntu:18.04
-RUN apt-get update && apt-get install -y git curl ca-certificates unzip xz-utils && \
+FROM ghcr.io/oracle/oraclelinux:7-slim
+RUN yum-config-manager --enable ol7_optional_latest && \
+    yum-config-manager --enable ol7_addons
+
+RUN yum update -y && \
+    # software collections repo needed for git 2.x on OL7
+    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
+    yum install -y rh-git227 curl ca-certificates unzip tar docker-cli && \
+    # Set up needed to ensure git 2.27 from rh-git227 is on the path
+    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
+    source /etc/profile.d/git.sh && \
+    git version && \
     useradd rancher && \
     mkdir -p /var/lib/rancher/etcd /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin
+
 RUN mkdir /root/.kube && \
     ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/k3s.yaml  && \
     ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/config && \
@@ -35,7 +46,7 @@ ENV DOCKER_MACHINE_LINODE_VERSION v0.1.8
 ENV LINODE_UI_DRIVER_VERSION v0.3.0
 ENV RANCHER_METADATA_BRANCH ${RANCHER_METADATA_BRANCH}
 ENV HELM_VERSION v3.3.1
-ENV KUSTOMIZE_VERSION v3.5.4
+ENV KUSTOMIZE_VERSION v3.10.0
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=0.3.500
@@ -46,6 +57,8 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/helm3-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/v2 && \
+    # Set up the git 2.x environment variables so that it's on the path
+    source /etc/profile.d/git.sh && \
     git clone -b $CATTLE_SYSTEM_CHART_DEFAULT_BRANCH --single-branch https://github.com/rancher/system-charts /var/lib/rancher-data/local-catalogs/system-library && \
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     git clone -b $CATTLE_CHART_DEFAULT_BRANCH --depth 1 https://git.rancher.io/charts /var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721/ && \
@@ -91,6 +104,16 @@ RUN if [ "${ARCH}" == "arm64" ]; then \
     rm kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz; \
     fi
 
+RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
+    yum install -y helm-3.3.4-2.el7.x86_64 && \
+    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
+    yum -y install kubectl-1.23.7-1.el7.x86_64 && \
+    yum -y install etcd-3.5.1-2.el7.x86_64 && \
+    mv /usr/bin/helm /usr/bin/helm_v3 && \
+    chmod +x /usr/bin/kustomize && \
+    yum clean all
+
 # set up helm 2
 RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
     curl -sLf ${!TILLER_URL} > /usr/bin/rancher-tiller && \
@@ -98,19 +121,12 @@ RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
     ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
     chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller
 
-# set up helm 3
-RUN curl ${HELM_URL_V3} | tar xvzf - --strip-components=1 -C /usr/bin && \
-    mv /usr/bin/helm /usr/bin/helm_v3 && \
-    chmod +x /usr/bin/kustomize
-
 RUN curl -sLf ${!TINI_URL} > /usr/bin/tini && \
     curl -sLf ${!CHANNELSERVER_URL} > /usr/bin/channelserver && \
     curl -sLf ${!K3S_URL} > /usr/bin/k3s && \
     mkdir -p /var/lib/rancher/k3s/agent/images/ && \
-    curl -sfL ${!ETCD_URL} | tar xvzf - --strip-components=1 -C /usr/bin/ etcd-${CATTLE_ETCD_VERSION}-linux-${ARCH}/etcd etcd-${CATTLE_ETCD_VERSION}-linux-${ARCH}/etcdctl && \
     curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
-    curl -sLf https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl > /usr/bin/kubectl && \
-    chmod +x /usr/bin/tini /usr/bin/telemetry /usr/bin/k3s /usr/bin/kubectl /usr/bin/channelserver && \
+    chmod +x /usr/bin/tini /usr/bin/telemetry /usr/bin/k3s /usr/bin/channelserver && \
     mkdir -p /var/lib/rancher-data/driver-metadata
 
 ENV CATTLE_UI_VERSION 2.5.9
@@ -151,13 +167,16 @@ ENV CATTLE_SERVER_VERSION ${VERSION}
 COPY entrypoint.sh rancher /usr/bin/
 COPY kustomize.sh /usr/bin/
 COPY jailer.sh /usr/bin/
+RUN mkdir /license
+COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 COPY k3s-airgap-images.tar /var/lib/rancher/k3s/agent/images/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
 COPY data.json /var/lib/rancher-data/driver-metadata/
 
-ENV CATTLE_AGENT_IMAGE ${IMAGE_REPO}/rancher-agent:${VERSION}
+# Force use of rancher-agent image built from source for Verrazzano.
+ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
 ENV CATTLE_SERVER_IMAGE ${IMAGE_REPO}/rancher
 ENV ETCD_UNSUPPORTED_ARCH=${ARCH}
 ENV ETCDCTL_API=3
