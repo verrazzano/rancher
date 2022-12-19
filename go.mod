@@ -5,10 +5,11 @@ go 1.17
 replace (
 	github.com/docker/distribution => github.com/docker/distribution v2.7.1+incompatible // oras dep requires a replace is set
 	github.com/docker/docker => github.com/docker/docker v20.10.9+incompatible // oras dep requires a replace is set
+	github.com/emicklei/go-restful => github.com/emicklei/go-restful v2.16.0+incompatible
 
 	github.com/knative/pkg => github.com/rancher/pkg v0.0.0-20190514055449-b30ab9de040e
 	github.com/matryer/moq => github.com/rancher/moq v0.0.0-20200712062324-13d1f37d2d77
-	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.1
+	github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
 
 	github.com/rancher/rancher/pkg/apis => ./pkg/apis
 	github.com/rancher/rancher/pkg/client => ./pkg/client
