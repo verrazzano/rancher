@@ -2,15 +2,30 @@ ARG RANCHER_TAG=dev
 ARG RANCHER_REPO=rancher
 FROM ${RANCHER_REPO}/rancher:${RANCHER_TAG} as rancher
 
-FROM registry.suse.com/bci/bci-base:15.3
+FROM ghcr.io/oracle/oraclelinux:7-slim
 ARG ARCH=amd64
 
-ENV KUBECTL_VERSION v1.23.6
-RUN zypper -n install --no-recommends curl ca-certificates jq git-core hostname iproute2 vim-small less \
-	bash-completion acl openssh-clients tar gzip xz gawk sysstat && \
-    zypper -n clean -a && rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
-    curl -sLf https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl > /usr/bin/kubectl && \
-    chmod +x /usr/bin/kubectl
+RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
+ENV KUBECTL_VERSION v1.22.7
+
+RUN yum-config-manager --enable ol7_optional_latest && \
+    yum-config-manager --enable ol7_addons
+
+RUN yum update -y && \
+    # software collections repo needed for git 2.x on OL7
+    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
+    yum install -y rh-git227 curl docker-cli ca-certificates jq iproute vim less bash-completion unzip sysstat acl tar hostname openssl && \
+    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
+    yum -y install kubectl-1.23.11-1.el7.x86_64 && \
+    # Set up needed to ensure git 2.27 from rh-git227 is on the path
+    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
+    source /etc/profile.d/git.sh && \
+    git version
+
+# Update PATH to make sure git 2.27 is on the path
+ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
 
 ENV LOGLEVEL_VERSION v0.1.5
 
@@ -20,8 +35,14 @@ ARG VERSION=dev
 LABEL io.cattle.agent true
 ENV AGENT_IMAGE rancher/rancher-agent:${VERSION}
 ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
+
+# Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
+RUN cat /etc/profile.d/git.sh >> /etc/profile
+
 COPY --from=rancher /var/lib/rancher-data /var/lib/rancher-data
 COPY --from=rancher /usr/bin/tini /usr/bin/
 COPY agent run.sh kubectl-shell.sh shell-setup.sh /usr/bin/
+RUN mkdir /license
+COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 WORKDIR /var/lib/rancher
 ENTRYPOINT ["run.sh"]
