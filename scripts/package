@@ -1,5 +1,8 @@
 #!/bin/bash
+
 set -e
+source /etc/profile.d/git.sh
+git version
 
 source $(dirname $0)/version
 
@@ -10,6 +13,8 @@ cd $(dirname $0)/../package
 ../scripts/k3s-images.sh
 
 cp ../bin/rancher ../bin/agent ../bin/data.json ../bin/k3s-airgap-images.tar .
+cp ../bin/rancher.yaml ../bin/rancher-namespace.yaml ../bin/rancher ../bin/agent ../bin/data.json ../bin/k3s-airgap-images.tar .
+cp ../LICENSE ../README.md ../THIRD_PARTY_LICENSES.txt .
 
 # Make sure the used data.json is a release artifact
 cp ../bin/data.json ../bin/rancher-data.json
@@ -21,7 +26,11 @@ if [ ${ARCH} == s390x ]; then
     sed -i -e '$a\' -e 'ENV ETCD_UNSUPPORTED_ARCH=s390x' Dockerfile
 fi
 
-docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} -t ${IMAGE} .
+if [ ! -z ${CATTLE_DASHBOARD_TAR_URL} ]; then
+    docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} --build-arg CATTLE_DASHBOARD_TAR_URL=${CATTLE_DASHBOARD_TAR_URL} -t ${IMAGE} .
+else
+    docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} -t ${IMAGE} .
+fi
 
 docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f Dockerfile.agent .
 
@@ -35,7 +44,8 @@ cd ../bin
 
 if [ ! -d build/system-charts ]; then
     mkdir -p build
-    git clone --depth=1 --no-tags --branch $SYSTEM_CHART_DEFAULT_BRANCH https://github.com/rancher/system-charts $SYSTEM_CHART_REPO_DIR
+    # Oracle - Removed the --no-tags option since we are using oraclelinux:7-slim as the base image, and that has an older version of git that does not support this option
+    git clone --depth=1 --branch $SYSTEM_CHART_DEFAULT_BRANCH https://github.com/rancher/system-charts $SYSTEM_CHART_REPO_DIR
 fi
 
 if [ ! -d $CHART_REPO_DIR ]; then
