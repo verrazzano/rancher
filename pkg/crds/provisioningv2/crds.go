@@ -114,9 +114,9 @@ func rke2() []crd.CRD {
 }
 
 func Webhooks() []runtime.Object {
-	if features.EmbeddedClusterAPI.Enabled() {
-		return capiWebhooks()
-	}
+	//if features.EmbeddedClusterAPI.Enabled() {
+	//	return capiWebhooks()
+	//}
 	return nil
 }
 

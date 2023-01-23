@@ -85,7 +85,7 @@ var (
 		false)
 	MonitoringV1 = newFeature(
 		"monitoringv1",
-		"Enable support for monitoring v1 in downstream clusters. The legacy feature flag is required to be enabled",
+		"Enable support for monitorings v1 in downstream clusters. The legacy feature flag is required to be enabled",
 		true,
 		false,
 		false)
