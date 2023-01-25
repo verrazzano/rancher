@@ -153,8 +153,8 @@ RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
 # set up helm 3
 # Rancher uses its own Helm fork - build and install our BFS of that fork.
 RUN git -C / clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
-    make -C /helm && \
-    mv ./bin/helm /usr/bin/helm_v3 && \
+    make -C ./helm && \
+    mv ./helm/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
 
 # Set up K3s: copy the necessary binaries from the K3s image.
