@@ -2,7 +2,10 @@ module github.com/rancher/rancher/pkg/client
 
 go 1.17
 
-replace k8s.io/client-go => k8s.io/client-go v0.18.8
+replace (
+	github.com/emicklei/go-restful => github.com/emicklei/go-restful v2.16.0+incompatible
+	k8s.io/client-go => k8s.io/client-go v0.18.8
+)
 
 require (
 	github.com/rancher/norman v0.0.0-20220621173721-cba80063e705
