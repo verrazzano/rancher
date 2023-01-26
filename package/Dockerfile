@@ -152,7 +152,8 @@ RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
 
 # set up helm 3
 # Rancher uses its own Helm fork - build and install our BFS of that fork.
-RUN source /etc/profile.d/git.sh && \
+RUN yum install -y make && \
+    source /etc/profile.d/git.sh && \
     git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C ./helm && \
     mv ./helm/bin/helm /usr/bin/helm_v3 && \
