@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
@@ -439,6 +440,10 @@ func (r *RunningDriver) Start() (string, error) {
 		processContext, r.cancel = context.WithCancel(context.Background())
 		cmd := exec.CommandContext(processContext, r.Path, port)
 		cmd.Env = []string{"PATH=/usr/bin"}
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+		cmd.SysProcAttr.Chroot = r.Path
+		cmd.Env = append(cmd.Env, "PWD=/")
+		cmd.Dir = "/"
 
 		// redirect output to console
 		cmd.Stdout = os.Stdout
