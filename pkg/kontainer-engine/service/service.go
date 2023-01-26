@@ -12,8 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rancher/rancher/pkg/jailer"
-
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/pkg/errors"
@@ -441,10 +439,6 @@ func (r *RunningDriver) Start() (string, error) {
 		processContext, r.cancel = context.WithCancel(context.Background())
 		cmd := exec.CommandContext(processContext, r.Path, port)
 		cmd.Env = []string{"PATH=/usr/bin"}
-		cmd, err = jailer.JailCommand(cmd, "/opt/jail/driver-jail")
-		if err != nil {
-			return "", errors.WithMessage(err, "failed to setup jail command")
-		}
 
 		// redirect output to console
 		cmd.Stdout = os.Stdout
