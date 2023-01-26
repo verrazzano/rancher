@@ -152,11 +152,7 @@ RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
 
 # set up helm 3
 # Rancher uses its own Helm fork - build and install our BFS of that fork.
-RUN yum install -y rh-git227 && \
-    # Set up needed to ensure git 2.27 from rh-git227 is on the path (gitjob original v0.1.30 image uses git version 2.35.3)
-    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
-    source /etc/profile.d/git.sh && \
-    git version && \
+RUN source /etc/profile.d/git.sh && \
     git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C ./helm && \
     mv ./helm/bin/helm /usr/bin/helm_v3 && \
