@@ -1,6 +1,7 @@
 package jailer
 
 import (
+	"github.com/pkg/errors"
 	"os"
 	"os/exec"
 	"os/user"
