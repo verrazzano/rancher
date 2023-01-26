@@ -51,6 +51,7 @@ replace (
 
 	sigs.k8s.io/aws-iam-authenticator => github.com/rancher/aws-iam-authenticator v0.5.9-0.20220713170329-78acb8c83863
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.2.0
+	github.com/crewjam/saml => github.com/crewjam/saml v0.4.9
 )
 
 require (
