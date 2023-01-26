@@ -53,7 +53,7 @@ ENV LINODE_UI_DRIVER_VERSION v0.4.0
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV DOCKER_MACHINE_HARVESTER_VERSION v0.5.0
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
-ENV HELM_VERSION v3.9.0
+ENV HELM_VERSION 3.9.0-rancher1
 ENV KUSTOMIZE_VERSION v4.5.5
 ENV CATTLE_WINS_AGENT_VERSION v0.4.11
 ENV CATTLE_WINS_AGENT_INSTALL_SCRIPT https://raw.githubusercontent.com/rancher/wins/${CATTLE_WINS_AGENT_VERSION}/install.ps1
@@ -126,7 +126,6 @@ ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE
     HELM_URL_V2_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-arm64 \
     HELM_URL_V2_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-s390x \
     HELM_URL_V2=HELM_URL_V2_${ARCH} \
-    HELM_URL_V3=https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz \
     TILLER_URL_amd64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller \
     TILLER_URL_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-arm64 \
     TILLER_URL_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-s390x \
@@ -151,8 +150,15 @@ RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
     chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller
 
 # set up helm 3
-RUN curl ${HELM_URL_V3} | tar xvzf - --strip-components=1 -C /usr/bin && \
-    mv /usr/bin/helm /usr/bin/helm_v3 && \
+# Rancher uses its own Helm fork - build and install our BFS of that fork.
+RUN yum install -y make && \
+    yum install -y oracle-golang-release-el7 && \
+    yum-config-manager --enable ol7_developer_golang117 && \
+    yum install -y golang-1.17.5 && \
+    source /etc/profile.d/git.sh && \
+    git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
+    make -C ./helm && \
+    mv ./helm/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
 
 # Set up K3s: copy the necessary binaries from the K3s image.
