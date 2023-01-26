@@ -6,26 +6,24 @@ import (
 	"os/user"
 	"strconv"
 	"syscall"
-
-	"github.com/pkg/errors"
 )
 
 func JailCommand(cmd *exec.Cmd, jailPath string) (*exec.Cmd, error) {
-	if os.Getenv("CATTLE_DEV_MODE") != "" {
-		return cmd, nil
-	}
-
-	cred, err := getUserCred()
-	if err != nil {
-		return nil, errors.WithMessage(err, "get user cred error")
-	}
-
-	cmd.SysProcAttr = &syscall.SysProcAttr{}
-	cmd.SysProcAttr.Credential = cred
-	cmd.SysProcAttr.Chroot = jailPath
-	cmd.Env = WhitelistEnvvars(cmd.Env)
-	cmd.Env = append(cmd.Env, "PWD=/")
-	cmd.Dir = "/"
+	//if os.Getenv("CATTLE_DEV_MODE") != "" {
+	//	return cmd, nil
+	//}
+	//
+	//cred, err := getUserCred()
+	//if err != nil {
+	//	return nil, errors.WithMessage(err, "get user cred error")
+	//}
+	//
+	//cmd.SysProcAttr = &syscall.SysProcAttr{}
+	//cmd.SysProcAttr.Credential = cred
+	//cmd.SysProcAttr.Chroot = jailPath
+	//cmd.Env = WhitelistEnvvars(cmd.Env)
+	//cmd.Env = append(cmd.Env, "PWD=/")
+	//cmd.Dir = "/"
 	return cmd, nil
 }
 

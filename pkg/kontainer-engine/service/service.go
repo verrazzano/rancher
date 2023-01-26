@@ -436,10 +436,10 @@ func (r *RunningDriver) Start() (string, error) {
 
 		r.listenAddress = <-addr
 	} else {
-		//var processContext context.Context
-		//processContext, r.cancel = context.WithCancel(context.Background())
-		//cmd := exec.CommandContext(processContext, r.Path, port)
-		cmd := exec.Command(r.Path, port)
+
+		var processContext context.Context
+		processContext, r.cancel = context.WithCancel(context.Background())
+		cmd := exec.CommandContext(processContext, r.Path, port)
 		cmd.Env = []string{"PATH=/usr/bin"}
 		cmd, err = jailer.JailCommand(cmd, "/opt/jail/driver-jail")
 		if err != nil {
