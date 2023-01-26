@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/rancher/rancher/pkg/jailer"
 	"net"
 	"os"
 	"os/exec"
@@ -35,6 +37,25 @@ const (
 	ImportDriverName                        = "import"
 	RancherKubernetesEngineDriverName       = "rancherkubernetesengine"
 )
+
+const kubeconfigFMT = `apiVersion: v1
+kind: Config
+clusters:
+- name: default-cluster
+  cluster:
+    certificate-authority-data: %s
+    server: %s
+contexts:
+- name: default-context
+  context:
+    cluster: default-cluster
+    namespace: cattle-system
+    user: default-user
+current-context: default-context
+users:
+- name: default-user
+  user:
+    token: %s`
 
 var (
 	Drivers = map[string]types.Driver{
@@ -87,6 +108,27 @@ func (c controllerConfigGetter) GetConfig() (types.DriverOptions, error) {
 	driverOptions.StringOptions["displayName"] = displayName
 
 	return driverOptions, nil
+}
+
+func getKubeConfig() ([]byte, error) {
+	loadSAData := func(name string) ([]byte, error) {
+		saPath := "/var/run/secrets/kubernetes.io/serviceaccount/"
+		p := path.Join(saPath, name)
+		return os.ReadFile(p)
+	}
+
+	tok, err := loadSAData("token")
+	if err != nil {
+		return nil, err
+	}
+	ca, err := loadSAData("ca.crt")
+	if err != nil {
+		return nil, err
+	}
+	caString := base64.StdEncoding.EncodeToString(ca)
+	serverURL := fmt.Sprintf("https://%s:%s", os.Getenv("KUBERNETES_SERVICE_HOST"), os.Getenv("KUBERNETES_SERVICE_PORT"))
+
+	return []byte(fmt.Sprintf(kubeconfigFMT, caString, serverURL, string(tok))), nil
 }
 
 // flatten take a map and flatten it and convert it into driverOptions
@@ -435,16 +477,24 @@ func (r *RunningDriver) Start() (string, error) {
 
 		r.listenAddress = <-addr
 	} else {
-
 		var processContext context.Context
 		processContext, r.cancel = context.WithCancel(context.Background())
-		driverPath := path.Join("/opt/jail/driver-jail/", r.Path)
-		cmd := exec.CommandContext(processContext, driverPath, port)
+		cmd := exec.CommandContext(processContext, r.Path, port)
+		cmd.Env = []string{"PATH=/usr/bin"}
+		cmd, err = jailer.JailCommand(cmd, "/opt/jail/driver-jail")
+		if err != nil {
+			return "", errors.WithMessage(err, "failed to setup jail command")
+		}
+
+		kubeconfig, err := getKubeConfig()
+		if err != nil {
+			return "", fmt.Errorf("error creating kubeconfig: %v", err)
+		}
+		cmd.Env = append(cmd.Env, fmt.Sprintf("INJECTED_KUBECONFIG=%s", base64.StdEncoding.EncodeToString(kubeconfig)))
 		// redirect output to console
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-
-		err := cmd.Start()
+		err = cmd.Start()
 		if err != nil {
 			return "", fmt.Errorf("error starting driver: %v", err)
 		}
