@@ -7,10 +7,10 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"path"
 	"reflect"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
@@ -438,13 +438,8 @@ func (r *RunningDriver) Start() (string, error) {
 
 		var processContext context.Context
 		processContext, r.cancel = context.WithCancel(context.Background())
-		cmd := exec.CommandContext(processContext, r.Path, port)
-		cmd.Env = []string{"PATH=/usr/bin"}
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Chroot = r.Path
-		cmd.Env = append(cmd.Env, "PWD=/")
-		cmd.Dir = "/"
-
+		driverPath := path.Join("/opt/jail/driver-jail/", r.Path)
+		cmd := exec.CommandContext(processContext, driverPath, port)
 		// redirect output to console
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
