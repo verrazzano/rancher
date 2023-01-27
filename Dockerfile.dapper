@@ -1,6 +1,9 @@
 FROM ghcr.io/oracle/oraclelinux:7-slim
 
+
 ARG DAPPER_HOST_ARCH
+ARG CATTLE_DASHBOARD_TAR_URL
+RUN echo CATTLE_DASHBOARD_TAR_URL = ${CATTLE_DASHBOARD_TAR_URL}
 ENV HOST_ARCH=${DAPPER_HOST_ARCH} ARCH=${DAPPER_HOST_ARCH}
 ENV K3S_ROOT_VERSION v0.11.0
 ENV CATTLE_HELM_VERSION v2.16.8-rancher2
@@ -12,6 +15,7 @@ ENV CATTLE_HELM_UNITTEST_VERSION v0.1.7-rancher4
 ENV HELM_VERSION v3.9.0
 ENV KUSTOMIZE_VERSION v4.4.1
 ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
+
 
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
 ENV CATTLE_KDM_BRANCH=release-v2.7
@@ -110,7 +114,6 @@ RUN curl -sLf https://github.com/rancher/k3s/releases/download/${CATTLE_K3S_VERS
 ENV YQ_URL=https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_${ARCH}
 RUN wget -O - ${YQ_URL} > /usr/bin/yq && chmod +x /usr/bin/yq
 
-RUN echo CATTLE_DASHBOARD_TAR_URL = ${CATTLE_DASHBOARD_TAR_URL}
 ENV HELM_HOME /root/.helm
 ENV DAPPER_ENV REPO TAG DRONE_TAG DRONE_COMMIT DRONE_BRANCH DRONE_BUILD_EVENT SYSTEM_CHART_DEFAULT_BRANCH FOSSA_API_KEY GOGET_MODULE GOGET_VERSION RELEASE_ACTION RELEASE_TYPE POSTRELEASE_RANCHER_VERSION POSTRELEASE_RANCHER_STABLE CATTLE_DASHBOARD_TAR_URL
 ENV DAPPER_SOURCE /go/src/github.com/rancher/rancher/
@@ -119,7 +122,6 @@ ENV DAPPER_DOCKER_SOCKET true
 ENV DAPPER_RUN_ARGS "-v rancher2-go16-pkg-1:/go/pkg -v rancher2-go16-cache-1:/root/.cache/go-build --privileged"
 ENV GOCACHE /root/.cache/go-build
 ENV HOME ${DAPPER_SOURCE}
-RUN echo CATTLE_DASHBOARD_TAR_URL = ${CATTLE_DASHBOARD_TAR_URL}
 VOLUME /var/lib/rancher
 VOLUME /var/lib/kubelet
 WORKDIR ${DAPPER_SOURCE}
