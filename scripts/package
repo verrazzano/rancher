@@ -27,7 +27,6 @@ if [ ${ARCH} == s390x ]; then
     sed -i -e '$a\' -e 'ENV ETCD_UNSUPPORTED_ARCH=s390x' Dockerfile
 fi
 
-echo ${CATTLE_DASHBOARD_TAR_URL}
 if [ -n ${CATTLE_DASHBOARD_TAR_URL} ]; then
     echo "Inside if statement of CATTLE_DASHBOARD_TAR_URL"
     docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} --build-arg CATTLE_DASHBOARD_TAR_URL=${CATTLE_DASHBOARD_TAR_URL} -t ${IMAGE} .
