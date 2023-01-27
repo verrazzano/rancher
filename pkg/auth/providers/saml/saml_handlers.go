@@ -77,7 +77,7 @@ func (s *Provider) HandleSamlLogin(w http.ResponseWriter, r *http.Request) (stri
 	binding := saml.HTTPRedirectBinding
 	bindingLocation := serviceProvider.GetSSOBindingLocation(binding)
 
-	req, err := serviceProvider.MakeAuthenticationRequest(bindingLocation)
+	req, err := serviceProvider.MakeAuthenticationRequest(bindingLocation, binding, saml.HTTPPostBinding)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return "", err
@@ -101,7 +101,10 @@ func (s *Provider) HandleSamlLogin(w http.ResponseWriter, r *http.Request) (stri
 	s.clientState.SetState(w, r, relayState, signedState)
 
 	if binding == saml.HTTPRedirectBinding {
-		redirectURL := req.Redirect(relayState)
+		redirectURL, err := req.Redirect(relayState, serviceProvider)
+		if err != nil {
+			return "", err
+		}
 		return redirectURL.String(), nil
 	}
 	return "", nil
