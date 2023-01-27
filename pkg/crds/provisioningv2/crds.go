@@ -114,25 +114,7 @@ func rke2() []crd.CRD {
 }
 
 func Webhooks() []runtime.Object {
-	if features.EmbeddedClusterAPI.Enabled() {
-		return capiWebhooks()
-	}
 	return nil
-}
-
-func capiWebhooks() []runtime.Object {
-	f, err := capiData.Open("capi-webhooks.yaml")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	objs, err := yaml.ToObjects(f)
-	if err != nil {
-		panic(err)
-	}
-
-	return objs
 }
 
 func capi() []crd.CRD {
