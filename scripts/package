@@ -28,10 +28,8 @@ fi
 
 echo The value of CATTLE_DASHBOARD_TAR_URL is "${CATTLE_DASHBOARD_TAR_URL}"
 if [ -n "${CATTLE_DASHBOARD_TAR_URL}" ]; then
-    echo Setting build-arg CATTLE_DASHBOARD_TAR_URL to ${CATTLE_DASHBOARD_TAR_URL}
     docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} --build-arg CATTLE_DASHBOARD_TAR_URL=${CATTLE_DASHBOARD_TAR_URL} -t ${IMAGE} .
 else
-    echo Using the default build-arg CATTLE_DASHBOARD_TAR_URL
     docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} -t ${IMAGE} .
 fi
 

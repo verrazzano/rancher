@@ -221,8 +221,6 @@ ENV AUDIT_LOG_MAXBACKUP 10
 ENV AUDIT_LOG_MAXSIZE 100
 ENV AUDIT_LEVEL 0
 
-RUN echo Build arg CATTLE_DASHBOARD_TAR_URL is ${CATTLE_DASHBOARD_TAR_URL}
-
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
     curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
