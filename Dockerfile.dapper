@@ -17,6 +17,8 @@ ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
 ENV CATTLE_KDM_BRANCH=dev-v2.7
 
+RUN echo CATTLE_DASHBOARD_TAR_URL = ${CATTLE_DASHBOARD_TAR_URL}
+
 RUN yum-config-manager --enable ol7_optional_latest && \
     yum-config-manager --enable ol7_addons
 
