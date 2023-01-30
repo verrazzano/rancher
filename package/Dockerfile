@@ -149,9 +149,11 @@ RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
     ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
     chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller
 
+
 # set up helm 3
 # Rancher uses its own Helm fork - build and install our BFS of that fork.
 RUN yum install -y make && \
+    yum install -y oracle-golang-release-el7 && \
     yum-config-manager --enable ol7_developer_golang119 && \
     yum install -y golang-1.19 \
     source /etc/profile.d/git.sh && \
