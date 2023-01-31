@@ -2,6 +2,8 @@ FROM ghcr.io/oracle/oraclelinux:7-slim
 
 ARG DAPPER_HOST_ARCH
 ARG CATTLE_DASHBOARD_TAR_URL
+ENV CATTLE_DASHBOARD_TAR_URL_ENB=$CATTLE_DASHBOARD_TAR_URL
+RUN echo Printing CATTLE_DASHBOARD_TAR_URL_ENB ${CATTLE_DASHBOARD_TAR_URL_ENB}
 ENV HOST_ARCH=${DAPPER_HOST_ARCH} ARCH=${DAPPER_HOST_ARCH}
 ENV K3S_ROOT_VERSION v0.11.0
 ENV CATTLE_HELM_VERSION v2.16.8-rancher2
@@ -16,8 +18,6 @@ ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
 
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
 ENV CATTLE_KDM_BRANCH=dev-v2.7
-
-RUN echo CATTLE_DASHBOARD_TAR_URL = ${CATTLE_DASHBOARD_TAR_URL}
 
 RUN yum-config-manager --enable ol7_optional_latest && \
     yum-config-manager --enable ol7_addons
