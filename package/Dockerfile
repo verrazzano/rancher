@@ -2,10 +2,10 @@ ARG K3S_BUILDER=rancher/k3s:v1.24.1-k3s1
 FROM ${K3S_BUILDER} as k3s_builder
 
 FROM ghcr.io/oracle/oraclelinux:7-slim
-RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons
 
-RUN yum update -y && \
+RUN yum-config-manager --enable ol7_optional_latest && \
+    yum-config-manager --enable ol7_addons && \
+    yum update -y && \
     # software collections repo needed for git 2.x on OL7
     yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
     yum install -y rh-git227 curl ca-certificates unzip tar docker-cli nc mkisofs && \
@@ -16,9 +16,8 @@ RUN yum update -y && \
     useradd rancher && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
     mkdir -p /var/lib/rancher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
-    chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin
-
-RUN mkdir /root/.kube && \
+    chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
+    mkdir /root/.kube && \
     ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/k3s.yaml  && \
     ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/config && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
@@ -139,19 +138,16 @@ RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/ol
     yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
     yum -y install kubectl-1.23.11-1.el7.x86_64 && \
-    yum -y install etcd-3.5.1-2.el7.x86_64
-
-# set up helm 2
-RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
+    yum -y install etcd-3.5.1-2.el7.x86_64 && \
+    # set up helm 2
+    curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
     curl -sLf ${!TILLER_URL} > /usr/bin/rancher-tiller && \
     ln -s /usr/bin/rancher-helm /usr/bin/helm && \
     ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
-    chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller
-
-
-# set up helm 3
-# Rancher uses its own Helm fork - build and install our BFS of that fork.
-RUN yum install -y make && \
+    chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller && \
+    # set up helm 3
+    # Rancher uses its own Helm fork - build and install our BFS of that fork.
+    yum install -y make && \
     yum install -y oracle-golang-release-el7 && \
     yum-config-manager --enable ol7_developer_golang119 && \
     yum install -y golang-1.19 && \
