@@ -139,8 +139,7 @@ RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/ol
     yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
     yum -y install kubectl-1.23.11-1.el7.x86_64 && \
-    yum -y install etcd-3.5.1-2.el7.x86_64 && \
-    yum clean all
+    yum -y install etcd-3.5.1-2.el7.x86_64
 
 # set up helm 2
 RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
@@ -156,6 +155,8 @@ RUN yum install -y make && \
     yum install -y oracle-golang-release-el7 && \
     yum-config-manager --enable ol7_developer_golang119 && \
     yum install -y golang-1.19 && \
+    yum clean all && \
+    rm -rf /var/cache/yum && \
     source /etc/profile.d/git.sh && \
     git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C ./helm && \
