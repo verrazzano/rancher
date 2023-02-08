@@ -9,6 +9,8 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     # software collections repo needed for git 2.x on OL7
     yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
     yum install -y rh-git227 curl ca-certificates unzip tar docker-cli nc mkisofs && \
+    yum clean all && \
+    rm -rf /var/cache/yum && \
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
     ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
     source /etc/profile.d/git.sh && \
