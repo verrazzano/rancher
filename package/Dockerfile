@@ -199,9 +199,8 @@ RUN ln -s /usr/bin/cni /usr/bin/bridge && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-save && \
     ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-restore && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-translate
-
-RUN curl -sLf ${!TINI_URL} > /usr/bin/tini && \
+    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-translate && \
+    curl -sLf ${!TINI_URL} > /usr/bin/tini && \
     mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     curl -sfL ${ETCD_URL} | tar xvzf - --strip-components=1 -C /usr/bin/ etcd-${CATTLE_ETCD_VERSION}-linux-${ARCH}/etcdctl && \
     curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
