@@ -81,8 +81,6 @@ ENV RANCHER_CHARTS_COMMIT=b08caead322a563a73b0eac24e9c14e77e3f8923
 ENV RANCHER_PARTNER_CHARTS_COMMIT=5bf8c3c4d76767610536051023fca99cf5bbaabf
 ENV RANCHER_RKE2_CHARTS_COMMIT=f08567172548acf8beffa4466b84580ba4220b03
 
-ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH}
-
 RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/helm3-library && \
@@ -164,13 +162,16 @@ RUN yum install -y make && \
     chmod +x /usr/bin/kustomize
 
 
+ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH}
+RUN mkdir -p /go/bin
+
 RUN source /etc/profile.d/git.sh && \
     git version && \
     git clone https://github.com/go-delve/delve
 
 WORKDIR "delve"
-RUN go build github.com/go-delve/delve/cmd/dlv
-COPY dlv /dlv
+RUN go install github.com/go-delve/delve/cmd/dlv
+COPY ${GOPATH}/bin/dlv /dlv
 
 # Set up K3s: copy the necessary binaries from the K3s image.
 COPY --from=k3s_builder \
