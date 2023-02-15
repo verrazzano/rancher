@@ -163,12 +163,11 @@ RUN yum install -y make && \
     mv ./helm/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
 
-RUN yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang117 && \
-    yum install -y golang-1.17.5
 
+RUN source /etc/profile.d/git.sh && \
+    git version && \
+    git clone https://github.com/go-delve/delve
 
-RUN git clone https://github.com/go-delve/delve
 WORKDIR "/delve"
 RUN go install github.com/go-delve/delve/cmd/dlv
 COPY ${GOPATH}/bin/dlv /dlv
