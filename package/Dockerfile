@@ -169,8 +169,8 @@ RUN source /etc/profile.d/git.sh && \
     git clone https://github.com/go-delve/delve
 
 WORKDIR "delve"
-RUN go install github.com/go-delve/delve/cmd/dlv
-COPY ${GOPATH}/bin/dlv /dlv
+RUN go build github.com/go-delve/delve/cmd/dlv
+COPY dlv /dlv
 
 # Set up K3s: copy the necessary binaries from the K3s image.
 COPY --from=k3s_builder \
