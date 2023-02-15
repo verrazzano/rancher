@@ -168,7 +168,7 @@ RUN source /etc/profile.d/git.sh && \
     git version && \
     git clone https://github.com/go-delve/delve
 
-WORKDIR "/delve"
+WORKDIR "delve"
 RUN go install github.com/go-delve/delve/cmd/dlv
 COPY ${GOPATH}/bin/dlv /dlv
 
