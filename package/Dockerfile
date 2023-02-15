@@ -163,8 +163,7 @@ RUN yum install -y make && \
     mv ./helm/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
 
-RUN yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum install -y rh-git227 gcc glibc-static && \
+RUN yum install -y rh-git227 gcc glibc-static && \
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
     ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
     source /etc/profile.d/git.sh && \
