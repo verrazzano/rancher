@@ -153,8 +153,8 @@ RUN curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
 # Rancher uses its own Helm fork - build and install our BFS of that fork.
 RUN yum install -y make && \
     yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang117 && \
-    yum install -y golang-1.17.5 && \
+    yum-config-manager --enable ol7_developer_golang118 && \
+    yum install -y golang-1.18.5 && \
     source /etc/profile.d/git.sh && \
     git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C ./helm && \
