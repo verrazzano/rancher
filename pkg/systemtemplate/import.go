@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"io"
+	"os"
 	"sort"
 	"strings"
 	"text/template"
@@ -44,6 +45,8 @@ type context struct {
 	PrivateRegistryConfig string
 	Tolerations           string
 	ClusterRegistry       string
+	WebhookImage          string
+	WebhookImageTag       string
 }
 
 func toFeatureString(features map[string]bool) string {
@@ -99,6 +102,16 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 
 	agentEnvVars = templates.ToYAML(envVars)
 
+	// Handle override of rancher-webhook image
+	var webhookImage = ""
+	var webhookImageTag = ""
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE"); ok {
+		webhookImage = envVal
+	}
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE_TAG"); ok {
+		webhookImageTag = envVal
+	}
+
 	context := &context{
 		Features:              toFeatureString(features),
 		CAChecksum:            CAChecksum(),
@@ -115,6 +128,8 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 		PrivateRegistryConfig: privateRegistryConfig,
 		Tolerations:           tolerations,
 		ClusterRegistry:       clusterRegistry,
+		WebhookImage:          webhookImage,
+		WebhookImageTag:       webhookImageTag,
 	}
 
 	return t.Execute(resp, context)

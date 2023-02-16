@@ -95,6 +95,8 @@ func (h *handler) onSetting(key string, setting *v3.Setting) (*v3.Setting, error
 		},
 	}
 
+	overrideFleetImages(fleetChartValues)
+
 	fleetChartValues["gitops"] = map[string]interface{}{
 		"enabled": features.Gitops.Enabled(),
 	}
@@ -120,9 +122,65 @@ func (h *handler) onSetting(key string, setting *v3.Setting) (*v3.Setting, error
 		gitjobChartValues[chart.PriorityClassKey] = priorityClassName
 	}
 
+	overrideGitJobImage(gitjobChartValues)
+
 	if len(gitjobChartValues) > 0 {
 		fleetChartValues["gitjob"] = gitjobChartValues
 	}
 
 	return setting, h.manager.Ensure(fleetChart.ReleaseNamespace, fleetChart.ChartName, settings.FleetMinVersion.Get(), fleetChartValues, true)
+}
+
+// overrideFleetImages overrides the Fleet image names and/or tags
+func overrideFleetImages(fleetChartValues map[string]interface{}) {
+	overrideFleetImage(fleetChartValues)
+	overrideFleetAgentImage(fleetChartValues)
+}
+
+// overrideFleetImage sets Helm chart values to override the Fleet image name and/or tag based on environment variables.
+func overrideFleetImage(fleetChartValues map[string]interface{}) {
+	chartValues := make(map[string]interface{})
+
+	if envVal, ok := os.LookupEnv("FLEET_IMAGE"); ok {
+		chartValues["repository"] = envVal
+	}
+	if envVal, ok := os.LookupEnv("FLEET_IMAGE_TAG"); ok {
+		chartValues["tag"] = envVal
+	}
+
+	if len(chartValues) > 0 {
+		fleetChartValues["image"] = chartValues
+	}
+}
+
+// overrideFleetAgentImage sets Helm chart values to override the Fleet Agent image name and/or tag based on environment variables.
+func overrideFleetAgentImage(fleetChartValues map[string]interface{}) {
+	chartValues := make(map[string]interface{})
+
+	if envVal, ok := os.LookupEnv("FLEET_AGENT_IMAGE"); ok {
+		chartValues["repository"] = envVal
+	}
+	if envVal, ok := os.LookupEnv("FLEET_AGENT_IMAGE_TAG"); ok {
+		chartValues["tag"] = envVal
+	}
+
+	if len(chartValues) > 0 {
+		fleetChartValues["agentImage"] = chartValues
+	}
+}
+
+// overrideGitJobImage sets Helm chart values to override the GitJob image name and/or tag based on environment variables.
+func overrideGitJobImage(gitjobChartValues map[string]interface{}) {
+	chartValues := make(map[string]interface{})
+
+	if envVal, ok := os.LookupEnv("GITJOB_IMAGE"); ok {
+		chartValues["repository"] = envVal
+	}
+	if envVal, ok := os.LookupEnv("GITJOB_IMAGE_TAG"); ok {
+		chartValues["tag"] = envVal
+	}
+
+	if len(chartValues) > 0 {
+		gitjobChartValues["gitjob"] = chartValues
+	}
 }
