@@ -68,9 +68,9 @@ var (
 	RKE2 = newFeature(
 		"rke2",
 		"Enable provisioning of RKE2",
-		true,
 		false,
-		true)
+		false,
+		false)
 	Legacy = newFeature(
 		"legacy",
 		"Enable legacy features",
