@@ -34,4 +34,4 @@ fi
 if [ -x "$(command -v c_rehash)" ]; then
   c_rehash
 fi
-exec /dlv --listen=:40000 --headless=true --api-version=2 --accept-multiclient exec /usr/bin/rancher -- --http-listen-port=80 --https-listen-port=443 --audit-log-path=${AUDIT_LOG_PATH} --audit-level=${AUDIT_LEVEL} --audit-log-maxage=${AUDIT_LOG_MAXAGE} --audit-log-maxbackup=${AUDIT_LOG_MAXBACKUP} --audit-log-maxsize=${AUDIT_LOG_MAXSIZE} "${@}"
+exec /dlv --listen=:40000 --headless=true --api-version=2 --accept-multiclient exec /usr/bin/rancher --continue -- --http-listen-port=80 --https-listen-port=443 --audit-log-path=${AUDIT_LOG_PATH} --audit-level=${AUDIT_LEVEL} --audit-log-maxage=${AUDIT_LOG_MAXAGE} --audit-log-maxbackup=${AUDIT_LOG_MAXBACKUP} --audit-log-maxsize=${AUDIT_LOG_MAXSIZE} "${@}"
