@@ -17,7 +17,7 @@ CGO_ENABLED=0 go build -gcflags "all=-N -l" -tags k8s \
   -ldflags \
   "-X github.com/rancher/rancher/pkg/version.Version=$VERSION
    -X github.com/rancher/rancher/pkg/version.GitCommit=$COMMIT
-   -X github.com/rancher/rancher/pkg/settings.InjectDefaults=$DEFAULT_VALUES" \
+   -X github.com/rancher/rancher/pkg/settings.InjectDefaults=$DEFAULT_VALUES $LINKFLAGS" \
   -o bin/rancher
 
 if  [ -n "$CATTLE_KDM_BRANCH" ]; then
