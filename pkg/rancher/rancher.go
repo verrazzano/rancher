@@ -247,11 +247,11 @@ func (r *Rancher) Start(ctx context.Context) error {
 	//	return runMigrations(r.Wrangler)
 	//})
 
-	if err := r.authServer.Start(ctx, false); err != nil {
-		return err
-	}
+	// if err := r.authServer.Start(ctx, false); err != nil {
+	// 	return err
+	// }
 
-	r.Wrangler.OnLeader(r.authServer.OnLeader)
+	//r.Wrangler.OnLeader(r.authServer.OnLeader)
 	//r.auditLog.Start(ctx)
 
 	return r.Wrangler.Start(ctx)
