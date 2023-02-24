@@ -80,9 +80,9 @@ type Rancher struct {
 }
 
 func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options) (*Rancher, error) {
-	var (
-		authServer *auth.Server
-	)
+	//var (
+	//	authServer *auth.Server
+	//)
 
 	if opts == nil {
 		opts = &Options{}
@@ -196,7 +196,7 @@ func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options)
 	//aggregationMiddleware := aggregation.NewMiddleware(ctx, wranglerContext.Mgmt.APIService(), wranglerContext.TunnelServer)
 
 	return &Rancher{
-		Auth: authServer.Authenticator,
+		//Auth: authServer.Authenticator,
 		//.Chain(//	auditFilter),
 		Handler: responsewriter.Chain{
 			auth.SetXAPICattleAuthHeader,
@@ -208,15 +208,15 @@ func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options)
 			//aggregationMiddleware,
 			//additionalAPIPreMCM,
 			wranglerContext.MultiClusterManager.Middleware,
-			authServer.Management,
+			//authServer.Management,
 			additionalAPI,
 			requests.NewRequireAuthenticatedFilter("/v1/", "/v1/management.cattle.io.setting"),
 		}.Handler(steve),
 		Wrangler: wranglerContext,
 		Steve:    steve,
 		//auditLog:   auditLogWriter,
-		authServer: authServer,
-		opts:       opts,
+		//authServer: authServer,
+		opts: opts,
 	}, nil
 }
 
