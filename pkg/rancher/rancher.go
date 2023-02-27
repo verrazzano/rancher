@@ -80,9 +80,9 @@ type Rancher struct {
 }
 
 func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options) (*Rancher, error) {
-	//var (
-	//	authServer *auth.Server
-	//)
+	var (
+		authServer *auth.Server
+	)
 
 	if opts == nil {
 		opts = &Options{}
@@ -148,17 +148,21 @@ func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options)
 	//	}
 	//}
 	//
-	//if features.Auth.Enabled() {
-	//	authServer, err = auth.NewServer(ctx, restConfig)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//} else {
-	//	authServer, err = auth.NewAlwaysAdmin()
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//}
+	// if features.Auth.Enabled() {
+	// 	authServer, err = auth.NewServer(ctx, restConfig)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// } else {
+	// 	authServer, err = auth.NewAlwaysAdmin()
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	authServer, err = auth.NewAlwaysAdmin()
+	if err != nil {
+		return nil, err
+	}
 
 	steve, err := steveserver.New(ctx, restConfig, &steveserver.Options{
 		ServerVersion:   settings.ServerVersion.Get(),
@@ -172,15 +176,15 @@ func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options)
 		return nil, err
 	}
 
-	clusterProxy, err := proxy.NewProxyMiddleware(wranglerContext.K8s.AuthorizationV1(),
-		wranglerContext.TunnelServer.Dialer,
-		wranglerContext.Mgmt.Cluster().Cache(),
-		localClusterEnabled(opts),
-		steve,
-	)
-	if err != nil {
-		return nil, err
-	}
+	// clusterProxy, err := proxy.NewProxyMiddleware(wranglerContext.K8s.AuthorizationV1(),
+	// 	wranglerContext.TunnelServer.Dialer,
+	// 	wranglerContext.Mgmt.Cluster().Cache(),
+	// 	localClusterEnabled(opts),
+	// 	steve,
+	// )
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	//additionalAPIPreMCM := steveapi.AdditionalAPIsPreMCM(wranglerContext)
 	additionalAPI, err := steveapi.AdditionalAPIs(ctx, wranglerContext, steve)
@@ -196,7 +200,7 @@ func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options)
 	//aggregationMiddleware := aggregation.NewMiddleware(ctx, wranglerContext.Mgmt.APIService(), wranglerContext.TunnelServer)
 
 	return &Rancher{
-		//Auth: authServer.Authenticator,
+		Auth: authServer.Authenticator,
 		//.Chain(//	auditFilter),
 		Handler: responsewriter.Chain{
 			auth.SetXAPICattleAuthHeader,
@@ -204,19 +208,19 @@ func New(ctx context.Context, clientConfg clientcmd.ClientConfig, opts *Options)
 			responsewriter.NoCache,
 			websocket.NewWebsocketHandler,
 			proxy.RewriteLocalCluster,
-			clusterProxy,
+			//clusterProxy,
 			//aggregationMiddleware,
 			//additionalAPIPreMCM,
 			wranglerContext.MultiClusterManager.Middleware,
-			//authServer.Management,
+			authServer.Management,
 			additionalAPI,
 			requests.NewRequireAuthenticatedFilter("/v1/", "/v1/management.cattle.io.setting"),
 		}.Handler(steve),
 		Wrangler: wranglerContext,
 		Steve:    steve,
 		//auditLog:   auditLogWriter,
-		//authServer: authServer,
-		opts: opts,
+		authServer: authServer,
+		opts:       opts,
 	}, nil
 }
 
@@ -247,11 +251,11 @@ func (r *Rancher) Start(ctx context.Context) error {
 	//	return runMigrations(r.Wrangler)
 	//})
 
-	// if err := r.authServer.Start(ctx, false); err != nil {
-	// 	return err
-	// }
+	if err := r.authServer.Start(ctx, false); err != nil {
+		return err
+	}
 
-	//r.Wrangler.OnLeader(r.authServer.OnLeader)
+	r.Wrangler.OnLeader(r.authServer.OnLeader)
 	//r.auditLog.Start(ctx)
 
 	return r.Wrangler.Start(ctx)
