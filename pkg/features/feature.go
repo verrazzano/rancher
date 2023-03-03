@@ -50,7 +50,7 @@ var (
 	Gitops = newFeature(
 		"continuous-delivery",
 		"Gitops components in fleet",
-		true,
+		false,
 		false,
 		true)
 	Auth = newFeature(
@@ -62,13 +62,13 @@ var (
 	EmbeddedClusterAPI = newFeature(
 		"embedded-cluster-api",
 		"Enable an embedded instance of cluster-api core controller",
-		true,
+		false,
 		false,
 		false)
 	RKE2 = newFeature(
 		"rke2",
 		"Enable provisioning of RKE2",
-		true,
+		false,
 		false,
 		true)
 	Legacy = newFeature(
@@ -98,7 +98,7 @@ var (
 	Harvester = newFeature(
 		"harvester",
 		"Enable Harvester integration, with ability to import and manage Harvester clusters",
-		true,
+		false,
 		true,
 		true)
 	RKE1CustomNodeCleanup = newFeature(
