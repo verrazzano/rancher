@@ -33,7 +33,7 @@ provisioningInput is needed to the run the RKE1 tests, specifically kubernetesVe
       }
     ],
     "kubernetesVersion": ["v1.24.2-rancher1-1"],
-    "providers": ["linode", "aws", "azure", "harvester"],
+    "providers": ["linode", "aws", "azure"],
     "nodeProviders": ["ec2"]
   }
 ```
@@ -123,34 +123,6 @@ RKE1 specifically needs a node template config to run properly. These are the in
     "type": "azureConfig",
     "updateDomainCount": "5",
     "vnet": "docker-machine-vnet"
-}
-```
-
-### Harvester
-```json
-"harvesterNodeTemplate": {
-    "cloudConfig": "",
-    "clusterId": "",
-    "clusterType": "",
-    "cpuCount": "2",
-    "diskBus": "virtio",
-    "diskSize": "40",
-    "imageName": "default/image-gchq8",
-    "keyPairName": "",
-    "kubeconfigContent": "",
-    "memorySize": "4",
-    "networkData": "",
-    "networkModel": "virtio",
-    "networkName": "",
-    "networkType": "dhcp",
-    "sshPassword": "",
-    "sshPort": "22",
-    "sshPrivateKeyPath": "",
-    "sshUser": "ubuntu",
-    "type": "harvesterConfig",
-    "userData": "",
-    "vmAffinity": "",
-    "vmNamespace": "default"
 }
 ```
 

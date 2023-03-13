@@ -20,8 +20,6 @@ const (
 	Azuredriver        = "azure"
 	DigitalOceandriver = "digitalocean"
 	ExoscaleDriver     = "exoscale"
-	HarvesterDriver    = "harvester"
-	Linodedriver       = "linode"
 	NutanixDriver      = "nutanix"
 	OCIDriver          = "oci"
 	OTCDriver          = "otc"
@@ -40,7 +38,6 @@ var DriverData = map[string]map[string][]string{
 	Azuredriver:        {"publicCredentialFields": []string{"clientId", "subscriptionId", "tenantId", "environment"}, "privateCredentialFields": []string{"clientSecret"}, "optionalCredentialFields": []string{"tenantId"}},
 	DigitalOceandriver: {"privateCredentialFields": []string{"accessToken"}},
 	ExoscaleDriver:     {"privateCredentialFields": []string{"apiSecretKey"}},
-	HarvesterDriver:    {"publicCredentialFields": []string{"clusterType", "clusterId"}, "privateCredentialFields": []string{"kubeconfigContent"}, "optionalCredentialFields": []string{"clusterId"}},
 	Linodedriver:       {"privateCredentialFields": []string{"token"}, "passwordFields": []string{"rootPass"}},
 	NutanixDriver:      {"publicCredentialFields": []string{"endpoint", "username", "port"}, "privateCredentialFields": []string{"password"}},
 	OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
@@ -56,7 +53,6 @@ var DriverData = map[string]map[string][]string{
 }
 
 var driverDefaults = map[string]map[string]string{
-	HarvesterDriver: {"clusterType": "imported"},
 	Vmwaredriver:    {"vcenterPort": "443"},
 }
 
@@ -99,11 +95,6 @@ func addMachineDrivers(management *config.ManagementContext) error {
 		return err
 	}
 	if err := addMachineDriver(GoogleDriver, "local://", "", "", nil, false, true, true, management); err != nil {
-		return err
-	}
-	harvesterEnabled := features.GetFeatureByName(HarvesterDriver).Enabled()
-	// make sure the version number is consistent with the one at Line 40 of package/Dockerfile
-	if err := addMachineDriver(HarvesterDriver, "https://releases.rancher.com/harvester-node-driver/v0.6.1/docker-machine-driver-harvester-amd64.tar.gz", "", "0c86c5797f6ef13881632a4077a70f62cb00937bbe8896c7fda72bc50abb0cea", []string{"releases.rancher.com"}, harvesterEnabled, harvesterEnabled, false, management); err != nil {
 		return err
 	}
 	linodeBuiltin := true

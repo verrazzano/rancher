@@ -73,7 +73,6 @@ const (
 	ClusterConditionAlertingEnabled                      condition.Cond = "AlertingEnabled"
 	ClusterConditionSecretsMigrated                      condition.Cond = "SecretsMigrated"
 	ClusterConditionServiceAccountSecretsMigrated        condition.Cond = "ServiceAccountSecretsMigrated"
-	ClusterConditionHarvesterCloudProviderConfigMigrated condition.Cond = "HarvesterCloudProviderConfigMigrated"
 	ClusterConditionACISecretsMigrated                   condition.Cond = "ACISecretsMigrated"
 	ClusterConditionRKESecretsMigrated                   condition.Cond = "RKESecretsMigrated"
 

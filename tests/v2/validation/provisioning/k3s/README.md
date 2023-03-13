@@ -34,13 +34,13 @@ provisioningInput is needed to the run the K3S tests, specifically kubernetesVer
       }
     ],
     "kubernetesVersion": ["v1.24.4+k3s1"],
-    "providers": ["linode", "aws", "azure", "harvester"],
+    "providers": ["linode", "aws", "azure"],
     "nodeProviders": ["ec2"]
   }
 ```
 
 ## Cloud Credentials
-These are the inputs needed for the different node provider cloud credentials, inlcuding linode, aws, harvester, azure, and google.
+These are the inputs needed for the different node provider cloud credentials, inlcuding linode, aws, azure, and google.
 
 ### Linode
 ```json
@@ -64,14 +64,6 @@ These are the inputs needed for the different node provider cloud credentials, i
    "accessKey": "",
    "defaultRegion": ""
   },
-```
-### Harvester
-```json
-"harvesterCredentials": {
-   "clusterId": "",
-   "clusterType": "",
-   "kubeconfigContent": ""
-},
 ```
 ### Google
 ```json
@@ -141,19 +133,6 @@ Machine K3S config is the final piece needed for the config to run K3S provision
   "usePrivateIp": false,
   "vnet": "docker-machine-vnet"
 },
-```
-### Harvester K3S Machine Config
-```json
-"harvesterMachineConfig": {
-  "diskSize": "40",
-  "cpuCount": "2",
-  "memorySize": "8",
-  "networkName": "default/ctw-network-1",
-  "imageName": "default/image-rpj98",
-  "vmNamespace": "default",
-  "sshUser": "ubuntu",
-  "diskBus": "virtio"
-}
 ```
 
 ## Custom Cluster

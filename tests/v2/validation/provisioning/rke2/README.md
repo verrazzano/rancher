@@ -35,13 +35,13 @@ provisioningInput is needed to the run the RKE2 tests, specifically kubernetesVe
     ],
     "kubernetesVersion": ["v1.21.6+rke2r1"],
     "cni": ["calico"],
-    "providers": ["linode", "aws", "do", "harvester"],
+    "providers": ["linode", "aws", "do"],
     "nodeProviders": ["ec2"]
   }
 ```
 
 ## Cloud Credentials
-These are the inputs needed for the different node provider cloud credentials, inlcuding linode, aws, digital ocean, harvester, azure, and google.
+These are the inputs needed for the different node provider cloud credentials, inlcuding linode, aws, digital ocean, azure, and google.
 
 ### Digital Ocean
 ```json
@@ -71,14 +71,6 @@ These are the inputs needed for the different node provider cloud credentials, i
    "accessKey": "",
    "defaultRegion": ""
   },
-```
-### Harvester
-```json
-"harvesterCredentials": {
-   "clusterId": "",
-   "clusterType": "",
-   "kubeconfigContent": ""
-},
 ```
 ### Google
 ```json
@@ -166,19 +158,6 @@ Machine RKE2 config is the final piece needed for the config to run RKE2 provisi
   "usePrivateIp": false,
   "vnet": "docker-machine-vnet"
 },
-```
-### Harvester RKE2 Machine Config
-```json
-"harvesterMachineConfig": {
-  "diskSize": "40",
-  "cpuCount": "2",
-  "memorySize": "8",
-  "networkName": "default/ctw-network-1",
-  "imageName": "default/image-rpj98",
-  "vmNamespace": "default",
-  "sshUser": "ubuntu",
-  "diskBus": "virtio"
-}
 ```
 
 ## Custom Cluster

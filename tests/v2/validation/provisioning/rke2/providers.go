@@ -8,7 +8,6 @@ import (
 	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/aws"
 	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/azure"
 	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/digitalocean"
-	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/harvester"
 	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/linode"
 	"github.com/rancher/rancher/tests/framework/extensions/machinepools"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -18,7 +17,6 @@ const (
 	awsProviderName       = "aws"
 	azureProviderName     = "azure"
 	doProviderName        = "do"
-	harvesterProviderName = "harvester"
 	linodeProviderName    = "linode"
 )
 
@@ -67,14 +65,6 @@ func CreateProvider(name string) Provider {
 			MachineConfigPoolResourceSteveType: machinepools.LinodePoolType,
 			MachinePoolFunc:                    machinepools.NewLinodeMachineConfig,
 			CloudCredFunc:                      linode.CreateLinodeCloudCredentials,
-		}
-		return provider
-	case name == harvesterProviderName:
-		provider := Provider{
-			Name:                               name,
-			MachineConfigPoolResourceSteveType: machinepools.HarvesterPoolType,
-			MachinePoolFunc:                    machinepools.NewHarvesterMachineConfig,
-			CloudCredFunc:                      harvester.CreateHarvesterCloudCredentials,
 		}
 		return provider
 	default:

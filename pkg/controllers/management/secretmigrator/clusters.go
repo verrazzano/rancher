@@ -402,16 +402,6 @@ func (m *Migrator) CreateOrUpdateSourceCodeProviderConfigSecret(secretName strin
 	return m.createOrUpdateSecretForCredential(secretName, SecretNamespace, credential, nil, owner, "sourcecodeproviderconfig", provider)
 }
 
-// CreateOrUpdateHarvesterCloudConfigSecret accepts an optional secret name and a client secret or
-// harvester cloud-provider-config and creates a Secret for the credential if there is one.
-// If an owner is passed, the owner is set as an owner reference on the Secret.
-// It returns a reference to the Secret if one was created. If the returned Secret is not nil and there is no error,
-// the caller is responsible for un-setting the secret data, setting a reference to the Secret, and
-// updating the Cluster object, if applicable.
-func (m *Migrator) CreateOrUpdateHarvesterCloudConfigSecret(secretName string, credential string, annotations map[string]string, owner runtime.Object, provider string) (*corev1.Secret, error) {
-	return m.createOrUpdateSecretForCredential(secretName, fleet.ClustersDefaultNamespace, credential, annotations, owner, "harvester", provider)
-}
-
 // CreateOrUpdateACIAPICUserKeySecret accepts an optional secret name and a RancherKubernetesEngineConfig object
 // and creates a Secret for the AciNetworkProvider user key if there are any.
 // If an owner is passed, the owner is set as an owner reference on the Secret.
@@ -570,21 +560,6 @@ func (m *Migrator) CleanupKnownSecrets(secrets []*corev1.Secret) {
 			logrus.Warnf("[secretmigrator] error encountered while handling secrets cleanup for migration error; secret %s:%s may not have been cleaned up: %s", secret.Namespace, secret.Name, cleanUpErr)
 		}
 	}
-}
-
-// isHarvesterCluster determines if a v1.Cluster represents a harvester cluster
-func (m *Migrator) isHarvesterCluster(cluster *v1.Cluster) bool {
-	if cluster == nil || cluster.Spec.RKEConfig == nil {
-		return false
-	}
-
-	for _, selectorConfig := range cluster.Spec.RKEConfig.MachineSelectorConfig {
-		if strings.ToLower(convert.ToString(selectorConfig.Config.Data["cloud-provider-name"])) == "harvester" {
-			return true
-		}
-	}
-
-	return false
 }
 
 // CreateOrUpdateServiceAccountTokenSecret accepts an optional secret name and a token string

@@ -61,6 +61,5 @@ func Register(ctx context.Context, management *config.ManagementContext) {
 	management.Management.ClusterTemplateRevisions("").AddHandler(ctx, "clustertemplaterevision-secret-migrator", h.syncTemplate)
 	management.Management.Catalogs("").AddHandler(ctx, "catalog-secret-migrator", h.syncCatalog)
 
-	management.Wrangler.Provisioning.Cluster().OnChange(ctx, "harvester-secret-migrator", h.syncHarvesterCloudConfig)
 	management.Wrangler.Provisioning.Cluster().OnRemove(ctx, "cloud-config-secret-remover", h.cloudConfigSecretRemover)
 }

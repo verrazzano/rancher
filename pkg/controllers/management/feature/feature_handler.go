@@ -46,19 +46,6 @@ func (h *handler) sync(_ string, obj *v3.Feature) (*v3.Feature, error) {
 	return obj, nil
 }
 
-func (h *handler) toggleHarvesterNodeDriver(harvester string) error {
-	if val := features.GetFeatureByName(harvester).Enabled(); val {
-		m, err := h.nodeDriverController.Cache().Get(harvester)
-		if err != nil {
-			return err
-		}
-		m.Spec.Active = val
-		_, err = h.nodeDriverController.Update(m)
-		return err
-	}
-	return nil
-}
-
 func (h *handler) refreshTokens() error {
 	tokenList, err := h.tokensLister.List(labels.Everything())
 	if err != nil {
