@@ -7,11 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/fleet"
-
-	"github.com/rancher/norman/types/convert"
-	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-
 	apimgmtv3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/namespace"
 	rketypes "github.com/rancher/rke/types"
