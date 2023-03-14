@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/features"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
@@ -20,6 +19,7 @@ const (
 	Azuredriver        = "azure"
 	DigitalOceandriver = "digitalocean"
 	ExoscaleDriver     = "exoscale"
+	Linodedriver       = "linode"
 	NutanixDriver      = "nutanix"
 	OCIDriver          = "oci"
 	OTCDriver          = "otc"
