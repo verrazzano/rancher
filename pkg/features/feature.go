@@ -50,7 +50,7 @@ var (
 	Gitops = newFeature(
 		"continuous-delivery",
 		"Gitops components in fleet",
-		false,
+		true,
 		false,
 		true)
 	Auth = newFeature(
