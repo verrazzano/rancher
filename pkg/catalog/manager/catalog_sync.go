@@ -1,14 +1,14 @@
 package manager
 
 import (
-	"github.com/rancher/rancher/pkg/catalog/utils"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	helmlib "github.com/rancher/rancher/pkg/helm"
-	"github.com/rancher/rancher/pkg/image"
-	"github.com/rancher/rancher/pkg/namespace"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/catalog/utils"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	helmlib "github.com/verrazzano/rancher/pkg/helm"
+	"github.com/verrazzano/rancher/pkg/image"
+	"github.com/verrazzano/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/settings"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

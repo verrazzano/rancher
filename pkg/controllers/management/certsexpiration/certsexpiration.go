@@ -5,14 +5,14 @@ import (
 	"reflect"
 	"time"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/rkecerts"
-	"github.com/rancher/rancher/pkg/types/config"
 	rkeCluster "github.com/rancher/rke/cluster"
 	"github.com/sirupsen/logrus"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/rkecerts"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 )

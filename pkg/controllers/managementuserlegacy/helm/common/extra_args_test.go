@@ -3,10 +3,10 @@ package common
 import (
 	"testing"
 
-	v32 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/project.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/stretchr/testify/assert"
+	v32 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/project.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 func Test_injectDefaultRegistry(t *testing.T) {

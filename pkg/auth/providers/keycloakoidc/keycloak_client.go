@@ -10,8 +10,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/httperror"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 )
 
 // account defines properties an account in keycloak has

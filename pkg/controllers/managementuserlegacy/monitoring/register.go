@@ -3,11 +3,11 @@ package monitoring
 import (
 	"context"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/monitoring"
-	"github.com/rancher/rancher/pkg/systemaccount"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/monitoring"
+	"github.com/verrazzano/rancher/pkg/systemaccount"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/cache"

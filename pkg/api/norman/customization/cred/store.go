@@ -9,12 +9,12 @@ import (
 	"github.com/rancher/norman/store/transform"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	"github.com/rancher/rancher/pkg/api/norman/customization/namespacedresource"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/cluster"
-	provv1 "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/api/norman/customization/namespacedresource"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/cluster"
+	provv1 "github.com/verrazzano/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/namespace"
 	"k8s.io/apimachinery/pkg/labels"
 )
 

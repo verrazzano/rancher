@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/rancher/norman/types/convert"
-	"github.com/rancher/rancher/pkg/git"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rke/types/kdm"
 	"github.com/rancher/wrangler/pkg/randomtoken"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/git"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 func parseURL(rkeData map[string]interface{}) (*MetadataURL, error) {

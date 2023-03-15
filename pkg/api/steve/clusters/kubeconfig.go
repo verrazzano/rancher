@@ -7,13 +7,13 @@ import (
 	"strings"
 
 	"github.com/rancher/apiserver/pkg/types"
-	"github.com/rancher/rancher/pkg/auth/requests"
-	"github.com/rancher/rancher/pkg/auth/tokens"
-	"github.com/rancher/rancher/pkg/features"
-	"github.com/rancher/rancher/pkg/kubeconfig"
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/user"
 	"github.com/rancher/wrangler/pkg/schemas/validation"
+	"github.com/verrazzano/rancher/pkg/auth/requests"
+	"github.com/verrazzano/rancher/pkg/auth/tokens"
+	"github.com/verrazzano/rancher/pkg/features"
+	"github.com/verrazzano/rancher/pkg/kubeconfig"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/user"
 	"k8s.io/apiserver/pkg/endpoints/request"
 )
 

@@ -15,14 +15,14 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/values"
-	"github.com/rancher/rancher/pkg/api/norman/store/workload"
-	"github.com/rancher/rancher/pkg/api/scheme"
-	"github.com/rancher/rancher/pkg/clustermanager"
-	"github.com/rancher/rancher/pkg/controllers/managementagent/ingress"
-	"github.com/rancher/rancher/pkg/ingresswrapper"
-	"github.com/rancher/rancher/pkg/ref"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/api/norman/store/workload"
+	"github.com/verrazzano/rancher/pkg/api/scheme"
+	"github.com/verrazzano/rancher/pkg/clustermanager"
+	"github.com/verrazzano/rancher/pkg/controllers/managementagent/ingress"
+	"github.com/verrazzano/rancher/pkg/ingresswrapper"
+	"github.com/verrazzano/rancher/pkg/ref"
+	"github.com/verrazzano/rancher/pkg/types/config"
 )
 
 const (

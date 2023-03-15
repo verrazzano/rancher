@@ -4,10 +4,10 @@ import (
 	"path"
 	"strings"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/settings"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 func ResolveWithControlPlane(image string, cp *rkev1.RKEControlPlane) string {

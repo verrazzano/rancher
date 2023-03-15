@@ -7,13 +7,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/controllers/management/rbac"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/namespace"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/controllers/management/rbac"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/types/config"
 
-	"github.com/rancher/rancher/pkg/ingresswrapper"
+	"github.com/verrazzano/rancher/pkg/ingresswrapper"
 	apiv1 "k8s.io/api/core/v1"
 	kextv1beta1 "k8s.io/api/extensions/v1beta1"
 	knetworkingv1 "k8s.io/api/networking/v1"

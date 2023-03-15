@@ -1,8 +1,8 @@
 package catalogv2
 
 import (
-	v1 "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
 	corev1controllers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
+	v1 "github.com/verrazzano/rancher/pkg/apis/catalog.cattle.io/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 

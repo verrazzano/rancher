@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rancher/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/settings"
 
 	"github.com/coreos/go-semver/semver"
 	"github.com/rancher/rke/types/kdm"

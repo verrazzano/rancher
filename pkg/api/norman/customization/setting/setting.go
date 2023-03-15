@@ -9,11 +9,11 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/slice"
-	"github.com/rancher/rancher/pkg/auth/providerrefresh"
-	"github.com/rancher/rancher/pkg/auth/tokens"
-	v3client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/auth/providerrefresh"
+	"github.com/verrazzano/rancher/pkg/auth/tokens"
+	v3client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 var ReadOnlySettings = []string{

@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	mgmtcontrollers "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"github.com/rancher/remotedialer"
 	"github.com/rancher/steve/pkg/proxy"
 	"github.com/rancher/wrangler/pkg/relatedresource"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	mgmtcontrollers "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/rest"
 )

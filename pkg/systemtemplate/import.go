@@ -13,14 +13,14 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
-	apimgmtv3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	util "github.com/rancher/rancher/pkg/cluster"
-	"github.com/rancher/rancher/pkg/features"
-	"github.com/rancher/rancher/pkg/image"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rke/templates"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"
+	apimgmtv3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	util "github.com/verrazzano/rancher/pkg/cluster"
+	"github.com/verrazzano/rancher/pkg/features"
+	"github.com/verrazzano/rancher/pkg/image"
+	"github.com/verrazzano/rancher/pkg/settings"
 	corev1 "k8s.io/api/core/v1"
 )
 

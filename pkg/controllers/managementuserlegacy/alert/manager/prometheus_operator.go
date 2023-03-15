@@ -7,13 +7,13 @@ import (
 	"sort"
 	"strings"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	rmonitoringv1 "github.com/rancher/rancher/pkg/generated/norman/monitoring.coreos.com/v1"
-	monitorutil "github.com/rancher/rancher/pkg/monitoring"
-	"github.com/rancher/rancher/pkg/types/config"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	rmonitoringv1 "github.com/verrazzano/rancher/pkg/generated/norman/monitoring.coreos.com/v1"
+	monitorutil "github.com/verrazzano/rancher/pkg/monitoring"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -6,10 +6,10 @@ import (
 
 	"github.com/rancher/norman/store/proxy"
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/pkg/api/scheme"
-	clusterSchema "github.com/rancher/rancher/pkg/schemas/cluster.cattle.io/v3"
-	schema "github.com/rancher/rancher/pkg/schemas/project.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/api/scheme"
+	clusterSchema "github.com/verrazzano/rancher/pkg/schemas/cluster.cattle.io/v3"
+	schema "github.com/verrazzano/rancher/pkg/schemas/project.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 )
 
 type storeWrapperFunc func(types.Store) types.Store

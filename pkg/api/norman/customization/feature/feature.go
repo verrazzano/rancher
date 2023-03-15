@@ -7,8 +7,8 @@ import (
 	"github.com/rancher/norman/api/access"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
-	v3client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	v3client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 )
 
 type Validator struct {

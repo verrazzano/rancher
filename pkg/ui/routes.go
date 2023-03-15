@@ -5,8 +5,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rancher/apiserver/pkg/parse"
-	"github.com/rancher/rancher/pkg/cacerts"
-	v3 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/cacerts"
+	v3 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
 )
 
 func New(_ v3.PreferenceCache, clusterRegistrationTokenCache v3.ClusterRegistrationTokenCache) http.Handler {

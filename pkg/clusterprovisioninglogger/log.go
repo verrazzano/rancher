@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/rancher/norman/condition"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/kontainer-engine/logstream"
 	"github.com/sirupsen/logrus"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/logstream"
 	"google.golang.org/grpc/metadata"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

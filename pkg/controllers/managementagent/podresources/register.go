@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/types/config"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/labels"

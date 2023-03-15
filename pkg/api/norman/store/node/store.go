@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/rancher/norman/api/access"
 	"github.com/rancher/norman/httperror"
@@ -12,8 +12,8 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/values"
-	"github.com/rancher/rancher/pkg/api/norman/store/workload"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
+	"github.com/verrazzano/rancher/pkg/api/norman/store/workload"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
 	"k8s.io/apimachinery/pkg/util/validation"
 )
 

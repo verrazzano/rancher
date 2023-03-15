@@ -24,16 +24,16 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/hashicorp/go-multierror"
 	"github.com/mattn/go-colorable"
-	"github.com/rancher/rancher/pkg/agent/clean"
-	"github.com/rancher/rancher/pkg/agent/cluster"
-	"github.com/rancher/rancher/pkg/agent/node"
-	"github.com/rancher/rancher/pkg/agent/rancher"
-	"github.com/rancher/rancher/pkg/features"
-	"github.com/rancher/rancher/pkg/logserver"
-	"github.com/rancher/rancher/pkg/rkenodeconfigclient"
 	"github.com/rancher/remotedialer"
 	"github.com/rancher/wrangler/pkg/signals"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/agent/clean"
+	"github.com/verrazzano/rancher/pkg/agent/cluster"
+	"github.com/verrazzano/rancher/pkg/agent/node"
+	"github.com/verrazzano/rancher/pkg/agent/rancher"
+	"github.com/verrazzano/rancher/pkg/features"
+	"github.com/verrazzano/rancher/pkg/logserver"
+	"github.com/verrazzano/rancher/pkg/rkenodeconfigclient"
 )
 
 var (

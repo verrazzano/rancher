@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
 )
 
 const (

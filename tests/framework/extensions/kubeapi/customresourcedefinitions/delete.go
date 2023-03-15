@@ -3,7 +3,7 @@ package customresourcedefinitions
 import (
 	"context"
 
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

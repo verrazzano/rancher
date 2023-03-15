@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	img "github.com/rancher/rancher/pkg/image"
-	"github.com/rancher/rancher/pkg/image/utilities"
+	img "github.com/verrazzano/rancher/pkg/image"
+	"github.com/verrazzano/rancher/pkg/image/utilities"
 )
 
 func main() {
@@ -19,6 +19,7 @@ func main() {
 }
 
 func run(systemChartsPath, chartsPath string, imagesFromArgs []string) error {
+	log.Printf("systemChartsPath: %s, chartsPath: %s, imagesFromArgs %s", systemChartsPath, chartsPath, imagesFromArgs)
 	targetsAndSources, err := utilities.GatherTargetImagesAndSources(systemChartsPath, chartsPath, imagesFromArgs)
 	if err != nil {
 		return err

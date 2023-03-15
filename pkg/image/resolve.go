@@ -8,12 +8,12 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/pkg/errors"
-	util "github.com/rancher/rancher/pkg/cluster"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/settings"
 	rketypes "github.com/rancher/rke/types"
 	img "github.com/rancher/rke/types/image"
+	util "github.com/verrazzano/rancher/pkg/cluster"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 // ExportConfig provides parameters you can define to configure image exporting for Rancher components

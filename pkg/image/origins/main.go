@@ -7,9 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/image/utilities"
+	"github.com/verrazzano/rancher/pkg/image/utilities"
 
-	img "github.com/rancher/rancher/pkg/image"
+	img "github.com/verrazzano/rancher/pkg/image"
 )
 
 // This file attempts to create an updated mapping of images used in rancher and their source code origin.

@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/rancher/norman/httperror"
-	"github.com/rancher/rancher/pkg/clusterrouter/proxy"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config/dialer"
+	"github.com/verrazzano/rancher/pkg/clusterrouter/proxy"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config/dialer"
 	"k8s.io/client-go/rest"
 )
 

@@ -7,10 +7,10 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/values"
-	"github.com/rancher/rancher/pkg/auth/providers/common"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	corev1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/auth/providers/common"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	corev1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/namespace"
 )
 
 var (

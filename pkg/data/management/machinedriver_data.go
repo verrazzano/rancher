@@ -7,10 +7,10 @@ import (
 	"reflect"
 	"strings"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -53,7 +53,7 @@ var DriverData = map[string]map[string][]string{
 }
 
 var driverDefaults = map[string]map[string]string{
-	Vmwaredriver:    {"vcenterPort": "443"},
+	Vmwaredriver: {"vcenterPort": "443"},
 }
 
 type machineDriverCompare struct {

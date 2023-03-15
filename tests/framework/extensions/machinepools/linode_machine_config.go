@@ -1,7 +1,7 @@
 package machinepools
 
 import (
-	"github.com/rancher/rancher/tests/framework/pkg/config"
+	"github.com/verrazzano/rancher/tests/framework/pkg/config"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 

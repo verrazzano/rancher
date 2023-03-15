@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	apisV1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
+	apisV1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
+	v1 "github.com/verrazzano/rancher/tests/framework/clients/rancher/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 

@@ -10,8 +10,8 @@ import (
 
 	"github.com/rancher/norman/controller"
 	"github.com/rancher/norman/objectclient"
-	v3 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
-	v31 "github.com/rancher/rancher/pkg/generated/norman/project.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
+	v31 "github.com/verrazzano/rancher/pkg/generated/norman/project.cattle.io/v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/watch"

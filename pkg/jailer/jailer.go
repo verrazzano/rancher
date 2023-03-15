@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 const BaseJailPath = "/opt/jail"

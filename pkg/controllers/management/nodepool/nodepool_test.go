@@ -3,12 +3,12 @@ package nodepool
 import (
 	"testing"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rke/services"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 )
 
 func Test_parsePrefix(t *testing.T) {

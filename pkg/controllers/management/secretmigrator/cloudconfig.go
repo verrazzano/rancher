@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/rancher/norman/types/convert"
-	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
 	"github.com/sirupsen/logrus"
+	v1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

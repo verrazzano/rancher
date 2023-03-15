@@ -21,7 +21,7 @@ package v1
 import (
 	"net/http"
 
-	"github.com/rancher/rancher/pkg/generated/clientset/versioned/scheme"
+	"github.com/verrazzano/rancher/pkg/generated/clientset/versioned/scheme"
 	v1 "github.com/rancher/system-upgrade-controller/pkg/apis/upgrade.cattle.io/v1"
 	rest "k8s.io/client-go/rest"
 )

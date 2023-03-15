@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/stretchr/testify/assert"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 	rbacv1 "k8s.io/api/rbac/v1"
 	v1 "k8s.io/api/rbac/v1"
 )

@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/pkg/rkecerts"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/rkecerts"
 )
 
 func ExecutePlan(ctx context.Context, nodeConfig *NodeConfig, writeCertOnly bool) error {

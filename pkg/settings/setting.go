@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	authsettings "github.com/rancher/rancher/pkg/auth/settings"
-	fleetconst "github.com/rancher/rancher/pkg/fleet"
 	"github.com/sirupsen/logrus"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	authsettings "github.com/verrazzano/rancher/pkg/auth/settings"
+	fleetconst "github.com/verrazzano/rancher/pkg/fleet"
 	v1 "k8s.io/api/core/v1"
 )
 

@@ -7,18 +7,18 @@ import (
 	"strings"
 	"time"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/ghodss/yaml"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	"github.com/rancher/rancher/pkg/generated/compose"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/rbac"
-	"github.com/rancher/rancher/pkg/ref"
-	"github.com/rancher/rancher/pkg/settings"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	"github.com/verrazzano/rancher/pkg/generated/compose"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/rbac"
+	"github.com/verrazzano/rancher/pkg/ref"
+	"github.com/verrazzano/rancher/pkg/settings"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

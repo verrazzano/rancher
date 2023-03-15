@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	apimgmtv3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
+	apimgmtv3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
 
 	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"

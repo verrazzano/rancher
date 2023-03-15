@@ -5,7 +5,7 @@ import (
 
 	"github.com/rancher/norman/condition"
 	"github.com/rancher/norman/types"
-	v3 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

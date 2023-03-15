@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/rancher/rancher/tests/framework/pkg/clientbase"
+	"github.com/verrazzano/rancher/tests/framework/pkg/clientbase"
 )
 
 type Client struct {

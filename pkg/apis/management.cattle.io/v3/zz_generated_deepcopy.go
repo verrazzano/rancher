@@ -26,7 +26,7 @@ import (
 	ekscattleiov1 "github.com/rancher/eks-operator/pkg/apis/eks.cattle.io/v1"
 	v1alpha1 "github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	gkecattleiov1 "github.com/rancher/gke-operator/pkg/apis/gke.cattle.io/v1"
-	projectcattleiov3 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
+	projectcattleiov3 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
 	types "github.com/rancher/rke/types"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"

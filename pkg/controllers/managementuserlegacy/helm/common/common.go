@@ -18,12 +18,12 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
-	v32 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/project.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/jailer"
-	"github.com/rancher/rancher/pkg/namespace"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/sirupsen/logrus"
+	v32 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/project.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/jailer"
+	"github.com/verrazzano/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 const (

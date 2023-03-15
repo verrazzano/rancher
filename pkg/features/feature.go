@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	managementv3 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	managementv3 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

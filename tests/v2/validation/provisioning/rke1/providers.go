@@ -3,17 +3,17 @@ package rke1
 import (
 	"fmt"
 
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	"github.com/rancher/rancher/tests/framework/extensions/rke1/nodetemplates"
-	aws "github.com/rancher/rancher/tests/framework/extensions/rke1/nodetemplates/aws"
-	azure "github.com/rancher/rancher/tests/framework/extensions/rke1/nodetemplates/azure"
-	linode "github.com/rancher/rancher/tests/framework/extensions/rke1/nodetemplates/linode"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/extensions/rke1/nodetemplates"
+	aws "github.com/verrazzano/rancher/tests/framework/extensions/rke1/nodetemplates/aws"
+	azure "github.com/verrazzano/rancher/tests/framework/extensions/rke1/nodetemplates/azure"
+	linode "github.com/verrazzano/rancher/tests/framework/extensions/rke1/nodetemplates/linode"
 )
 
 const (
-	awsProviderName       = "aws"
-	azureProviderName     = "azure"
-	linodeProviderName    = "linode"
+	awsProviderName    = "aws"
+	azureProviderName  = "azure"
+	linodeProviderName = "linode"
 )
 
 type NodeTemplateFunc func(rancherClient *rancher.Client) (*nodetemplates.NodeTemplate, error)

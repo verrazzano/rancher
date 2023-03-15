@@ -4,12 +4,12 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2/machineprovision"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	"github.com/rancher/wrangler/pkg/kv"
 	"github.com/rancher/wrangler/pkg/name"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1/plan"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2/machineprovision"
 )
 
 // s3Args is a struct that contains functions used to generate arguments for etcd snapshots stored in S3

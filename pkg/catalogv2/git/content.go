@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/catalogv2/chart"
 	"github.com/rancher/wrangler/pkg/schemas/validation"
+	"github.com/verrazzano/rancher/pkg/catalogv2/chart"
 	"helm.sh/helm/v3/pkg/repo"
 )
 

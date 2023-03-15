@@ -2,12 +2,12 @@ package managesystemagent
 
 import (
 	"github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	rancherv1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	namespaces "github.com/rancher/rancher/pkg/namespace"
-	"github.com/rancher/rancher/pkg/provisioningv2/image"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/wrangler/pkg/name"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	rancherv1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
+	namespaces "github.com/verrazzano/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/provisioningv2/image"
+	"github.com/verrazzano/rancher/pkg/settings"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )

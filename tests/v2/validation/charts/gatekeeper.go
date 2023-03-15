@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
-	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
+	management "github.com/verrazzano/rancher/tests/framework/clients/rancher/generated/management/v3"
+	v1 "github.com/verrazzano/rancher/tests/framework/clients/rancher/v1"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 

@@ -10,14 +10,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
-	"github.com/rancher/rancher/tests/framework/extensions/charts"
-	"github.com/rancher/rancher/tests/framework/extensions/clusters"
-	"github.com/rancher/rancher/tests/framework/extensions/namespaces"
-	"github.com/rancher/rancher/tests/framework/pkg/session"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	management "github.com/verrazzano/rancher/tests/framework/clients/rancher/generated/management/v3"
+	"github.com/verrazzano/rancher/tests/framework/extensions/charts"
+	"github.com/verrazzano/rancher/tests/framework/extensions/clusters"
+	"github.com/verrazzano/rancher/tests/framework/extensions/namespaces"
+	"github.com/verrazzano/rancher/tests/framework/pkg/session"
 )
 
 type IstioTestSuite struct {

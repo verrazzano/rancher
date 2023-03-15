@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/rancher/rancher/pkg/api/steve/catalog/types"
-	scheme "github.com/rancher/rancher/pkg/generated/clientset/versioned/scheme"
+	"github.com/verrazzano/rancher/pkg/api/steve/catalog/types"
+	scheme "github.com/verrazzano/rancher/pkg/generated/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

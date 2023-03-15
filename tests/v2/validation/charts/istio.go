@@ -8,10 +8,10 @@ import (
 	appv1 "k8s.io/api/apps/v1"
 
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
-	"github.com/rancher/rancher/tests/framework/extensions/charts"
-	"github.com/rancher/rancher/tests/framework/extensions/workloads"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	v1 "github.com/verrazzano/rancher/tests/framework/clients/rancher/v1"
+	"github.com/verrazzano/rancher/tests/framework/extensions/charts"
+	"github.com/verrazzano/rancher/tests/framework/extensions/workloads"
 )
 
 const (

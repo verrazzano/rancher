@@ -6,7 +6,7 @@ import (
 	"errors"
 	"strconv"
 
-	v1 "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
+	v1 "github.com/verrazzano/rancher/pkg/apis/catalog.cattle.io/v1"
 
 	"github.com/rancher/wrangler/pkg/data"
 	"github.com/rancher/wrangler/pkg/yaml"

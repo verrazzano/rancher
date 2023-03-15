@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/rancher/rancher/pkg/kontainer-engine/logstream"
-	"github.com/rancher/rancher/pkg/kontainer-engine/types"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/logstream"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/types"
 	"k8s.io/apimachinery/pkg/api/errors"
 )
 

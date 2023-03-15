@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/rancher/rancher/tests/framework/codegen/generator"
-	managementSchema "github.com/rancher/rancher/tests/framework/pkg/schemas/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/tests/framework/codegen/generator"
+	managementSchema "github.com/verrazzano/rancher/tests/framework/pkg/schemas/management.cattle.io/v3"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 }
 
 // replaceClientBasePackages walks through the zz_generated_client genreated by generator.GenerateClient to replace imports from
-// "github.com/rancher/norman/clientbase" to "github.com/rancher/rancher/tests/framework/pkg/clientbase" to use our modified code of the
+// "github.com/rancher/norman/clientbase" to "github.com/verrazzano/rancher/tests/framework/pkg/clientbase" to use our modified code of the
 // session.Session tracking the resources created by the Management Client.
 func replaceClientBasePackages() error {
 	return filepath.Walk("./clients/rancher/generated", func(path string, info os.FileInfo, err error) error {
@@ -37,7 +37,7 @@ func replaceClientBasePackages() error {
 				return err
 			}
 
-			replacement := bytes.Replace(input, []byte("github.com/rancher/norman/clientbase"), []byte("github.com/rancher/rancher/tests/framework/pkg/clientbase"), -1)
+			replacement := bytes.Replace(input, []byte("github.com/rancher/norman/clientbase"), []byte("github.com/verrazzano/rancher/tests/framework/pkg/clientbase"), -1)
 
 			if err = ioutil.WriteFile(path, replacement, 0666); err != nil {
 				return err

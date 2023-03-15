@@ -1,7 +1,7 @@
 package management
 
 import (
-	"github.com/rancher/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

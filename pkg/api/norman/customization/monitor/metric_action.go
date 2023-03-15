@@ -9,11 +9,11 @@ import (
 	"github.com/rancher/norman/parse"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/clustermanager"
-	monitorutil "github.com/rancher/rancher/pkg/monitoring"
-	"github.com/rancher/rancher/pkg/ref"
-	"github.com/rancher/rancher/pkg/types/config/dialer"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/clustermanager"
+	monitorutil "github.com/verrazzano/rancher/pkg/monitoring"
+	"github.com/verrazzano/rancher/pkg/ref"
+	"github.com/verrazzano/rancher/pkg/types/config/dialer"
 )
 
 func NewMetricHandler(dialerFactory dialer.Factory, clustermanager *clustermanager.Manager) *MetricHandler {

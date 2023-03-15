@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/rbac"
+	v1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/rbac"
 	rbacv1 "k8s.io/api/rbac/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

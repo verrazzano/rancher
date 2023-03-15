@@ -2,7 +2,7 @@ package dashboard
 
 import (
 	"github.com/pborman/uuid"
-	"github.com/rancher/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 func addSetting() error {

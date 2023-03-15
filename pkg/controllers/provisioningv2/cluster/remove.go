@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	"github.com/rancher/wrangler/pkg/generic"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

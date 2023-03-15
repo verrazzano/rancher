@@ -10,8 +10,8 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
-	v3 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
-	v30 "github.com/rancher/rancher/pkg/generated/controllers/project.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
+	v30 "github.com/verrazzano/rancher/pkg/generated/controllers/project.cattle.io/v3"
 	generic "github.com/rancher/wrangler/pkg/generic"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"

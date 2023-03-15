@@ -5,7 +5,7 @@ import (
 
 	"k8s.io/client-go/rest"
 
-	"github.com/rancher/rancher/tests/framework/pkg/session"
+	"github.com/verrazzano/rancher/tests/framework/pkg/session"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

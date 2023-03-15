@@ -3,9 +3,9 @@ package deployments
 import (
 	"fmt"
 
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
-	"github.com/rancher/rancher/tests/framework/extensions/workloads"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	v1 "github.com/verrazzano/rancher/tests/framework/clients/rancher/v1"
+	"github.com/verrazzano/rancher/tests/framework/extensions/workloads"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

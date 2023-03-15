@@ -9,10 +9,10 @@ import (
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	client "github.com/rancher/rancher/pkg/client/generated/project/v3"
-	projectclient "github.com/rancher/rancher/pkg/client/generated/project/v3"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	client "github.com/verrazzano/rancher/pkg/client/generated/project/v3"
+	projectclient "github.com/verrazzano/rancher/pkg/client/generated/project/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	"golang.org/x/sync/errgroup"
 	corev1 "k8s.io/api/core/v1"
 )

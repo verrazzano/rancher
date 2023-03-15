@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	mgmtcontrollers "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/rancher/remotedialer"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
+	mgmtcontrollers "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	corev1 "k8s.io/api/core/v1"
 	apierror "k8s.io/apimachinery/pkg/api/errors"
 )

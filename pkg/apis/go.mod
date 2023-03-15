@@ -1,4 +1,4 @@
-module github.com/rancher/rancher/pkg/apis
+module github.com/verrazzano/rancher/pkg/apis
 
 go 1.19
 

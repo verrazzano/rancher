@@ -14,11 +14,11 @@ import (
 	"github.com/rancher/channelserver/pkg/config"
 	"github.com/rancher/channelserver/pkg/model"
 	"github.com/rancher/channelserver/pkg/server"
-	"github.com/rancher/rancher/pkg/catalog/utils"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/wrangler/pkg/data"
 	"github.com/rancher/wrangler/pkg/schemas"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/catalog/utils"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 var (

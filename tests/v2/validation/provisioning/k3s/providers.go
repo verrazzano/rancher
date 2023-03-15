@@ -3,21 +3,21 @@ package k3s
 import (
 	"fmt"
 
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials"
-	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/aws"
-	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/azure"
-	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/digitalocean"
-	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials/linode"
-	"github.com/rancher/rancher/tests/framework/extensions/machinepools"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/extensions/cloudcredentials"
+	"github.com/verrazzano/rancher/tests/framework/extensions/cloudcredentials/aws"
+	"github.com/verrazzano/rancher/tests/framework/extensions/cloudcredentials/azure"
+	"github.com/verrazzano/rancher/tests/framework/extensions/cloudcredentials/digitalocean"
+	"github.com/verrazzano/rancher/tests/framework/extensions/cloudcredentials/linode"
+	"github.com/verrazzano/rancher/tests/framework/extensions/machinepools"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 const (
-	awsProviderName       = "aws"
-	azureProviderName     = "azure"
-	doProviderName        = "do"
-	linodeProviderName    = "linode"
+	awsProviderName    = "aws"
+	azureProviderName  = "azure"
+	doProviderName     = "do"
+	linodeProviderName = "linode"
 )
 
 type CloudCredFunc func(rancherClient *rancher.Client) (*cloudcredentials.CloudCredential, error)

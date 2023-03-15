@@ -1,8 +1,8 @@
 package gke
 
 import (
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	management "github.com/verrazzano/rancher/tests/framework/clients/rancher/generated/management/v3"
 )
 
 // CreateGKEHostedCluster is a helper function that creates an GKE hosted cluster

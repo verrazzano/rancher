@@ -7,10 +7,10 @@ import (
 	"regexp"
 	"strings"
 
-	apimgmtv3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/namespace"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"
+	apimgmtv3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/namespace"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"

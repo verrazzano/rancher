@@ -5,14 +5,14 @@ import (
 	"net/url"
 
 	"github.com/rancher/norman/types/convert"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	util "github.com/rancher/rancher/pkg/cluster"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/image"
-	"github.com/rancher/rancher/pkg/provisioningv2/rke2/installer"
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/systemtemplate"
 	rketypes "github.com/rancher/rke/types"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	util "github.com/verrazzano/rancher/pkg/cluster"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/image"
+	"github.com/verrazzano/rancher/pkg/provisioningv2/rke2/installer"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/systemtemplate"
 )
 
 const (

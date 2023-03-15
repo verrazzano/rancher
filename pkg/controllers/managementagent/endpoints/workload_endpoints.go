@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strings"
 
-	v32 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/settings"
+	v32 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/settings"
 
-	workloadutil "github.com/rancher/rancher/pkg/controllers/managementagent/workload"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/ingresswrapper"
 	"github.com/sirupsen/logrus"
+	workloadutil "github.com/verrazzano/rancher/pkg/controllers/managementagent/workload"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/ingresswrapper"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )

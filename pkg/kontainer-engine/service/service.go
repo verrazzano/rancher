@@ -14,19 +14,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rancher/rancher/pkg/jailer"
+	"github.com/verrazzano/rancher/pkg/jailer"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/pkg/errors"
-	"github.com/rancher/rancher/pkg/kontainer-engine/cluster"
-	"github.com/rancher/rancher/pkg/kontainer-engine/drivers/aks"
-	"github.com/rancher/rancher/pkg/kontainer-engine/drivers/eks"
-	"github.com/rancher/rancher/pkg/kontainer-engine/drivers/gke"
-	kubeimport "github.com/rancher/rancher/pkg/kontainer-engine/drivers/import"
-	"github.com/rancher/rancher/pkg/kontainer-engine/drivers/rke"
-	"github.com/rancher/rancher/pkg/kontainer-engine/types"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/cluster"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/drivers/aks"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/drivers/eks"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/drivers/gke"
+	kubeimport "github.com/verrazzano/rancher/pkg/kontainer-engine/drivers/import"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/drivers/rke"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/types"
 	"gopkg.in/yaml.v2"
 )
 

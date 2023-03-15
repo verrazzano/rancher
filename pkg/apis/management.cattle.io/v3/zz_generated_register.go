@@ -21,7 +21,7 @@ limitations under the License.
 package v3
 
 import (
-	management "github.com/rancher/rancher/pkg/apis/management.cattle.io"
+	management "github.com/verrazzano/rancher/pkg/apis/management.cattle.io"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"

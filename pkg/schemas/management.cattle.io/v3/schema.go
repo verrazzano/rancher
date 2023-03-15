@@ -7,9 +7,9 @@ import (
 
 	"github.com/rancher/norman/types"
 	m "github.com/rancher/norman/types/mapper"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/schemas/factory"
-	"github.com/rancher/rancher/pkg/schemas/mapper"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/schemas/factory"
+	"github.com/verrazzano/rancher/pkg/schemas/mapper"
 	v1 "k8s.io/api/core/v1"
 	apiserverconfig "k8s.io/apiserver/pkg/apis/config"
 )

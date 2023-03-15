@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	apimgmtv3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
+	apimgmtv3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

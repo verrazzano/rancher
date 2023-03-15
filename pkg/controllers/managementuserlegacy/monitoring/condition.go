@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"time"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	ncondition "github.com/rancher/norman/condition"
 	"github.com/rancher/norman/controller"

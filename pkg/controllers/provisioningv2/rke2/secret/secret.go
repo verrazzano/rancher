@@ -3,10 +3,10 @@ package secret
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/controllers/management/rbac"
-	"github.com/rancher/rancher/pkg/wrangler"
 	wranglerv1 "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	rbacv1 "github.com/rancher/wrangler/pkg/generated/controllers/rbac/v1"
+	"github.com/verrazzano/rancher/pkg/controllers/management/rbac"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	v1 "k8s.io/api/core/v1"
 	k8srbac "k8s.io/api/rbac/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"

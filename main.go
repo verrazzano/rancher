@@ -12,13 +12,13 @@ import (
 	"github.com/ehazlett/simplelog"
 	_ "github.com/rancher/norman/controller"
 	"github.com/rancher/norman/pkg/kwrapper/k8s"
-	"github.com/rancher/rancher/pkg/data/management"
-	"github.com/rancher/rancher/pkg/logserver"
-	"github.com/rancher/rancher/pkg/rancher"
-	"github.com/rancher/rancher/pkg/version"
 	"github.com/rancher/wrangler/pkg/signals"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	"github.com/verrazzano/rancher/pkg/data/management"
+	"github.com/verrazzano/rancher/pkg/logserver"
+	"github.com/verrazzano/rancher/pkg/rancher"
+	"github.com/verrazzano/rancher/pkg/version"
 )
 
 var (

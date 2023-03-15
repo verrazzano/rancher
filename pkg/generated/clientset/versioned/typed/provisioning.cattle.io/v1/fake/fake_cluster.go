@@ -21,7 +21,7 @@ package fake
 import (
 	"context"
 
-	provisioningcattleiov1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
+	provisioningcattleiov1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

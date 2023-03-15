@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/taints"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/stretchr/testify/assert"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/taints"
 	v1 "k8s.io/api/core/v1"
 )
 

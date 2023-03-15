@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/systemaccount"
-	"github.com/rancher/rancher/pkg/types/config"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/systemaccount"
+	"github.com/verrazzano/rancher/pkg/types/config"
 
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"

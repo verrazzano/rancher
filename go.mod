@@ -1,4 +1,4 @@
-module github.com/rancher/rancher
+module github.com/verrazzano/rancher
 
 go 1.19
 
@@ -10,8 +10,8 @@ replace (
 	github.com/matryer/moq => github.com/rancher/moq v0.0.0-20200712062324-13d1f37d2d77
 
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
-	github.com/rancher/rancher/pkg/apis => ./pkg/apis
-	github.com/rancher/rancher/pkg/client => ./pkg/client
+	github.com/verrazzano/rancher/pkg/apis => ./pkg/apis
+	github.com/verrazzano/rancher/pkg/client => ./pkg/client
 
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.20.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp => go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.20.0
@@ -112,8 +112,6 @@ require (
 	github.com/rancher/lasso/controller-runtime v0.0.0-20220627205005-00d9c8e9dda6
 	github.com/rancher/machine v0.15.0-rancher95
 	github.com/rancher/norman v0.0.0-20220627222520-b74009fac3ff
-	github.com/rancher/rancher/pkg/apis v0.0.0
-	github.com/rancher/rancher/pkg/client v0.0.0
 	github.com/rancher/rdns-server v0.0.0-20180802070304-bf662911db6a
 	github.com/rancher/remotedialer v0.2.6-0.20220624190122-ea57207bf2b8
 	github.com/rancher/rke v1.4.2
@@ -126,6 +124,8 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80
 	github.com/urfave/cli v1.22.9
+	github.com/verrazzano/rancher/pkg/apis v0.0.0
+	github.com/verrazzano/rancher/pkg/client v0.0.0
 	github.com/vishvananda/netlink v1.1.1-0.20210330154013-f5de75959ad5
 	github.com/vmware/govmomi v0.26.0
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d

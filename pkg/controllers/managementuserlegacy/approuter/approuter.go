@@ -3,10 +3,10 @@ package approuter
 import (
 	"context"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/ingresswrapper"
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/types/config"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/ingresswrapper"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

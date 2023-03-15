@@ -4,8 +4,8 @@ import (
 	"time"
 
 	lru "github.com/hashicorp/golang-lru"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"golang.org/x/sync/errgroup"
 )
 

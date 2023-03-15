@@ -3,8 +3,8 @@ package vsphere
 import (
 	"testing"
 
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	"github.com/stretchr/testify/assert"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
 )
 
 func Test_checkGuestId(t *testing.T) {

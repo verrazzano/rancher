@@ -4,10 +4,10 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/rancher/rancher/pkg/api/scheme"
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	"github.com/rancher/rancher/tests/framework/extensions/kubeapi/storageclasses"
-	"github.com/rancher/rancher/tests/framework/extensions/unstructured"
+	"github.com/verrazzano/rancher/pkg/api/scheme"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/extensions/kubeapi/storageclasses"
+	"github.com/verrazzano/rancher/tests/framework/extensions/unstructured"
 	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

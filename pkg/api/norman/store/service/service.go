@@ -8,8 +8,8 @@ import (
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	v3 "github.com/rancher/rancher/pkg/client/generated/project/v3"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/client/generated/project/v3"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 

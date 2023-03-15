@@ -3,7 +3,7 @@ package provisioning
 import (
 	"context"
 
-	apisV1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
+	apisV1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	cutils "github.com/rancher/rancher/pkg/catalog/utils"
-	alerting "github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/deployer"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/project"
+	cutils "github.com/verrazzano/rancher/pkg/catalog/utils"
+	alerting "github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/deployer"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/project"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 )

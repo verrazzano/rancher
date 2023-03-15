@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strconv"
 
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
-	rkecontrollers "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/wrangler"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1/plan"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
+	rkecontrollers "github.com/verrazzano/rancher/pkg/generated/controllers/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 )
 
 type certificateRotation struct {

@@ -20,7 +20,7 @@ package cluster
 
 import (
 	"github.com/rancher/lasso/pkg/controller"
-	v1beta1 "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
+	v1beta1 "github.com/verrazzano/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 )
 
 type Interface interface {

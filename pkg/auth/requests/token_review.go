@@ -3,9 +3,9 @@ package requests
 import (
 	"net/http"
 
-	"github.com/rancher/rancher/pkg/auth/tokens"
 	"github.com/rancher/steve/pkg/auth"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/auth/tokens"
 	v1 "k8s.io/api/authentication/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apiserver/pkg/authentication/user"

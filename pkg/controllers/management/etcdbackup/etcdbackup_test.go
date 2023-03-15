@@ -3,9 +3,9 @@ package etcdbackup
 import (
 	"testing"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/stretchr/testify/assert"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 )
 
 func Test_filterBackups(t *testing.T) {

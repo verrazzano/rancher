@@ -3,13 +3,13 @@ package clusterregistrationtoken
 import (
 	"context"
 
-	v32 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/rancher/wrangler/pkg/randomtoken"
+	v32 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/labels"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 )
 
 type handler struct {

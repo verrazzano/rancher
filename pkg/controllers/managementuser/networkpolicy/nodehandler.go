@@ -3,9 +3,9 @@ package networkpolicy
 import (
 	"fmt"
 
-	"github.com/rancher/rancher/pkg/controllers/managementuser/nodesyncer"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuser/nodesyncer"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

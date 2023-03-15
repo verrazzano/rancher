@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 const (

@@ -24,7 +24,7 @@ import (
 
 	"github.com/rancher/lasso/pkg/client"
 	"github.com/rancher/lasso/pkg/controller"
-	v3 "github.com/rancher/rancher/pkg/apis/cluster.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/cluster.cattle.io/v3"
 	"github.com/rancher/wrangler/pkg/generic"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/errors"

@@ -15,10 +15,10 @@ import (
 	"reflect"
 
 	"github.com/pkg/errors"
-	util "github.com/rancher/rancher/pkg/controllers/managementagent/workload"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	util "github.com/verrazzano/rancher/pkg/controllers/managementagent/workload"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"

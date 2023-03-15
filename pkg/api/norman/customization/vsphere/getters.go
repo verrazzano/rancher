@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/mo"
 )

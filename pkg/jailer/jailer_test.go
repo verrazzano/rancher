@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/stretchr/testify/assert"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 func Test_WhitelistEnvvars(t *testing.T) {

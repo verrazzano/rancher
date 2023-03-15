@@ -16,8 +16,8 @@ import (
 	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/mcuadros/go-version"
-	mgmtv3 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
+	mgmtv3 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
 )
 
 type virtualNetworksResponseBody struct {

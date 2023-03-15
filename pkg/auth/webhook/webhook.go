@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/rancher/rancher/pkg/auth/requests"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/auth/requests"
 	v1 "k8s.io/api/authentication/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apiserver/pkg/endpoints/request"

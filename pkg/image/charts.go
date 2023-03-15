@@ -12,8 +12,8 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/pkg/errors"
-	libhelm "github.com/rancher/rancher/pkg/helm"
 	"github.com/sirupsen/logrus"
+	libhelm "github.com/verrazzano/rancher/pkg/helm"
 	"gopkg.in/yaml.v2"
 	"helm.sh/helm/v3/pkg/repo"
 )

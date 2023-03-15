@@ -3,9 +3,9 @@ package auth
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/clustermanager"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/wrangler"
+	"github.com/verrazzano/rancher/pkg/clustermanager"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	v1 "k8s.io/api/rbac/v1"
 	"k8s.io/client-go/tools/cache"
 )

@@ -1,11 +1,11 @@
 package dashboard
 
 import (
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	fleetconst "github.com/rancher/rancher/pkg/fleet"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/wrangler"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	fleetconst "github.com/verrazzano/rancher/pkg/fleet"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

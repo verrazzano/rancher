@@ -4,17 +4,17 @@ import (
 	"net/http"
 	"strconv"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/rancher/norman/api/access"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	"github.com/rancher/rancher/pkg/clustermanager"
-	corev1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	mgmtv3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/ref"
 	"github.com/rancher/security-scan/pkg/kb-summarizer/report"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/clustermanager"
+	corev1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	mgmtv3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/ref"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

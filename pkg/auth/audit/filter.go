@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rancher/rancher/pkg/auth/util"
-	"github.com/rancher/rancher/pkg/data/management"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/auth/util"
+	"github.com/verrazzano/rancher/pkg/data/management"
 )
 
 var errorDebounceTime = time.Second * 30

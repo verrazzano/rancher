@@ -8,11 +8,11 @@ import (
 
 	"github.com/golang/mock/gomock"
 	aksv1 "github.com/rancher/aks-operator/pkg/apis/aks.cattle.io/v1"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/controllers/dashboard/chart"
-	"github.com/rancher/rancher/pkg/controllers/dashboard/chart/fake"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/stretchr/testify/assert"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/controllers/dashboard/chart"
+	"github.com/verrazzano/rancher/pkg/controllers/dashboard/chart/fake"
+	"github.com/verrazzano/rancher/pkg/settings"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

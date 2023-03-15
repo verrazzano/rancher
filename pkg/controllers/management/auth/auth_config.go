@@ -3,11 +3,11 @@ package auth
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/auth/cleanup"
-	"github.com/rancher/rancher/pkg/auth/providerrefresh"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/auth/cleanup"
+	"github.com/verrazzano/rancher/pkg/auth/providerrefresh"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 )

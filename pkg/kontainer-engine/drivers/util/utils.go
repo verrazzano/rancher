@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/rancher/rancher/pkg/serviceaccounttoken"
 	rketypes "github.com/rancher/rke/types"
+	"github.com/verrazzano/rancher/pkg/serviceaccounttoken"
 	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"

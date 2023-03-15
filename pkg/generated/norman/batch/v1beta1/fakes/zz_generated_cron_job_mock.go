@@ -10,7 +10,7 @@ import (
 
 	"github.com/rancher/norman/controller"
 	"github.com/rancher/norman/objectclient"
-	v1beta11 "github.com/rancher/rancher/pkg/generated/norman/batch/v1beta1"
+	v1beta11 "github.com/verrazzano/rancher/pkg/generated/norman/batch/v1beta1"
 	"k8s.io/api/batch/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"

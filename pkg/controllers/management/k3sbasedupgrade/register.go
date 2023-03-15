@@ -4,14 +4,14 @@ import (
 	"context"
 	"time"
 
-	manager2 "github.com/rancher/rancher/pkg/catalog/manager"
-	"github.com/rancher/rancher/pkg/clustermanager"
-	wranglerv3 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	projectv3 "github.com/rancher/rancher/pkg/generated/norman/project.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/systemaccount"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/wrangler"
+	manager2 "github.com/verrazzano/rancher/pkg/catalog/manager"
+	"github.com/verrazzano/rancher/pkg/clustermanager"
+	wranglerv3 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	projectv3 "github.com/verrazzano/rancher/pkg/generated/norman/project.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/systemaccount"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

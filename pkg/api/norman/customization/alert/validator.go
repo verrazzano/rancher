@@ -3,14 +3,14 @@ package alert
 import (
 	"fmt"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/rancher/norman/api/access"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	v3client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	"github.com/rancher/rancher/pkg/ref"
+	v3client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	"github.com/verrazzano/rancher/pkg/ref"
 )
 
 const monitoringEnabled = "MonitoringEnabled"

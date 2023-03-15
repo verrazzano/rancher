@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"strings"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/tomnomnom/linkheader"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 )
 
 const (

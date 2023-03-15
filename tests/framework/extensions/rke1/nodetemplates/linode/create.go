@@ -1,10 +1,10 @@
 package nodetemplates
 
 import (
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
-	"github.com/rancher/rancher/tests/framework/extensions/rke1/nodetemplates"
-	"github.com/rancher/rancher/tests/framework/pkg/config"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	management "github.com/verrazzano/rancher/tests/framework/clients/rancher/generated/management/v3"
+	"github.com/verrazzano/rancher/tests/framework/extensions/rke1/nodetemplates"
+	"github.com/verrazzano/rancher/tests/framework/pkg/config"
 )
 
 const linodeNodeTemplateNameBase = "linodeNodeConfig"

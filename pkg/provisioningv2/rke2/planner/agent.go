@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"sort"
 
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	util "github.com/rancher/rancher/pkg/cluster"
-	"github.com/rancher/rancher/pkg/controllers/management/secretmigrator"
-	"github.com/rancher/rancher/pkg/systemtemplate"
 	rketypes "github.com/rancher/rke/types"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	util "github.com/verrazzano/rancher/pkg/cluster"
+	"github.com/verrazzano/rancher/pkg/controllers/management/secretmigrator"
+	"github.com/verrazzano/rancher/pkg/systemtemplate"
 )
 
 // generateClusterAgentManifest generates a cluster agent manifest

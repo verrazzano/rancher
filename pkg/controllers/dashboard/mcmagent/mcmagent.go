@@ -3,9 +3,9 @@ package mcmagent
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/controllers/managementagent"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/wrangler"
+	"github.com/verrazzano/rancher/pkg/controllers/managementagent"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 )
 
 func Register(ctx context.Context, wrangler *wrangler.Context) error {

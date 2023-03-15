@@ -3,10 +3,10 @@ package provisioning
 import (
 	"fmt"
 
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	"github.com/rancher/rancher/tests/framework/extensions/nodes/ec2"
-	"github.com/rancher/rancher/tests/framework/pkg/config"
-	"github.com/rancher/rancher/tests/framework/pkg/nodes"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/extensions/nodes/ec2"
+	"github.com/verrazzano/rancher/tests/framework/pkg/config"
+	"github.com/verrazzano/rancher/tests/framework/pkg/nodes"
 )
 
 const (

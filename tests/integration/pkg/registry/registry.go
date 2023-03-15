@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sync"
 
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/tests/integration/pkg/clients"
-	"github.com/rancher/rancher/tests/integration/pkg/wait"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/tests/integration/pkg/clients"
+	"github.com/verrazzano/rancher/tests/integration/pkg/wait"
 	"github.com/rancher/rke/pki/cert"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

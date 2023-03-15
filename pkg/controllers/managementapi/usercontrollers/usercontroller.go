@@ -8,18 +8,18 @@ import (
 	"sync"
 	"time"
 
-	v33 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v33 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/pkg/clustermanager"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/metrics"
-	tpeermanager "github.com/rancher/rancher/pkg/peermanager"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/clustermanager"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/metrics"
+	tpeermanager "github.com/verrazzano/rancher/pkg/peermanager"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )

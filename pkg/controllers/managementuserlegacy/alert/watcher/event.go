@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/rancher/rancher/pkg/controllers/managementagent/workload"
-	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/common"
-	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/manager"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/controllers/managementagent/workload"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/common"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/manager"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"

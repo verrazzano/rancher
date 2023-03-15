@@ -1,8 +1,8 @@
 package eks
 
 import (
-	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
-	"github.com/rancher/rancher/tests/framework/pkg/config"
+	management "github.com/verrazzano/rancher/tests/framework/clients/rancher/generated/management/v3"
+	"github.com/verrazzano/rancher/tests/framework/pkg/config"
 )
 
 const (

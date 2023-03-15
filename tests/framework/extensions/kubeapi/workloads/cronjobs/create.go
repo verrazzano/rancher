@@ -3,11 +3,11 @@ package cronjobs
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/api/scheme"
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	"github.com/rancher/rancher/tests/framework/extensions/unstructured"
-	"github.com/rancher/rancher/tests/framework/pkg/wait"
-	"github.com/rancher/rancher/tests/integration/pkg/defaults"
+	"github.com/verrazzano/rancher/pkg/api/scheme"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/extensions/unstructured"
+	"github.com/verrazzano/rancher/tests/framework/pkg/wait"
+	"github.com/verrazzano/rancher/tests/integration/pkg/defaults"
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"

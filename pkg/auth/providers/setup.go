@@ -5,11 +5,11 @@ import (
 
 	"github.com/rancher/norman/store/subtype"
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/pkg/auth/api/secrets"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	"github.com/rancher/rancher/pkg/namespace"
-	managementschema "github.com/rancher/rancher/pkg/schemas/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/auth/api/secrets"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	"github.com/verrazzano/rancher/pkg/namespace"
+	managementschema "github.com/verrazzano/rancher/pkg/schemas/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 )
 
 var authConfigTypes = []string{

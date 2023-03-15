@@ -11,8 +11,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/wrangler/pkg/git"
+	"github.com/verrazzano/rancher/pkg/settings"
 	corev1 "k8s.io/api/core/v1"
 )
 

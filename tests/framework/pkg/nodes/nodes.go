@@ -5,7 +5,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/rancher/rancher/tests/framework/pkg/config"
+	"github.com/verrazzano/rancher/tests/framework/pkg/config"
 	"golang.org/x/crypto/ssh"
 )
 

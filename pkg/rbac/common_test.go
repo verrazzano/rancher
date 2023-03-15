@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/rancher/norman/types"
-	mgmt "github.com/rancher/rancher/pkg/apis/management.cattle.io"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	mgmt "github.com/verrazzano/rancher/pkg/apis/management.cattle.io"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

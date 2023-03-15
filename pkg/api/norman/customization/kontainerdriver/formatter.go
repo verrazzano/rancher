@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/rancher/norman/types"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/sirupsen/logrus"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	"k8s.io/client-go/tools/cache"
 )
 

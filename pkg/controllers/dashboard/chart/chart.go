@@ -4,9 +4,9 @@ package chart
 import (
 	"fmt"
 
-	"github.com/rancher/rancher/pkg/namespace"
-	"github.com/rancher/rancher/pkg/settings"
 	corev1 "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
+	"github.com/verrazzano/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 const (

@@ -3,11 +3,11 @@ package rkecluster
 import (
 	"context"
 
-	v1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
-	rkecontroller "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/rancher/wrangler/pkg/relatedresource"
+	v1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
+	rkecontroller "github.com/verrazzano/rancher/pkg/generated/controllers/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 )

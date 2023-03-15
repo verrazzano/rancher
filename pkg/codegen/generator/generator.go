@@ -19,7 +19,7 @@ import (
 
 var (
 	outputDir   = "./pkg/generated"
-	basePackage = "github.com/rancher/rancher/pkg/apis"
+	basePackage = "github.com/verrazzano/rancher/pkg/apis"
 	baseCattle  = "../client/generated"
 	baseK8s     = "norman"
 	baseCompose = "compose"

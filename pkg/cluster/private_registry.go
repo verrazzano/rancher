@@ -4,9 +4,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/rancher/rancher/pkg/settings"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/rancher/rke/util"
+	"github.com/verrazzano/rancher/pkg/settings"
 	"k8s.io/kubernetes/pkg/credentialprovider"
 )
 

@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/coreos/go-semver/semver"
-	"github.com/rancher/rancher/pkg/controllers/management/k3sbasedupgrade"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/controllers/management/k3sbasedupgrade"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 type Source string

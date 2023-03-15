@@ -3,8 +3,8 @@ package systemimage
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert"
-	"github.com/rancher/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert"
+	"github.com/verrazzano/rancher/pkg/types/config"
 )
 
 func Register(ctx context.Context, cluster *config.UserContext) {

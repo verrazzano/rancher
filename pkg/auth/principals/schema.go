@@ -5,10 +5,10 @@ import (
 	"net/url"
 
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/pkg/auth/requests"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	managementSchema "github.com/rancher/rancher/pkg/schemas/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/auth/requests"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	managementSchema "github.com/verrazzano/rancher/pkg/schemas/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 )
 
 func Schema(ctx context.Context, clusterRouter requests.ClusterRouter, management *config.ScaledContext, schemas *types.Schemas) error {

@@ -2,10 +2,10 @@ package azure
 
 import (
 	"github.com/rancher/norman/httperror"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/auth/providers/azure/clients"
-	"github.com/rancher/rancher/pkg/auth/tokens"
 	"github.com/sirupsen/logrus"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/auth/providers/azure/clients"
+	"github.com/verrazzano/rancher/pkg/auth/tokens"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

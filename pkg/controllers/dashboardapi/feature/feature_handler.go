@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/features"
-	managementv3 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/features"
+	managementv3 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
 )
 
 func Register(ctx context.Context, features managementv3.FeatureController) {

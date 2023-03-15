@@ -24,7 +24,7 @@ import (
 
 	"github.com/rancher/lasso/pkg/client"
 	"github.com/rancher/lasso/pkg/controller"
-	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
+	v1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
 	"github.com/rancher/wrangler/pkg/apply"
 	"github.com/rancher/wrangler/pkg/condition"
 	"github.com/rancher/wrangler/pkg/generic"

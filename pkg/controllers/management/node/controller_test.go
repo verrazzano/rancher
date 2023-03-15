@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/rancher/rancher/pkg/controllers/management/drivers/nodedriver"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/verrazzano/rancher/pkg/controllers/management/drivers/nodedriver"
 )
 
 func TestAliasMaps(t *testing.T) {

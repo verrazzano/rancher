@@ -3,9 +3,9 @@ package dashboard
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/features"
-	fleetconst "github.com/rancher/rancher/pkg/fleet"
-	"github.com/rancher/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/features"
+	fleetconst "github.com/verrazzano/rancher/pkg/fleet"
+	"github.com/verrazzano/rancher/pkg/namespace"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

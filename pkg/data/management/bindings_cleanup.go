@@ -3,10 +3,10 @@ package management
 import (
 	"time"
 
-	"github.com/rancher/rancher/pkg/agent/clean"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/agent/clean"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

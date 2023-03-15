@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/common"
-	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/manager"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/rancher/wrangler/pkg/ticker"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/common"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/manager"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	"k8s.io/apimachinery/pkg/labels"
 
 	corev1 "k8s.io/api/core/v1"

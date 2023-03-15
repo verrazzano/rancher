@@ -1,8 +1,8 @@
 package systemdnode
 
 import (
-	"github.com/rancher/rancher/tests/integration/pkg/clients"
-	"github.com/rancher/rancher/tests/integration/pkg/defaults"
+	"github.com/verrazzano/rancher/tests/integration/pkg/clients"
+	"github.com/verrazzano/rancher/tests/integration/pkg/defaults"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

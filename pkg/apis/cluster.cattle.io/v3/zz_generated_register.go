@@ -21,7 +21,7 @@ limitations under the License.
 package v3
 
 import (
-	cluster "github.com/rancher/rancher/pkg/apis/cluster.cattle.io"
+	cluster "github.com/verrazzano/rancher/pkg/apis/cluster.cattle.io"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"

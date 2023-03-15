@@ -3,12 +3,12 @@ package restrictedadminrbac
 import (
 	"context"
 
-	provisioningcontrollers "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/rbac.authorization.k8s.io/v1"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/rancher/wrangler/pkg/relatedresource"
+	provisioningcontrollers "github.com/verrazzano/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/rbac.authorization.k8s.io/v1"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	"k8s.io/client-go/tools/cache"
 )
 

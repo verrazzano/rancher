@@ -4,10 +4,10 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/rancher/rancher/pkg/wrangler"
 	appscontrollers "github.com/rancher/wrangler/pkg/generated/controllers/apps/v1"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	"github.com/rancher/wrangler/pkg/relatedresource"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"

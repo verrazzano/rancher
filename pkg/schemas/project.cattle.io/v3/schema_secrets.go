@@ -4,7 +4,7 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	m "github.com/rancher/norman/types/mapper"
-	v3 "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/project.cattle.io/v3"
 	v1 "k8s.io/api/core/v1"
 )
 

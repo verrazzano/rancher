@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/auth/audit"
-	"github.com/rancher/rancher/pkg/auth/providers"
-	"github.com/rancher/rancher/pkg/auth/util"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/auth/audit"
+	"github.com/verrazzano/rancher/pkg/auth/providers"
+	"github.com/verrazzano/rancher/pkg/auth/util"
 	"k8s.io/apiserver/pkg/endpoints/request"
 )
 

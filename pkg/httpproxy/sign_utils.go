@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/namespace"
 	"github.com/rancher/wrangler/pkg/kv"
+	"github.com/verrazzano/rancher/pkg/namespace"
 )
 
 func getAuthData(auth string, secrets SecretGetter, fields []string) (map[string]string, map[string]string, error) {

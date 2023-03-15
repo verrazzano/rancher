@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/systemtemplate"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/systemtemplate"
 
 	corev1 "k8s.io/api/core/v1"
 

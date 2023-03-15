@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/stretchr/testify/assert"
+	"github.com/verrazzano/rancher/pkg/settings"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/repo"
 )

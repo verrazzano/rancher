@@ -6,10 +6,10 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	"github.com/stretchr/testify/assert"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1/plan"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 )

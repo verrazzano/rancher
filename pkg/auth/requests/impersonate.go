@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/rancher/rancher/pkg/auth/audit"
-	"github.com/rancher/rancher/pkg/auth/requests/sar"
 	"github.com/rancher/steve/pkg/auth"
+	"github.com/verrazzano/rancher/pkg/auth/audit"
+	"github.com/verrazzano/rancher/pkg/auth/requests/sar"
 	"k8s.io/apimachinery/pkg/util/sets"
 	k8sUser "k8s.io/apiserver/pkg/authentication/user"
 	"k8s.io/apiserver/pkg/endpoints/request"

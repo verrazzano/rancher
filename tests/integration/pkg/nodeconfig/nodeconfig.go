@@ -3,10 +3,10 @@ package nodeconfig
 import (
 	"encoding/json"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/tests/integration/pkg/clients"
-	"github.com/rancher/rancher/tests/integration/pkg/defaults"
-	"github.com/rancher/rancher/tests/integration/pkg/wait"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/tests/integration/pkg/clients"
+	"github.com/verrazzano/rancher/tests/integration/pkg/defaults"
+	"github.com/verrazzano/rancher/tests/integration/pkg/wait"
 	"github.com/rancher/wrangler/pkg/condition"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"

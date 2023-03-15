@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	catalog "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
 	"github.com/stretchr/testify/assert"
+	catalog "github.com/verrazzano/rancher/pkg/apis/catalog.cattle.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

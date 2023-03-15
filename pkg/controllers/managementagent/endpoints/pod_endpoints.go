@@ -6,8 +6,8 @@ import (
 
 	"k8s.io/apimachinery/pkg/runtime"
 
-	workloadutil "github.com/rancher/rancher/pkg/controllers/managementagent/workload"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
+	workloadutil "github.com/verrazzano/rancher/pkg/controllers/managementagent/workload"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )

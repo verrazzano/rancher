@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/rancher/norman/types"
-	apisV1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	"github.com/rancher/rancher/tests/framework/clients/dynamic"
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
-	ext_unstructured "github.com/rancher/rancher/tests/framework/extensions/unstructured"
-	"github.com/rancher/rancher/tests/framework/pkg/wait"
+	apisV1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
+	"github.com/verrazzano/rancher/tests/framework/clients/dynamic"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	management "github.com/verrazzano/rancher/tests/framework/clients/rancher/generated/management/v3"
+	ext_unstructured "github.com/verrazzano/rancher/tests/framework/extensions/unstructured"
+	"github.com/verrazzano/rancher/tests/framework/pkg/wait"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 

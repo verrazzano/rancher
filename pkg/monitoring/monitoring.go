@@ -7,13 +7,13 @@ import (
 	"strings"
 
 	"github.com/rancher/norman/types"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/catalog/manager"
-	cutils "github.com/rancher/rancher/pkg/catalog/utils"
-	mgmtv3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	ns "github.com/rancher/rancher/pkg/namespace"
-	"github.com/rancher/rancher/pkg/ref"
 	"github.com/sirupsen/logrus"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/catalog/manager"
+	cutils "github.com/verrazzano/rancher/pkg/catalog/utils"
+	mgmtv3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	ns "github.com/verrazzano/rancher/pkg/namespace"
+	"github.com/verrazzano/rancher/pkg/ref"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

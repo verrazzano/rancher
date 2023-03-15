@@ -3,9 +3,9 @@ package management
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/auth/data"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/wrangler"
+	"github.com/verrazzano/rancher/pkg/auth/data"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 )
 
 func Add(ctx context.Context, wrangler *wrangler.Context, management *config.ManagementContext) error {

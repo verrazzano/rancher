@@ -4,7 +4,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/rancher/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 var (

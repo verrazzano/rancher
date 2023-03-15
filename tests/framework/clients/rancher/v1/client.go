@@ -6,7 +6,7 @@ import (
 	"regexp"
 
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/tests/framework/pkg/clientbase"
+	"github.com/verrazzano/rancher/tests/framework/pkg/clientbase"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

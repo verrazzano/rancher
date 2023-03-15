@@ -8,10 +8,10 @@ import (
 	"strings"
 
 	"github.com/rancher/norman/types/slice"
-	"github.com/rancher/rancher/pkg/ref"
-	"github.com/rancher/rancher/pkg/types/config/dialer"
 	"github.com/rancher/rke/hosts"
 	rketypes "github.com/rancher/rke/types"
+	"github.com/verrazzano/rancher/pkg/ref"
+	"github.com/verrazzano/rancher/pkg/types/config/dialer"
 	"k8s.io/client-go/transport"
 )
 

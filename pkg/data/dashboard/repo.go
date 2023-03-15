@@ -4,13 +4,13 @@ import (
 	"context"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/features"
+	"github.com/verrazzano/rancher/pkg/features"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"github.com/rancher/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/settings"
 
-	v1 "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/wrangler"
+	v1 "github.com/verrazzano/rancher/pkg/apis/catalog.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

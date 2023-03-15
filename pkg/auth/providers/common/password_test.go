@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	fake1 "github.com/rancher/rancher/pkg/generated/norman/core/v1/fakes"
 	"github.com/stretchr/testify/assert"
+	fake1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1/fakes"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

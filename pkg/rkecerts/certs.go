@@ -21,11 +21,11 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/pkg/kontainer-engine/drivers/rke/rkecerts"
-	"github.com/rancher/rancher/pkg/librke"
 	"github.com/rancher/rke/pki"
 	"github.com/rancher/rke/pki/cert"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/drivers/rke/rkecerts"
+	"github.com/verrazzano/rancher/pkg/librke"
 	k8sclientv1 "k8s.io/client-go/tools/clientcmd/api/v1"
 )
 

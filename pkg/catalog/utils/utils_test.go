@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/rancher/rancher/pkg/git"
+	"github.com/verrazzano/rancher/pkg/git"
 	"testing"
 )
 

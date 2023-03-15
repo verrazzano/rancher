@@ -1,4 +1,4 @@
-module github.com/rancher/rancher/cmd/rancherd
+module github.com/verrazzano/rancher/cmd/rancherd
 
 go 1.19
 

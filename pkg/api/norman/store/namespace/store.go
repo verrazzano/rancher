@@ -9,11 +9,11 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/values"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	clusterclient "github.com/rancher/rancher/pkg/client/generated/cluster/v3"
-	mgmtclient "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	"github.com/rancher/rancher/pkg/resourcequota"
-	mgmtschema "github.com/rancher/rancher/pkg/schemas/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	clusterclient "github.com/verrazzano/rancher/pkg/client/generated/cluster/v3"
+	mgmtclient "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	"github.com/verrazzano/rancher/pkg/resourcequota"
+	mgmtschema "github.com/verrazzano/rancher/pkg/schemas/management.cattle.io/v3"
 	"k8s.io/kubernetes/pkg/kubelet/util/format"
 )
 

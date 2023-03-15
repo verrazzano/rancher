@@ -3,7 +3,7 @@ package helm
 import (
 	"context"
 
-	"github.com/rancher/rancher/pkg/wrangler"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 )
 
 func Register(ctx context.Context, wrangler *wrangler.Context) {

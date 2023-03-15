@@ -1,7 +1,7 @@
 package corral
 
 import (
-	"github.com/rancher/rancher/tests/framework/pkg/config"
+	"github.com/verrazzano/rancher/tests/framework/pkg/config"
 )
 
 // The json/yaml config key for the corral package to be build ..

@@ -5,31 +5,31 @@ import (
 	"testing"
 
 	"github.com/Azure/go-autorest/autorest/to"
-	"github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
+	"github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
 )
 
 const (
-	MockDefaultClusterFilename 			= "test/onclusterchange_default.yaml"
-	MockCreateClusterFilename 			= "test/onclusterchange_create.yaml"
-	MockActiveClusterFilename 			= "test/onclusterchange_active.yaml"
-	MockUpdateClusterFilename 			= "test/onclusterchange_update.yaml"
-	MockAksClusterConfigFilename 		= "test/updateaksclusterconfig.json"
+	MockDefaultClusterFilename          = "test/onclusterchange_default.yaml"
+	MockCreateClusterFilename           = "test/onclusterchange_create.yaml"
+	MockActiveClusterFilename           = "test/onclusterchange_active.yaml"
+	MockUpdateClusterFilename           = "test/onclusterchange_update.yaml"
+	MockAksClusterConfigFilename        = "test/updateaksclusterconfig.json"
 	MockAksClusterConfigClusterFilename = "test/updateaksclusterconfig.yaml"
-	MockBuildAksCCCreateObjectFilename 	= "test/buildakscccreateobject.json"
+	MockBuildAksCCCreateObjectFilename  = "test/buildakscccreateobject.json"
 )
 
 var mockOperatorController mockAksOperatorController // Operator controller with mock interfaces & sibling funcs
 
-
-/** Test_onClusterChange
-	- cluster == nil. Return (nil nil)
-	- cluster.DeletionTimestamp or cluster.AKSConfig == nil, return (nil nil)
-	- default phase
-	- create phase
-	- active phase
-	- update node pool phase
- */
+/*
+* Test_onClusterChange
+- cluster == nil. Return (nil nil)
+- cluster.DeletionTimestamp or cluster.AKSConfig == nil, return (nil nil)
+- default phase
+- create phase
+- active phase
+- update node pool phase
+*/
 func Test_onClusterChange_ClusterIsNil(t *testing.T) {
 	cluster, _ := mockOperatorController.onClusterChange("", nil)
 	if cluster != nil {
@@ -126,10 +126,10 @@ func Test_onClusterChange_UpdateNodePool(t *testing.T) {
 	}
 }
 
-
-/** Test_setInitialUpstreamSpec
-	- success: buildUpstreamClusterState returns a valid upstream spec
- */
+/*
+* Test_setInitialUpstreamSpec
+- success: buildUpstreamClusterState returns a valid upstream spec
+*/
 func Test_setInitialUpstreamSpec(t *testing.T) {
 	mockOperatorController = getMockAksOperatorController("create")
 	mockCluster, err := getMockV3Cluster(MockCreateClusterFilename)
@@ -147,11 +147,11 @@ func Test_setInitialUpstreamSpec(t *testing.T) {
 	}
 }
 
-
-/** Test_updateAksClusterConfig
-	- success: AKS cluster tags are removed. AKS cluster is not immediately updated. Cluster sits in active for a few
-      seconds, return (cluster nil)
- */
+/*
+* Test_updateAksClusterConfig
+  - success: AKS cluster tags are removed. AKS cluster is not immediately updated. Cluster sits in active for a few
+    seconds, return (cluster nil)
+*/
 func Test_updateAKSClusterConfig(t *testing.T) {
 	mockOperatorController = getMockAksOperatorController("akscc")
 	mockCluster, err := getMockV3Cluster(MockAksClusterConfigClusterFilename)
@@ -168,11 +168,11 @@ func Test_updateAKSClusterConfig(t *testing.T) {
 	}
 }
 
-
-/** Test_generateAndSetServiceAccount
-	- success: service account token generated, cluster updated! Return updated cluster.Status
-	- error generating service account token. Return (cluster, err)
- */
+/*
+* Test_generateAndSetServiceAccount
+- success: service account token generated, cluster updated! Return updated cluster.Status
+- error generating service account token. Return (cluster, err)
+*/
 func Test_generateAndSetServiceAccount(t *testing.T) {
 	mockOperatorController = getMockAksOperatorController("active")
 	mockCluster, err := getMockV3Cluster(MockActiveClusterFilename)
@@ -191,10 +191,10 @@ func Test_generateAndSetServiceAccount(t *testing.T) {
 	}
 }
 
-
-/** Test_buildAKSCCCreateObject
-	- success: AKSClusterConfig object created, return (AKSClusterConfig nil)
- */
+/*
+* Test_buildAKSCCCreateObject
+- success: AKSClusterConfig object created, return (AKSClusterConfig nil)
+*/
 func Test_buildAKSCCCreateObject(t *testing.T) {
 	mockCluster, err := getMockV3Cluster(MockDefaultClusterFilename)
 	if err != nil {
@@ -212,11 +212,11 @@ func Test_buildAKSCCCreateObject(t *testing.T) {
 	}
 }
 
-
-/** Test_recordAppliedSpec
-	- success: set current spec as applied spec. Return (updated cluster err)
-	- success: AKSConfig and Applied Spec AKSConfig are equal. Return (cluster nil)
- */
+/*
+* Test_recordAppliedSpec
+- success: set current spec as applied spec. Return (updated cluster err)
+- success: AKSConfig and Applied Spec AKSConfig are equal. Return (cluster nil)
+*/
 func Test_recordAppliedSpec_Updated(t *testing.T) {
 	// We use a mock cluster that is still provisioning and in an Unknown state, because that is when the applied spec
 	// needs to be updated.
@@ -254,13 +254,13 @@ func Test_recordAppliedSpec_NoUpdate(t *testing.T) {
 	}
 }
 
-
-/** Test_generateSATokenWithPublicAPI
-	  PRIVATE CLUSTER ONLY
-	- success in getting a service account token from the public API endpoint. Return (token mustTunnel=false nil)
-	- failure to get service account token. Return ("" mustTunnel=true err)
-	- unknown error. Return ("" mustTunnel=nil err)
- */
+/*
+  - Test_generateSATokenWithPublicAPI
+    PRIVATE CLUSTER ONLY
+  - success in getting a service account token from the public API endpoint. Return (token mustTunnel=false nil)
+  - failure to get service account token. Return ("" mustTunnel=true err)
+  - unknown error. Return ("" mustTunnel=nil err)
+*/
 func Test_generateSATokenWithPublicAPI(t *testing.T) {
 	mockOperatorController = getMockAksOperatorController("active")
 	mockCluster, err := getMockV3Cluster(MockActiveClusterFilename)
@@ -280,7 +280,6 @@ func Test_generateSATokenWithPublicAPI(t *testing.T) {
 		t.Errorf("values (token, requiresTunnel=false, nil) should have been returned successfully")
 	}
 }
-
 
 /** Test_getRestConfig
  */

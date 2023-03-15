@@ -20,7 +20,7 @@ package v1
 
 import (
 	"github.com/rancher/lasso/pkg/controller"
-	v1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
+	v1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/wrangler/pkg/schemes"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )

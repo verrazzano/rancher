@@ -1,7 +1,7 @@
 package v1
 
 import (
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"

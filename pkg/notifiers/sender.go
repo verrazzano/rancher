@@ -21,14 +21,14 @@ import (
 	"strings"
 	"time"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
-	"github.com/rancher/rancher/pkg/controllers/management/secretmigrator"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config/dialer"
+	"github.com/verrazzano/rancher/pkg/controllers/management/secretmigrator"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config/dialer"
 )
 
 const contentTypeJSON = "application/json"

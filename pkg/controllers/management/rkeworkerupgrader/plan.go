@@ -6,14 +6,14 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	kd "github.com/rancher/rancher/pkg/controllers/management/kontainerdrivermetadata"
-	"github.com/rancher/rancher/pkg/controllers/management/secretmigrator"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/librke"
-	nodeserver "github.com/rancher/rancher/pkg/rkenodeconfigserver"
 	rkeservices "github.com/rancher/rke/services"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"
+	kd "github.com/verrazzano/rancher/pkg/controllers/management/kontainerdrivermetadata"
+	"github.com/verrazzano/rancher/pkg/controllers/management/secretmigrator"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/librke"
+	nodeserver "github.com/verrazzano/rancher/pkg/rkenodeconfigserver"
 )
 
 func (uh *upgradeHandler) nonWorkerPlan(node *v3.Node, cluster *v3.Cluster) (*rketypes.RKEConfigNodePlan, error) {

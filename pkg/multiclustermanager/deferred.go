@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/pkg/features"
-	"github.com/rancher/rancher/pkg/wrangler"
+	"github.com/verrazzano/rancher/pkg/features"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	"k8s.io/client-go/kubernetes"
 )
 

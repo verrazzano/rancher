@@ -3,9 +3,9 @@ package common
 import (
 	"fmt"
 
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/ref"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/ref"
 )
 
 func GetRuleID(groupID string, ruleName string) string {

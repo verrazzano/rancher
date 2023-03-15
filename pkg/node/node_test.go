@@ -3,12 +3,12 @@ package node
 import (
 	"testing"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/rancher/norman/types"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	rketypes "github.com/rancher/rke/types"
 	"github.com/stretchr/testify/assert"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

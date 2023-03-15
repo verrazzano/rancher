@@ -9,11 +9,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/values"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/encryptedstore"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/jailer"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/encryptedstore"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/jailer"
 	k8serror "k8s.io/apimachinery/pkg/api/errors"
 )
 

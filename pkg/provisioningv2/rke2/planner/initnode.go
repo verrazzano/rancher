@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	"github.com/rancher/wrangler/pkg/generic"
 	"github.com/sirupsen/logrus"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1/plan"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
 )
 
 // clearInitNodeMark removes the init node label on the given machine and updates the machine directly against the api

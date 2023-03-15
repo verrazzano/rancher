@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/tests/framework/pkg/session"
+	"github.com/verrazzano/rancher/tests/framework/pkg/session"
 )
 
 type APIOperations struct {

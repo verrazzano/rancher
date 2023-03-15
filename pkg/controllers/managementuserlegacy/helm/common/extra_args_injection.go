@@ -3,11 +3,11 @@ package common
 import (
 	"net/url"
 
-	cutils "github.com/rancher/rancher/pkg/catalog/utils"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/project.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/ref"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/sirupsen/logrus"
+	cutils "github.com/verrazzano/rancher/pkg/catalog/utils"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/project.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/ref"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 type InjectAppArgsFunc func(obj *v3.App) (content map[string]string)

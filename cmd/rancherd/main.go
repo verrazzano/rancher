@@ -4,10 +4,10 @@ import (
 	"os"
 
 	"github.com/rancher/k3s/pkg/configfilearg"
-	"github.com/rancher/rancher/cmd/rancherd/auth"
 	"github.com/rancher/rke2/pkg/cli/cmds"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	"github.com/verrazzano/rancher/cmd/rancherd/auth"
 )
 
 func main() {

@@ -3,11 +3,11 @@ package secretmigrator
 import (
 	"context"
 
-	provv1 "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
+	provv1 "github.com/verrazzano/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
 
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 )
 
 type Migrator struct {

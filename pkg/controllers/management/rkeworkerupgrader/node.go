@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"sort"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	nodehelper "github.com/rancher/rancher/pkg/node"
-	nodeserver "github.com/rancher/rancher/pkg/rkenodeconfigserver"
 	rkeservices "github.com/rancher/rke/services"
 	"github.com/sirupsen/logrus"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	nodehelper "github.com/verrazzano/rancher/pkg/node"
+	nodeserver "github.com/verrazzano/rancher/pkg/rkenodeconfigserver"
 )
 
 type upgradeStatus struct {

@@ -8,8 +8,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v30 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v30 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	labels "k8s.io/apimachinery/pkg/labels"
 )
 

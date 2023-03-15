@@ -7,14 +7,14 @@ import (
 	"github.com/rancher/apiserver/pkg/handlers"
 	responsewriter "github.com/rancher/apiserver/pkg/middleware"
 	"github.com/rancher/apiserver/pkg/types"
-	types2 "github.com/rancher/rancher/pkg/api/steve/catalog/types"
-	"github.com/rancher/rancher/pkg/apis/catalog.cattle.io"
-	"github.com/rancher/rancher/pkg/catalogv2/content"
-	"github.com/rancher/rancher/pkg/catalogv2/helmop"
 	schema2 "github.com/rancher/steve/pkg/schema"
 	steve "github.com/rancher/steve/pkg/server"
 	schemas3 "github.com/rancher/wrangler/pkg/schemas"
 	"github.com/rancher/wrangler/pkg/schemas/validation"
+	types2 "github.com/verrazzano/rancher/pkg/api/steve/catalog/types"
+	"github.com/verrazzano/rancher/pkg/apis/catalog.cattle.io"
+	"github.com/verrazzano/rancher/pkg/catalogv2/content"
+	"github.com/verrazzano/rancher/pkg/catalogv2/helmop"
 )
 
 func Register(ctx context.Context, server *steve.Server,

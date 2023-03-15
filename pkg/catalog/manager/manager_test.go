@@ -3,9 +3,9 @@ package manager
 import (
 	"testing"
 
-	"github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/stretchr/testify/assert"
+	"github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 func TestLatestAvailableTemplateVersion(t *testing.T) {

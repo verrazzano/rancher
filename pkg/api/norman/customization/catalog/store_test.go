@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	apimgmtv3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/catalog/manager"
-	mgmtv3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3/fakes"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/stretchr/testify/assert"
+	apimgmtv3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/catalog/manager"
+	mgmtv3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3/fakes"
+	"github.com/verrazzano/rancher/pkg/settings"
 	"k8s.io/apimachinery/pkg/version"
 )
 

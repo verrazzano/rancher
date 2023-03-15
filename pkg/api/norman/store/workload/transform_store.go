@@ -8,8 +8,8 @@ import (
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/definition"
 	"github.com/rancher/norman/types/values"
-	"github.com/rancher/rancher/pkg/api/norman/store/pod"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/api/norman/store/pod"
 )
 
 var (

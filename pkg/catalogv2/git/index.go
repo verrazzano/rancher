@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rancher/rancher/pkg/catalogv2/chart"
+	"github.com/verrazzano/rancher/pkg/catalogv2/chart"
 	"helm.sh/helm/v3/pkg/provenance"
 	"helm.sh/helm/v3/pkg/repo"
 )

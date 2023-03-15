@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	gmux "github.com/gorilla/mux"
-	"github.com/rancher/rancher/pkg/api/steve/aggregation"
-	"github.com/rancher/rancher/pkg/api/steve/github"
-	"github.com/rancher/rancher/pkg/api/steve/health"
-	"github.com/rancher/rancher/pkg/api/steve/projects"
-	"github.com/rancher/rancher/pkg/api/steve/proxy"
-	"github.com/rancher/rancher/pkg/features"
-	"github.com/rancher/rancher/pkg/provisioningv2/rke2/configserver"
-	"github.com/rancher/rancher/pkg/provisioningv2/rke2/installer"
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/wrangler"
 	steve "github.com/rancher/steve/pkg/server"
+	"github.com/verrazzano/rancher/pkg/api/steve/aggregation"
+	"github.com/verrazzano/rancher/pkg/api/steve/github"
+	"github.com/verrazzano/rancher/pkg/api/steve/health"
+	"github.com/verrazzano/rancher/pkg/api/steve/projects"
+	"github.com/verrazzano/rancher/pkg/api/steve/proxy"
+	"github.com/verrazzano/rancher/pkg/features"
+	"github.com/verrazzano/rancher/pkg/provisioningv2/rke2/configserver"
+	"github.com/verrazzano/rancher/pkg/provisioningv2/rke2/installer"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 )
 
 func AdditionalAPIsPreMCM(config *wrangler.Context) func(http.Handler) http.Handler {

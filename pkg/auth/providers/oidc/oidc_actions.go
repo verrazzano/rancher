@@ -10,9 +10,9 @@ import (
 	"github.com/rancher/norman/api/handler"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/auth/providers/common"
-	managementschema "github.com/rancher/rancher/pkg/schemas/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/auth/providers/common"
+	managementschema "github.com/verrazzano/rancher/pkg/schemas/management.cattle.io/v3"
 )
 
 func (o *OpenIDCProvider) Formatter(apiContext *types.APIContext, resource *types.RawResource) {

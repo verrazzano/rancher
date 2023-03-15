@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/prometheus/common/model"
-	alertconfig "github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/config"
-	monitorutil "github.com/rancher/rancher/pkg/monitoring"
+	alertconfig "github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/config"
+	monitorutil "github.com/verrazzano/rancher/pkg/monitoring"
 
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/types/config"
-	"github.com/rancher/rancher/pkg/types/config/dialer"
 	"github.com/sirupsen/logrus"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	"github.com/verrazzano/rancher/pkg/types/config/dialer"
 )
 
 type State string

@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 )
 
 // GClient implements a httpclient for google oauth

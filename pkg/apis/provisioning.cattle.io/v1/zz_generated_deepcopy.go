@@ -22,7 +22,7 @@ limitations under the License.
 package v1
 
 import (
-	rkecattleiov1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
+	rkecattleiov1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
 	genericcondition "github.com/rancher/wrangler/pkg/genericcondition"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

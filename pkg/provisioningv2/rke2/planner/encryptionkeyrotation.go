@@ -9,11 +9,11 @@ import (
 	"github.com/blang/semver"
 	"github.com/pkg/errors"
 	"github.com/rancher/channelserver/pkg/model"
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	"github.com/rancher/wrangler/pkg/generic"
 	"github.com/sirupsen/logrus"
+	rkev1 "github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/apis/rke.cattle.io/v1/plan"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
 	"k8s.io/apimachinery/pkg/api/equality"
 )
 

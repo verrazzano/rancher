@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/rancher/rancher/pkg/wrangler"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	"github.com/rancher/wrangler/pkg/kubeconfig"
 	"github.com/rancher/wrangler/pkg/ratelimit"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

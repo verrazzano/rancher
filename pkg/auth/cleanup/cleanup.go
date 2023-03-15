@@ -4,8 +4,8 @@ package cleanup
 import (
 	"fmt"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/auth/providers"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/auth/providers"
 )
 
 // Service performs cleanup of resources associated with a particular auth provider.

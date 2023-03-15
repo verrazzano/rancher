@@ -1,9 +1,9 @@
 package provisioning
 
 import (
-	"github.com/rancher/rancher/tests/framework/extensions/machinepools"
-	nodepools "github.com/rancher/rancher/tests/framework/extensions/rke1/nodepools"
-	"github.com/rancher/rancher/tests/framework/pkg/namegenerator"
+	"github.com/verrazzano/rancher/tests/framework/extensions/machinepools"
+	nodepools "github.com/verrazzano/rancher/tests/framework/extensions/rke1/nodepools"
+	"github.com/verrazzano/rancher/tests/framework/pkg/namegenerator"
 )
 
 const (

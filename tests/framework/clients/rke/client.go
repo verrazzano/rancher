@@ -1,8 +1,8 @@
 package rke
 
 import (
-	rkeClientV1 "github.com/rancher/rancher/pkg/generated/clientset/versioned/typed/rke.cattle.io/v1"
-	"github.com/rancher/rancher/tests/framework/pkg/session"
+	rkeClientV1 "github.com/verrazzano/rancher/pkg/generated/clientset/versioned/typed/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/tests/framework/pkg/session"
 	"k8s.io/client-go/rest"
 )
 

@@ -3,10 +3,10 @@ package servicemonitor
 import (
 	"context"
 
-	util "github.com/rancher/rancher/pkg/controllers/managementagent/workload"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	rmonitoringv1 "github.com/rancher/rancher/pkg/generated/norman/monitoring.coreos.com/v1"
-	"github.com/rancher/rancher/pkg/types/config"
+	util "github.com/verrazzano/rancher/pkg/controllers/managementagent/workload"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	rmonitoringv1 "github.com/verrazzano/rancher/pkg/generated/norman/monitoring.coreos.com/v1"
+	"github.com/verrazzano/rancher/pkg/types/config"
 )
 
 const (

@@ -3,12 +3,12 @@ package dashboard
 import (
 	"reflect"
 
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/features"
-	fleetconst "github.com/rancher/rancher/pkg/fleet"
-	mngtv3 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/wrangler"
 	rbacv1 "github.com/rancher/wrangler/pkg/generated/controllers/rbac/v1"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/features"
+	fleetconst "github.com/verrazzano/rancher/pkg/fleet"
+	mngtv3 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	v1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

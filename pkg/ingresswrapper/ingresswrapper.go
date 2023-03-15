@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	rextv1beta1 "github.com/rancher/rancher/pkg/generated/norman/extensions/v1beta1"
-	rnetworkingv1 "github.com/rancher/rancher/pkg/generated/norman/networking.k8s.io/v1"
+	rextv1beta1 "github.com/verrazzano/rancher/pkg/generated/norman/extensions/v1beta1"
+	rnetworkingv1 "github.com/verrazzano/rancher/pkg/generated/norman/networking.k8s.io/v1"
 	kextv1beta1 "k8s.io/api/extensions/v1beta1"
 	knetworkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

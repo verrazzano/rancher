@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/controllers/management/imported"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/controllers/management/imported"
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
@@ -18,14 +18,14 @@ import (
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	"github.com/rancher/rancher/pkg/clustermanager"
-	"github.com/rancher/rancher/pkg/generated/compose"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/monitoring"
-	"github.com/rancher/rancher/pkg/ref"
-	managementschema "github.com/rancher/rancher/pkg/schemas/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/user"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	"github.com/verrazzano/rancher/pkg/clustermanager"
+	"github.com/verrazzano/rancher/pkg/generated/compose"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/monitoring"
+	"github.com/verrazzano/rancher/pkg/ref"
+	managementschema "github.com/verrazzano/rancher/pkg/schemas/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/user"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 

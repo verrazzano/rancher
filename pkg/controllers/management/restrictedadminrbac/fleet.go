@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	fleetconst "github.com/rancher/rancher/pkg/fleet"
-	"github.com/rancher/rancher/pkg/rbac"
 	"github.com/rancher/wrangler/pkg/relatedresource"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	fleetconst "github.com/verrazzano/rancher/pkg/fleet"
+	"github.com/verrazzano/rancher/pkg/rbac"
 	k8srbac "k8s.io/api/rbac/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

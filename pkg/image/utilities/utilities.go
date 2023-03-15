@@ -9,12 +9,12 @@ import (
 	"strings"
 
 	"github.com/coreos/go-semver/semver"
-	kd "github.com/rancher/rancher/pkg/controllers/management/kontainerdrivermetadata"
-	img "github.com/rancher/rancher/pkg/image"
-	ext "github.com/rancher/rancher/pkg/image/external"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rke/types/image"
 	"github.com/rancher/rke/types/kdm"
+	kd "github.com/verrazzano/rancher/pkg/controllers/management/kontainerdrivermetadata"
+	img "github.com/verrazzano/rancher/pkg/image"
+	ext "github.com/verrazzano/rancher/pkg/image/external"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 var (

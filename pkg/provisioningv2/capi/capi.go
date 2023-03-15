@@ -4,10 +4,10 @@ import (
 	"context"
 
 	controllerruntime "github.com/rancher/lasso/controller-runtime"
-	rkecontrollers "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/provisioningv2/capi/logger"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/rancher/wrangler/pkg/schemes"
+	rkecontrollers "github.com/verrazzano/rancher/pkg/generated/controllers/rke.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/provisioningv2/capi/logger"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

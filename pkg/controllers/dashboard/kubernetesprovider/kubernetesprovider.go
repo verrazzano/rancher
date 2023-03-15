@@ -4,9 +4,9 @@ import (
 	"context"
 
 	detector "github.com/rancher/kubernetes-provider-detector"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v32 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/wrangler"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	"k8s.io/client-go/kubernetes"
 )
 

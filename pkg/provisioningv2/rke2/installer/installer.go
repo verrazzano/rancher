@@ -8,10 +8,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/systemtemplate"
-	"github.com/rancher/rancher/pkg/tls"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/systemtemplate"
+	"github.com/verrazzano/rancher/pkg/tls"
 	corev1 "k8s.io/api/core/v1"
 )
 

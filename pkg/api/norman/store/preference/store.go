@@ -6,9 +6,9 @@ import (
 	"github.com/rancher/norman/store/transform"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	"github.com/rancher/rancher/pkg/api/norman/store/userscope"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/api/norman/store/userscope"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
 )
 
 const (

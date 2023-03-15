@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
+	"github.com/verrazzano/rancher/pkg/controllers/provisioningv2/rke2"
 	api "k8s.io/api/core/v1"
 )
 

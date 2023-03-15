@@ -8,10 +8,10 @@ import (
 	"github.com/rancher/norman/api/access"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/values"
-	"github.com/rancher/rancher/pkg/controllers/managementagent/workload"
-	"github.com/rancher/rancher/pkg/ref"
-	schema "github.com/rancher/rancher/pkg/schemas/project.cattle.io/v3"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/controllers/managementagent/workload"
+	"github.com/verrazzano/rancher/pkg/ref"
+	schema "github.com/verrazzano/rancher/pkg/schemas/project.cattle.io/v3"
 )
 
 var (

@@ -10,8 +10,8 @@ import (
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
 	"github.com/rancher/norman/types/slice"
-	"github.com/rancher/rancher/pkg/api/norman/customization/setting"
-	"github.com/rancher/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/api/norman/customization/setting"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 type Store struct {

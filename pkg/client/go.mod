@@ -1,4 +1,4 @@
-module github.com/rancher/rancher/pkg/client
+module github.com/verrazzano/rancher/pkg/client
 
 go 1.19
 

@@ -5,16 +5,16 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
-	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/notifiers"
-	"github.com/rancher/rancher/pkg/rbac"
-	"github.com/rancher/rancher/pkg/ref"
+	client "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/notifiers"
+	"github.com/verrazzano/rancher/pkg/rbac"
+	"github.com/verrazzano/rancher/pkg/ref"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	localprovider "github.com/rancher/rancher/pkg/auth/providers/local"
-	"github.com/rancher/rancher/pkg/settings"
-	"github.com/rancher/rancher/pkg/types/config"
-	ruser "github.com/rancher/rancher/pkg/user"
 	"github.com/rancher/wrangler/pkg/ticker"
 	"github.com/sirupsen/logrus"
+	localprovider "github.com/verrazzano/rancher/pkg/auth/providers/local"
+	"github.com/verrazzano/rancher/pkg/settings"
+	"github.com/verrazzano/rancher/pkg/types/config"
+	ruser "github.com/verrazzano/rancher/pkg/user"
 	"k8s.io/apimachinery/pkg/labels"
 )
 

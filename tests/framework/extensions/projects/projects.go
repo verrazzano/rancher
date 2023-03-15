@@ -2,8 +2,8 @@ package projects
 
 import (
 	"github.com/rancher/norman/types"
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
+	management "github.com/verrazzano/rancher/tests/framework/clients/rancher/generated/management/v3"
 )
 
 // GetProjectByName is a helper function that returns the project by name in a specific cluster.

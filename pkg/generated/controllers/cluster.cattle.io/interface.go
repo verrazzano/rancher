@@ -20,7 +20,7 @@ package cluster
 
 import (
 	"github.com/rancher/lasso/pkg/controller"
-	v3 "github.com/rancher/rancher/pkg/generated/controllers/cluster.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/controllers/cluster.cattle.io/v3"
 )
 
 type Interface interface {

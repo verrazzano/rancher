@@ -2,8 +2,8 @@ package image
 
 import (
 	"github.com/rancher/norman/types/convert"
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	rketypes "github.com/rancher/rke/types"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
 )
 
 type System struct {

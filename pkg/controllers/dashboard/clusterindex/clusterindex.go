@@ -3,9 +3,9 @@ package clusterindex
 import (
 	"context"
 
-	rancherv1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/wrangler"
 	"github.com/rancher/wrangler/pkg/relatedresource"
+	rancherv1 "github.com/verrazzano/rancher/pkg/apis/provisioning.cattle.io/v1"
+	"github.com/verrazzano/rancher/pkg/wrangler"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

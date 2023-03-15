@@ -13,11 +13,11 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	secretmigrator "github.com/rancher/rancher/pkg/controllers/management/secretmigrator/catalog"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/git"
 	"github.com/sirupsen/logrus"
+	secretmigrator "github.com/verrazzano/rancher/pkg/controllers/management/secretmigrator/catalog"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/git"
 )
 
 const (

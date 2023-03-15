@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Azure/go-autorest/autorest/adal"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 )
 
 // GetPrincipalID attempts to extract the ID of either a user or group from the principal value.

@@ -20,7 +20,7 @@ package upgrade
 
 import (
 	"github.com/rancher/lasso/pkg/controller"
-	v1 "github.com/rancher/rancher/pkg/generated/controllers/upgrade.cattle.io/v1"
+	v1 "github.com/verrazzano/rancher/pkg/generated/controllers/upgrade.cattle.io/v1"
 )
 
 type Interface interface {

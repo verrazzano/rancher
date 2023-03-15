@@ -8,8 +8,8 @@ import (
 	"net/url"
 
 	"github.com/rancher/apiserver/pkg/types"
-	"github.com/rancher/rancher/pkg/catalogv2/content"
 	"github.com/rancher/wrangler/pkg/schemas/validation"
+	"github.com/verrazzano/rancher/pkg/catalogv2/content"
 	"helm.sh/helm/v3/pkg/repo"
 )
 

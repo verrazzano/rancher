@@ -14,8 +14,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rancher/rancher/pkg/data/management"
 	"github.com/stretchr/testify/suite"
+	"github.com/verrazzano/rancher/pkg/data/management"
 )
 
 var errAny = errors.New("any error is allowed")

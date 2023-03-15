@@ -7,10 +7,10 @@ import (
 	"regexp"
 	"strings"
 
-	managementv3 "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	mgmtv3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/node"
-	"github.com/rancher/rancher/pkg/settings"
+	managementv3 "github.com/verrazzano/rancher/pkg/client/generated/management/v3"
+	mgmtv3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/node"
+	"github.com/verrazzano/rancher/pkg/settings"
 )
 
 const (

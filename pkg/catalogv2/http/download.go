@@ -14,8 +14,8 @@ import (
 
 	"sigs.k8s.io/yaml"
 
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/settings"
 	"helm.sh/helm/v3/pkg/repo"
 	corev1 "k8s.io/api/core/v1"
 )

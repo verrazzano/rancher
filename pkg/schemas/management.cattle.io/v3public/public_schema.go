@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/rancher/norman/types"
-	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/schemas/factory"
+	v3 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/schemas/factory"
 )
 
 var (

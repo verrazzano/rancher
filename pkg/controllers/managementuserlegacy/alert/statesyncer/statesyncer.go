@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/rancher/norman/controller"
-	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/common"
-	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/alert/manager"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/rancher/wrangler/pkg/ticker"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/common"
+	"github.com/verrazzano/rancher/pkg/controllers/managementuserlegacy/alert/manager"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/verrazzano/rancher/pkg/types/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )

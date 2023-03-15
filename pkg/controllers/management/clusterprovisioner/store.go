@@ -3,10 +3,10 @@ package clusterprovisioner
 import (
 	"encoding/json"
 
-	"github.com/rancher/rancher/pkg/encryptedstore"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/kontainer-engine/cluster"
 	"github.com/sirupsen/logrus"
+	"github.com/verrazzano/rancher/pkg/encryptedstore"
+	v1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	"github.com/verrazzano/rancher/pkg/kontainer-engine/cluster"
 )
 
 const (

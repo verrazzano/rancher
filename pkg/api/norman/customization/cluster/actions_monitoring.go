@@ -6,13 +6,13 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	v32 "github.com/verrazzano/rancher/pkg/apis/management.cattle.io/v3"
+	v3 "github.com/verrazzano/rancher/pkg/generated/norman/management.cattle.io/v3"
 
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	"github.com/rancher/rancher/pkg/monitoring"
+	"github.com/verrazzano/rancher/pkg/monitoring"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

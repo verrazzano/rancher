@@ -1,7 +1,7 @@
 package kubeconfig
 
 import (
-	"github.com/rancher/rancher/tests/framework/clients/rancher"
+	"github.com/verrazzano/rancher/tests/framework/clients/rancher"
 	"k8s.io/client-go/tools/clientcmd"
 )
 

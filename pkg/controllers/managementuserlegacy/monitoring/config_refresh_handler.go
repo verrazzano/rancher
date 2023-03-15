@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/rancher/rancher/pkg/controllers/managementagent/nslabels"
-	apiv1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	rmonitoringv1 "github.com/rancher/rancher/pkg/generated/norman/monitoring.coreos.com/v1"
+	"github.com/verrazzano/rancher/pkg/controllers/managementagent/nslabels"
+	apiv1 "github.com/verrazzano/rancher/pkg/generated/norman/core/v1"
+	rmonitoringv1 "github.com/verrazzano/rancher/pkg/generated/norman/monitoring.coreos.com/v1"
 
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/sirupsen/logrus"
