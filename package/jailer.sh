@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 NAME=$1
 
@@ -54,9 +54,6 @@ fi
 
 # Hard link driver binaries
 cp -r -l /opt/drivers/management-state/bin /opt/jail/$NAME/var/lib/rancher/management-state
-
-# Hard link rancher-machine into the jail
-cp -l /usr/bin/rancher-machine /opt/jail/$NAME/usr/bin
 
 # Hard link helm_2 into the jail
 cp -l /usr/bin/rancher-helm /opt/jail/$NAME/usr/bin
