@@ -7,8 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/fleet"
-
 	"github.com/rancher/norman/types/convert"
 	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
 
@@ -408,9 +406,9 @@ func (m *Migrator) CreateOrUpdateSourceCodeProviderConfigSecret(secretName strin
 // It returns a reference to the Secret if one was created. If the returned Secret is not nil and there is no error,
 // the caller is responsible for un-setting the secret data, setting a reference to the Secret, and
 // updating the Cluster object, if applicable.
-func (m *Migrator) CreateOrUpdateHarvesterCloudConfigSecret(secretName string, credential string, annotations map[string]string, owner runtime.Object, provider string) (*corev1.Secret, error) {
-	return m.createOrUpdateSecretForCredential(secretName, fleet.ClustersDefaultNamespace, credential, annotations, owner, "harvester", provider)
-}
+//func (m *Migrator) CreateOrUpdateHarvesterCloudConfigSecret(secretName string, credential string, annotations map[string]string, owner runtime.Object, provider string) (*corev1.Secret, error) {
+//	return m.createOrUpdateSecretForCredential(secretName, fleet.ClustersDefaultNamespace, credential, annotations, owner, "harvester", provider)
+//}
 
 // CreateOrUpdateACIAPICUserKeySecret accepts an optional secret name and a RancherKubernetesEngineConfig object
 // and creates a Secret for the AciNetworkProvider user key if there are any.
