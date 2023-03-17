@@ -18,7 +18,6 @@ const (
 	Azuredriver        = "azure"
 	DigitalOceandriver = "digitalocean"
 	ExoscaleDriver     = "exoscale"
-	HarvesterDriver    = "harvester"
 	Linodedriver       = "linode"
 	NutanixDriver      = "nutanix"
 	OCIDriver          = "oci"
@@ -38,7 +37,6 @@ var DriverData = map[string]map[string][]string{
 	Azuredriver:        {"publicCredentialFields": []string{"clientId", "subscriptionId", "tenantId", "environment"}, "privateCredentialFields": []string{"clientSecret"}, "optionalCredentialFields": []string{"tenantId"}},
 	DigitalOceandriver: {"privateCredentialFields": []string{"accessToken"}},
 	ExoscaleDriver:     {"privateCredentialFields": []string{"apiSecretKey"}},
-	HarvesterDriver:    {"publicCredentialFields": []string{"clusterType", "clusterId"}, "privateCredentialFields": []string{"kubeconfigContent"}, "optionalCredentialFields": []string{"clusterId"}},
 	Linodedriver:       {"privateCredentialFields": []string{"token"}, "passwordFields": []string{"rootPass"}},
 	NutanixDriver:      {"publicCredentialFields": []string{"endpoint", "username", "port"}, "privateCredentialFields": []string{"password"}},
 	OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
@@ -54,8 +52,7 @@ var DriverData = map[string]map[string][]string{
 }
 
 var driverDefaults = map[string]map[string]string{
-	HarvesterDriver: {"clusterType": "imported"},
-	Vmwaredriver:    {"vcenterPort": "443"},
+	Vmwaredriver: {"vcenterPort": "443"},
 }
 
 type machineDriverCompare struct {
