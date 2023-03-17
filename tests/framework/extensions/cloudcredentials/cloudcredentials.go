@@ -18,7 +18,6 @@ type CloudCredential struct {
 	AzureCredentialConfig        *AzureCredentialConfig        `json:"azurecredentialConfig,omitempty"`
 	DigitalOceanCredentialConfig *DigitalOceanCredentialConfig `json:"digitaloceancredentialConfig,omitempty"`
 	LinodeCredentialConfig       *LinodeCredentialConfig       `json:"linodecredentialConfig,omitempty"`
-	HarvesterCredentialConfig    *HarvesterCredentialConfig    `json:"harvestercredentialConfig,omitempty"`
 	GoogleCredentialConfig       *GoogleCredentialConfig       `json:"googlecredentialConfig,omitempty"`
 	UUID                         string                        `json:"uuid,omitempty"`
 }

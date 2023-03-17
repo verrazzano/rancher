@@ -400,16 +400,6 @@ func (m *Migrator) CreateOrUpdateSourceCodeProviderConfigSecret(secretName strin
 	return m.createOrUpdateSecretForCredential(secretName, SecretNamespace, credential, nil, owner, "sourcecodeproviderconfig", provider)
 }
 
-// CreateOrUpdateHarvesterCloudConfigSecret accepts an optional secret name and a client secret or
-// harvester cloud-provider-config and creates a Secret for the credential if there is one.
-// If an owner is passed, the owner is set as an owner reference on the Secret.
-// It returns a reference to the Secret if one was created. If the returned Secret is not nil and there is no error,
-// the caller is responsible for un-setting the secret data, setting a reference to the Secret, and
-// updating the Cluster object, if applicable.
-//func (m *Migrator) CreateOrUpdateHarvesterCloudConfigSecret(secretName string, credential string, annotations map[string]string, owner runtime.Object, provider string) (*corev1.Secret, error) {
-//	return m.createOrUpdateSecretForCredential(secretName, fleet.ClustersDefaultNamespace, credential, annotations, owner, "harvester", provider)
-//}
-
 // CreateOrUpdateACIAPICUserKeySecret accepts an optional secret name and a RancherKubernetesEngineConfig object
 // and creates a Secret for the AciNetworkProvider user key if there are any.
 // If an owner is passed, the owner is set as an owner reference on the Secret.

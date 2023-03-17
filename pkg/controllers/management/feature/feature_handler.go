@@ -46,10 +46,6 @@ func (h *handler) sync(_ string, obj *v3.Feature) (*v3.Feature, error) {
 	return obj, nil
 }
 
-func (h *handler) toggleHarvesterNodeDriver(harvester string) error {
-	return nil
-}
-
 func (h *handler) refreshTokens() error {
 	tokenList, err := h.tokensLister.List(labels.Everything())
 	if err != nil {
