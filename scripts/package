@@ -43,11 +43,6 @@ echo
 
 cd ../bin
 
-if [ ! -d build/system-charts ]; then
-    mkdir -p build
-    # Oracle - Removed the --no-tags option since we are using oraclelinux:7-slim as the base image, and that has an older version of git that does not support this option
-    git clone --depth=1 --branch $SYSTEM_CHART_DEFAULT_BRANCH https://github.com/rancher/system-charts $SYSTEM_CHART_REPO_DIR
-fi
 
 if [ ! -d $CHART_REPO_DIR ]; then
     git clone --branch $CHART_DEFAULT_BRANCH https://github.com/rancher/charts $CHART_REPO_DIR
@@ -55,7 +50,7 @@ fi
 
 if [ ${ARCH} == amd64 ]; then
     # Move this out of ARCH check for local dev on non-amd64 hardware.
-    TAG=$TAG REPO=${REPO} go run ../pkg/image/export/main.go $SYSTEM_CHART_REPO_DIR $CHART_REPO_DIR $IMAGE $AGENT_IMAGE $RUNTIME_IMAGE $SYSTEM_AGENT_UPGRADE_IMAGE $WINS_AGENT_UPGRADE_IMAGE ${SYSTEM_AGENT_INSTALLER_RKE2_IMAGES[@]} ${SYSTEM_AGENT_INSTALLER_K3S_IMAGES[@]}
+    TAG=$TAG REPO=${REPO} go run ../pkg/image/export/main.go $CHART_REPO_DIR $IMAGE $AGENT_IMAGE ${SYSTEM_AGENT_INSTALLER_K3S_IMAGES[@]}
 fi
 
 # Create components file used for pre-release notes
