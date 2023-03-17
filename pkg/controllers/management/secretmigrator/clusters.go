@@ -7,9 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rancher/norman/types/convert"
-	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-
 	apimgmtv3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/namespace"
 	rketypes "github.com/rancher/rke/types"
@@ -558,21 +555,6 @@ func (m *Migrator) CleanupKnownSecrets(secrets []*corev1.Secret) {
 			logrus.Warnf("[secretmigrator] error encountered while handling secrets cleanup for migration error; secret %s:%s may not have been cleaned up: %s", secret.Namespace, secret.Name, cleanUpErr)
 		}
 	}
-}
-
-// isHarvesterCluster determines if a v1.Cluster represents a harvester cluster
-func (m *Migrator) isHarvesterCluster(cluster *v1.Cluster) bool {
-	if cluster == nil || cluster.Spec.RKEConfig == nil {
-		return false
-	}
-
-	for _, selectorConfig := range cluster.Spec.RKEConfig.MachineSelectorConfig {
-		if strings.ToLower(convert.ToString(selectorConfig.Config.Data["cloud-provider-name"])) == "harvester" {
-			return true
-		}
-	}
-
-	return false
 }
 
 // CreateOrUpdateServiceAccountTokenSecret accepts an optional secret name and a token string
