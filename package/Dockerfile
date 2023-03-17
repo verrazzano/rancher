@@ -64,8 +64,6 @@ ENV CATTLE_CSP_ADAPTER_MIN_VERSION=2.0.0
 
 # Chart git repo directories
 ENV RANCHER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721
-ENV RANCHER_PARTNER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-partner-charts/8f17acdce9bffd6e05a58a3798840e408c4ea71783381ecd2e9af30baad65974
-ENV RANCHER_RKE2_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-rke2-charts/675f1b63a0a83905972dcab2794479ed599a6f41b86cd6193d69472d0fa889c9
 
 # System chart commits
 ENV RANCHER_CHARTS_COMMIT=176424fce4f19ab8b01141dcec2d4453f075aad2
@@ -85,9 +83,6 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
     git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://git.rancher.io/charts $RANCHER_CHARTS_DIR && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
-    #
-    git clone -b $CATTLE_PARTNER_CHART_DEFAULT_BRANCH https://git.rancher.io/partner-charts $RANCHER_PARTNER_CHARTS_DIR && \
-    git -C $RANCHER_PARTNER_CHARTS_DIR checkout $RANCHER_PARTNER_CHARTS_COMMIT && \
     #
     git clone -b master --depth 1 https://github.com/rancher/charts /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
