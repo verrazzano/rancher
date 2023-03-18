@@ -228,10 +228,10 @@ func Test_downloadExternalSupportingImages(t *testing.T) {
 			args: args{
 				release: rke2WebVersion,
 				source:  rke2,
-				image1:  "rancher/harvester-csi-driver:v0.1.3",
-				image2:  "rancher/rke2-runtime:v1.23.6-rke2r1",
-				image3:  "rancher/rke2-runtime:v1.23.6-rke2r1-windows-amd64",
-				image4:  "rancher/rke2-cloud-provider:v0.0.3-build20211118",
+				image1:  "rancher/rke2-runtime:v1.23.6-rke2r1",
+				image2:  "rancher/rke2-runtime:v1.23.6-rke2r1-windows-amd64",
+				image3:  "rancher/rke2-cloud-provider:v0.0.3-build20211118",
+				image4:  "",
 			},
 		},
 	}
@@ -247,6 +247,9 @@ func Test_downloadExternalSupportingImages(t *testing.T) {
 			a.Contains(got, tt.args.image1)
 			a.Contains(got, tt.args.image2)
 			a.Contains(got, tt.args.image3)
+			if tt.args.image4 != "" {
+				a.Contains(got, tt.args.image4)
+			}
 			a.Contains(got, tt.args.image4)
 		})
 	}
