@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	"github.com/rancher/rancher/pkg/features"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/user"
 	"github.com/sirupsen/logrus"
@@ -149,24 +148,4 @@ func VerifyToken(storedToken *v3.Token, tokenName, tokenKey string) (int, error)
 		return 410, errors.New("must authenticate")
 	}
 	return 200, nil
-}
-
-// ConvertTokenKeyToHash takes a token with an un-hashed key and converts it to a hashed key
-func ConvertTokenKeyToHash(token *v3.Token) error {
-	if !features.TokenHashing.Enabled() {
-		return nil
-	}
-	if token != nil && len(token.Token) > 0 {
-		hashedToken, err := CreateSHA256Hash(token.Token)
-		if err != nil {
-			logrus.Errorf("Failed to generate hash from token: %v", err)
-			return errors.New("failed to generate hash from token")
-		}
-		token.Token = hashedToken
-		if token.Annotations == nil {
-			token.Annotations = map[string]string{}
-		}
-		token.Annotations[TokenHashed] = "true"
-	}
-	return nil
 }

@@ -89,12 +89,6 @@ var (
 		true,
 		false,
 		false)
-	TokenHashing = newFeature(
-		"token-hashing",
-		"Enable one way hashing of tokens. Once enabled token hashing can not be disabled",
-		false,
-		true,
-		true)
 	Harvester = newFeature(
 		"harvester",
 		"Enable Harvester integration, with ability to import and manage Harvester clusters",

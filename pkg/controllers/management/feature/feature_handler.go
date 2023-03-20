@@ -5,11 +5,9 @@ import (
 	"time"
 
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/auth/tokens"
 	"github.com/rancher/rancher/pkg/features"
 	managementv3 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/wrangler"
-	"k8s.io/apimachinery/pkg/labels"
 )
 
 type handler struct {
@@ -39,10 +37,6 @@ func (h *handler) sync(_ string, obj *v3.Feature) (*v3.Feature, error) {
 		return obj, err
 	}
 
-	if obj.Name == features.TokenHashing.Name() {
-		return obj, h.refreshTokens()
-	}
-
 	if obj.Name == features.Harvester.Name() {
 		return obj, h.toggleHarvesterNodeDriver(obj.Name)
 	}
@@ -58,20 +52,6 @@ func (h *handler) toggleHarvesterNodeDriver(harvester string) error {
 		m.Spec.Active = val
 		_, err = h.nodeDriverController.Update(m)
 		return err
-	}
-	return nil
-}
-
-func (h *handler) refreshTokens() error {
-	tokenList, err := h.tokensLister.List(labels.Everything())
-	if err != nil {
-		return err
-	}
-	for _, token := range tokenList {
-		if token.Labels[tokens.TokenHashed] == "true" {
-			continue
-		}
-		h.tokenEnqueue(token.Name, 10*time.Second)
 	}
 	return nil
 }
@@ -109,17 +89,6 @@ func (h *handler) setLockedValue(obj *v3.Feature) (*v3.Feature, error) {
 func EvaluateLockedValueFromSpec(obj *v3.Feature) *bool {
 	if obj.Status.LockedValue != nil {
 		return obj.Status.LockedValue
-	}
-	switch obj.Name {
-	case features.TokenHashing.Name():
-		if obj.Spec.Value == nil {
-			return nil
-		}
-		if !(*obj.Spec.Value) {
-			return nil
-		}
-		value := true
-		return &value
 	}
 	return nil
 }
