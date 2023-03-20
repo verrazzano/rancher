@@ -1,6 +1,3 @@
-ARG K3S_BUILDER=rancher/k3s:v1.24.1-k3s1
-FROM ${K3S_BUILDER} as k3s_builder
-
 FROM ghcr.io/oracle/oraclelinux:7-slim
 
 RUN yum-config-manager --enable ol7_optional_latest && \
@@ -159,26 +156,6 @@ RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     make -C ./helm && \
     mv ./helm/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
-
-# Set up K3s: copy the necessary binaries from the K3s image.
-COPY --from=k3s_builder \
-    /bin/blkid \
-    /bin/charon \
-    /bin/cni \
-    /bin/conntrack \
-    /bin/containerd \
-    /bin/containerd-shim-runc-v2 \
-    /bin/ethtool \
-    /bin/ip \
-    /bin/ipset \
-    /bin/k3s \
-    /bin/losetup \
-    /bin/pigz \
-    /bin/runc \
-    /bin/swanctl \
-    /bin/which \
-    /bin/aux/xtables-legacy-multi \
-/usr/bin/
 
 RUN ln -s /usr/bin/cni /usr/bin/bridge && \
     ln -s /usr/bin/cni /usr/bin/flannel && \
