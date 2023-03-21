@@ -128,21 +128,14 @@ func extractClusterIDFromResponseType(responseType string) string {
 	return responseSplit[1]
 }
 
-// Given a stored token with hashed key, check if the provided (unhashed) tokenKey matches and is valid
+// Given a stored token, check if the provided (unhashed) tokenKey matches and is valid
 func VerifyToken(storedToken *v3.Token, tokenName, tokenKey string) (int, error) {
 	invalidAuthTokenErr := errors.New("Invalid auth token value")
 	if storedToken.ObjectMeta.Name != tokenName {
 		return 422, invalidAuthTokenErr
 	}
-	if storedToken.Annotations != nil && storedToken.Annotations[TokenHashed] == "true" {
-		if err := VerifySHA256Hash(storedToken.Token, tokenKey); err != nil {
-			logrus.Errorf("VerifySHA256Hash failed with error: %v", err)
-			return 422, invalidAuthTokenErr
-		}
-	} else {
-		if storedToken.Token != tokenKey {
-			return 422, invalidAuthTokenErr
-		}
+	if storedToken.Token != tokenKey {
+		return 422, invalidAuthTokenErr
 	}
 	if IsExpired(*storedToken) {
 		return 410, errors.New("must authenticate")

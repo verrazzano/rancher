@@ -37,7 +37,6 @@ const (
 	userPrincipalIndex     = "authn.management.cattle.io/user-principal-index"
 	UserIDLabel            = "authn.management.cattle.io/token-userId"
 	TokenKindLabel         = "authn.management.cattle.io/kind"
-	TokenHashed            = "authn.management.cattle.io/token-hashed"
 	tokenKeyIndex          = "authn.management.cattle.io/token-key-index"
 	secretNameEnding       = "-secret"
 	SecretNamespace        = "cattle-system"
