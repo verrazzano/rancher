@@ -10,8 +10,6 @@ source package-env
 
 cd $(dirname $0)/../package
 
-../scripts/k3s-images.sh
-
 cp ../bin/rancher ../bin/agent ../bin/data.json .
 cp ../LICENSE ../README.md ../THIRD_PARTY_LICENSES.txt .
 
