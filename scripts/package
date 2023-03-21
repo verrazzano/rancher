@@ -13,7 +13,6 @@ cd $(dirname $0)/../package
 ../scripts/k3s-images.sh
 
 cp ../bin/rancher ../bin/agent ../bin/data.json ../bin/k3s-airgap-images.tar .
-cp ../bin/rancher ../bin/agent ../bin/data.json ../bin/k3s-airgap-images.tar .
 cp ../LICENSE ../README.md ../THIRD_PARTY_LICENSES.txt .
 
 # Make sure the used data.json is a release artifact

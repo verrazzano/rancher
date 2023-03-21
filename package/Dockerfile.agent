@@ -8,7 +8,6 @@ FROM ghcr.io/oracle/oraclelinux:7-slim
 ARG ARCH=amd64
 
 RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
-ENV KUBECTL_VERSION v1.22.7
 
 RUN yum-config-manager --enable ol7_optional_latest && \
     yum-config-manager --enable ol7_addons && \
