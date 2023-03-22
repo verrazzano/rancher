@@ -139,12 +139,10 @@ func GetK8sVersionInfo(
 	rancherVersion string,
 	rkeSysImages map[string]rketypes.RKESystemImages,
 	linuxSvcOptions map[string]rketypes.KubernetesServicesOptions,
-	windowsSvcOptions map[string]rketypes.KubernetesServicesOptions,
 	rancherVersions map[string]rketypes.K8sVersionInfo,
-) (linuxInfo, windowsInfo *VersionInfo) {
+) (linuxInfo *VersionInfo) {
 
 	linuxInfo = newVersionInfo()
-	windowsInfo = newVersionInfo()
 
 	maxVersionForMajorK8sVersion := map[string]string{}
 	for k8sVersion := range rkeSysImages {
@@ -164,21 +162,7 @@ func GetK8sVersionInfo(
 		if !exist {
 			continue
 		}
-		// windows has been supported since v1.14,
-		// the following logic would not find `< v1.14` service options
-		if svcOptions, exist := windowsSvcOptions[majorVersion]; exist {
-			// only keep the related images for windows
-			windowsSysImgs := rketypes.RKESystemImages{
-				NginxProxy:                sysImgs.NginxProxy,
-				CertDownloader:            sysImgs.CertDownloader,
-				KubernetesServicesSidecar: sysImgs.KubernetesServicesSidecar,
-				Kubernetes:                sysImgs.Kubernetes,
-				WindowsPodInfraContainer:  sysImgs.WindowsPodInfraContainer,
-			}
 
-			windowsInfo.RKESystemImages[k8sVersion] = windowsSysImgs
-			windowsInfo.KubernetesServicesOptions[k8sVersion] = svcOptions
-		}
 		if svcOptions, exist := linuxSvcOptions[majorVersion]; exist {
 			// clean the unrelated images for linux
 			sysImgs.WindowsPodInfraContainer = ""
@@ -188,7 +172,7 @@ func GetK8sVersionInfo(
 		}
 	}
 
-	return linuxInfo, windowsInfo
+	return linuxInfo
 }
 
 type VersionInfo struct {
