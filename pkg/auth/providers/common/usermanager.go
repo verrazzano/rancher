@@ -282,15 +282,11 @@ func (m *userManager) EnsureClusterToken(clusterName string, input user.TokenInp
 		token.ObjectMeta.Name = ""
 		token.ObjectMeta.GenerateName = input.TokenName
 	}
-	err = tokens.ConvertTokenKeyToHash(token)
-	if err != nil {
-		return "", err
-	}
 
 	logrus.Infof("Creating token for user %v", input.UserName)
 	err = wait.ExponentialBackoff(backoff, func() (bool, error) {
 		// Backoff was added here because it is possible the token is the process of deleting.
-		// This should cause the create to retry until the delete is finished.
+		// This should cause create to retry until delete is finished.
 		newToken, err := m.tokens.Create(token)
 		if err != nil {
 			if apierrors.IsAlreadyExists(err) {

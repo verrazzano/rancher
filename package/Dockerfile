@@ -1,6 +1,3 @@
-ARG K3S_BUILDER=rancher/k3s:v1.24.1-k3s1
-FROM ${K3S_BUILDER} as k3s_builder
-
 FROM ghcr.io/oracle/oraclelinux:7-slim
 
 RUN yum-config-manager --enable ol7_optional_latest && \
@@ -47,23 +44,13 @@ ENV CATTLE_K3S_VERSION v1.24.4+k3s1
 ENV CATTLE_MACHINE_PROVISION_IMAGE rancher/machine:${CATTLE_MACHINE_VERSION}
 ENV CATTLE_ETCD_VERSION v3.5.1
 ENV LOGLEVEL_VERSION v0.1.5
-ENV TINI_VERSION v0.18.0
+ENV TINI_VERSION v0.19.0
 ENV TELEMETRY_VERSION v0.5.20
 ENV DOCKER_MACHINE_LINODE_VERSION v0.1.8
 ENV LINODE_UI_DRIVER_VERSION v0.4.0
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
 ENV HELM_VERSION 3.9.0-rancher1
 ENV KUSTOMIZE_VERSION v4.5.5
-ENV CATTLE_WINS_AGENT_VERSION v0.4.11
-ENV CATTLE_WINS_AGENT_INSTALL_SCRIPT https://raw.githubusercontent.com/rancher/wins/${CATTLE_WINS_AGENT_VERSION}/install.ps1
-ENV CATTLE_WINS_AGENT_UNINSTALL_SCRIPT https://raw.githubusercontent.com/rancher/wins/${CATTLE_WINS_AGENT_VERSION}/uninstall.ps1
-ENV CATTLE_WINS_AGENT_UPGRADE_IMAGE rancher/wins:${CATTLE_WINS_AGENT_VERSION}
-ENV CATTLE_CSI_PROXY_AGENT_VERSION v1.1.1
-ENV CATTLE_SYSTEM_AGENT_VERSION v0.2.13
-ENV CATTLE_SYSTEM_AGENT_INSTALL_SCRIPT https://raw.githubusercontent.com/rancher/system-agent/${CATTLE_SYSTEM_AGENT_VERSION}/install.sh
-ENV CATTLE_SYSTEM_AGENT_UNINSTALL_SCRIPT https://raw.githubusercontent.com/rancher/system-agent/${CATTLE_SYSTEM_AGENT_VERSION}/system-agent-uninstall.sh
-ENV CATTLE_SYSTEM_AGENT_UPGRADE_IMAGE rancher/system-agent:${CATTLE_SYSTEM_AGENT_VERSION}-suc
-ENV CATTLE_SYSTEM_UPGRADE_CONTROLLER_CHART_VERSION 101.0.0+up0.3.3
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=101.0.1+up0.5.1
@@ -72,8 +59,6 @@ ENV CATTLE_CSP_ADAPTER_MIN_VERSION=2.0.0
 
 # Chart git repo directories
 ENV RANCHER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721
-ENV RANCHER_PARTNER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-partner-charts/8f17acdce9bffd6e05a58a3798840e408c4ea71783381ecd2e9af30baad65974
-ENV RANCHER_RKE2_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-rke2-charts/675f1b63a0a83905972dcab2794479ed599a6f41b86cd6193d69472d0fa889c9
 
 # System chart commits
 ENV RANCHER_CHARTS_COMMIT=176424fce4f19ab8b01141dcec2d4453f075aad2
@@ -86,7 +71,6 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/v2 && \
     # Set up the git 2.x environment variables so that it's on the path
     source /etc/profile.d/git.sh && \
-    git clone -b $CATTLE_SYSTEM_CHART_DEFAULT_BRANCH --depth 1 https://github.com/rancher/system-charts /var/lib/rancher-data/local-catalogs/system-library && \
     #
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     #
@@ -94,109 +78,24 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://git.rancher.io/charts $RANCHER_CHARTS_DIR && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
     #
-    git clone -b $CATTLE_PARTNER_CHART_DEFAULT_BRANCH https://git.rancher.io/partner-charts $RANCHER_PARTNER_CHARTS_DIR && \
-    git -C $RANCHER_PARTNER_CHARTS_DIR checkout $RANCHER_PARTNER_CHARTS_COMMIT && \
-    #
-    git clone -b $CATTLE_RKE2_CHART_DEFAULT_BRANCH https://git.rancher.io/rke2-charts $RANCHER_RKE2_CHARTS_DIR && \
-    git -C $RANCHER_RKE2_CHARTS_DIR checkout $RANCHER_RKE2_CHARTS_COMMIT && \
-    #
     git clone -b master --depth 1 https://github.com/rancher/charts /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
 
-RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin && \
-    curl -sLf https://github.com/rancher/loglevel/releases/download/${LOGLEVEL_VERSION}/loglevel-${ARCH}-${LOGLEVEL_VERSION}.tar.gz | tar xvzf - -C /usr/bin && \
-    curl -LO https://github.com/linode/docker-machine-driver-linode/releases/download/${DOCKER_MACHINE_LINODE_VERSION}/docker-machine-driver-linode_linux-amd64.zip && \
-    unzip docker-machine-driver-linode_linux-amd64.zip -d /opt/drivers/management-state/bin && \
-    mkdir -p /usr/share/rancher/ui/assets/ && \
-    cp /opt/drivers/management-state/bin/docker-machine-driver-linode /usr/share/rancher/ui/assets/ && \
-    rm docker-machine-driver-linode_linux-amd64.zip
-
-ENV TINI_URL_amd64=https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini \
-    TINI_URL_arm64=https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-arm64 \
-    TINI_URL_s390x=https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-s390x \
-    TINI_URL=TINI_URL_${ARCH}
-
-ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm \
-    HELM_URL_V2_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-arm64 \
-    HELM_URL_V2_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-s390x \
-    HELM_URL_V2=HELM_URL_V2_${ARCH} \
-    TILLER_URL_amd64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller \
-    TILLER_URL_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-arm64 \
-    TILLER_URL_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-s390x \
-    TILLER_URL=TILLER_URL_${ARCH} \
-    ETCD_URL=https://github.com/etcd-io/etcd/releases/download/${CATTLE_ETCD_VERSION}/etcd-${CATTLE_ETCD_VERSION}-linux-${ARCH}.tar.gz \
-    KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
+ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
-    yum -y install kubectl-1.23.11-1.el7.x86_64 && \
-    yum -y install etcd-3.5.1-2.el7.x86_64 && \
-    # set up helm 2
-    curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
-    curl -sLf ${!TILLER_URL} > /usr/bin/rancher-tiller && \
-    ln -s /usr/bin/rancher-helm /usr/bin/helm && \
-    ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
-    chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller && \
-    # set up helm 3
-    # Rancher uses its own Helm fork - build and install our BFS of that fork.
-    yum install -y make && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/developer_EPEL/x86_64 && \
     yum install -y oracle-golang-release-el7 && \
     yum-config-manager --enable ol7_developer_golang119 && \
-    yum install -y golang-1.19 && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    source /etc/profile.d/git.sh && \
-    git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
-    make -C ./helm && \
-    mv ./helm/bin/helm /usr/bin/helm_v3 && \
+    yum -y install helm-3.3.4-2.el7.x86_64 golang-1.19 docker-engine-19.03.11.ol-13.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 etcd-3.5.1-2.el7.x86_64 tini-0.19.0-2.el7.x86_64 && \
+    # set up helm 3
+    # Rancher uses its own Helm fork - build and install our BFS of that fork.
+    mv /usr/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
 
-# Set up K3s: copy the necessary binaries from the K3s image.
-COPY --from=k3s_builder \
-    /bin/blkid \
-    /bin/charon \
-    /bin/cni \
-    /bin/conntrack \
-    /bin/containerd \
-    /bin/containerd-shim-runc-v2 \
-    /bin/ethtool \
-    /bin/ip \
-    /bin/ipset \
-    /bin/k3s \
-    /bin/losetup \
-    /bin/pigz \
-    /bin/runc \
-    /bin/swanctl \
-    /bin/which \
-    /bin/aux/xtables-legacy-multi \
-/usr/bin/
-
-RUN ln -s /usr/bin/cni /usr/bin/bridge && \
-    ln -s /usr/bin/cni /usr/bin/flannel && \
-    ln -s /usr/bin/cni /usr/bin/host-local && \
-    ln -s /usr/bin/cni /usr/bin/loopback && \
-    ln -s /usr/bin/cni /usr/bin/portmap && \
-    ln -s /usr/bin/k3s /usr/bin/crictl && \
-    #ln -s /usr/bin/k3s /usr/bin/ctr && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-agent && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-etcd-snapshot && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-server && \
-    #ln -s /usr/bin/k3s /usr/bin/kubectl && \
-    ln -s /usr/bin/pigz /usr/bin/unpigz && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-save && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-restore && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-translate && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-save && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-restore && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-translate
-
-RUN curl -sLf ${!TINI_URL} > /usr/bin/tini && \
-    mkdir -p /var/lib/rancher/k3s/agent/images/ && \
-    curl -sfL ${ETCD_URL} | tar xvzf - --strip-components=1 -C /usr/bin/ etcd-${CATTLE_ETCD_VERSION}-linux-${ARCH}/etcdctl && \
+RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
     chmod +x /usr/bin/tini /usr/bin/telemetry && \
     mkdir -p /var/lib/rancher-data/driver-metadata
@@ -223,28 +122,13 @@ RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
     curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
     mkdir -p assets/rancher-ui-driver-linode && \
-    cd assets/rancher-ui-driver-linode && \
-    curl -O https://linode.github.io/rancher-ui-driver-linode/releases/${LINODE_UI_DRIVER_VERSION}/component.js && \
-    curl -O https://linode.github.io/rancher-ui-driver-linode/releases/${LINODE_UI_DRIVER_VERSION}/component.css && \
-    curl -O https://linode.github.io/rancher-ui-driver-linode/releases/${LINODE_UI_DRIVER_VERSION}/linode.svg && \
     mkdir -p /usr/share/rancher/ui/api-ui && \
     cd /usr/share/rancher/ui/api-ui && \
     curl -sL https://releases.rancher.com/api-ui/${CATTLE_API_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
     mkdir -p /usr/share/rancher/ui-dashboard/dashboard && \
     cd /usr/share/rancher/ui-dashboard/dashboard && \
     curl -sL ${CATTLE_DASHBOARD_TAR_URL} | tar xvzf - --strip-components=2 && \
-    ln -s dashboard/index.html ../index.html && \
-    cd ../../ui/assets && \
-    curl -sfL https://github.com/rancher/system-agent/releases/download/${CATTLE_SYSTEM_AGENT_VERSION}/rancher-system-agent-arm -O && \
-    curl -sfL https://github.com/rancher/system-agent/releases/download/${CATTLE_SYSTEM_AGENT_VERSION}/rancher-system-agent-arm64 -O && \
-    curl -sfL https://github.com/rancher/system-agent/releases/download/${CATTLE_SYSTEM_AGENT_VERSION}/rancher-system-agent-amd64 -O && \
-    curl -sfL https://github.com/rancher/system-agent/releases/download/${CATTLE_SYSTEM_AGENT_VERSION}/rancher-system-agent-s390x -O && \
-    curl -sfL ${CATTLE_SYSTEM_AGENT_INSTALL_SCRIPT} -o system-agent-install.sh && \
-    curl -sfL ${CATTLE_SYSTEM_AGENT_UNINSTALL_SCRIPT} -o system-agent-uninstall.sh && \
-    curl -sfL https://github.com/rancher/wins/releases/download/${CATTLE_WINS_AGENT_VERSION}/wins.exe -O && \
-    curl -sfL https://acs-mirror.azureedge.net/csi-proxy/${CATTLE_CSI_PROXY_AGENT_VERSION}/binaries/csi-proxy-${CATTLE_CSI_PROXY_AGENT_VERSION}.tar.gz -O && \
-    curl -sfL ${CATTLE_WINS_AGENT_INSTALL_SCRIPT} -o wins-agent-install.ps1 \
-    curl -sfL ${CATTLE_WINS_AGENT_UNINSTALL_SCRIPT} -o wins-agent-uninstall.ps1
+    ln -s dashboard/index.html ../index.html
 
 ENV CATTLE_CLI_URL_DARWIN  https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-darwin-amd64-${CATTLE_CLI_VERSION}.tar.gz
 ENV CATTLE_CLI_URL_LINUX   https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-linux-amd64-${CATTLE_CLI_VERSION}.tar.gz

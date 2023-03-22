@@ -89,12 +89,6 @@ var (
 		true,
 		false,
 		false)
-	TokenHashing = newFeature(
-		"token-hashing",
-		"Enable one way hashing of tokens. Once enabled token hashing can not be disabled",
-		false,
-		true,
-		true)
 	RKE1CustomNodeCleanup = newFeature(
 		"rke1-custom-node-cleanup",
 		"Enable cleanup RKE1 custom cluster nodes when they are deleted",

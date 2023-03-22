@@ -2,13 +2,10 @@ package auth
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 	"time"
 
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	tokens2 "github.com/rancher/rancher/pkg/auth/tokens"
-	"github.com/rancher/rancher/pkg/features"
 	"github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3/fakes"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -21,7 +18,6 @@ type tokenTestCase struct {
 	expectedOutputToken         *v3.Token
 	inputUserAttribute          *v3.UserAttribute
 	expectedOutputUserAttribute *v3.UserAttribute
-	enableHashing               bool
 	description                 string
 }
 
@@ -62,19 +58,9 @@ func TestTokenSync(t *testing.T) {
 	testCases := populateTestCases(tokens, userAttributes)
 	for _, testcase := range testCases {
 		testErr := fmt.Sprintf("test case failed: %s", testcase.description)
-		if testcase.enableHashing {
-			features.TokenHashing.Set(true)
-		}
 		returnToken, _ := testTokenController.sync(testcase.inputToken.Name, testcase.inputToken)
 		storedToken, _ := testTokenController.tokens.Get(testcase.inputToken.Name, metav1.GetOptions{})
 		assert.Equalf(t, returnToken, storedToken, fmt.Sprintf("%s", testcase.inputToken.Name), testErr)
-		features.TokenHashing.Set(false)
-		if testcase.enableHashing {
-			assert.NotEqualf(t, returnToken.(*v3.Token).Token, testcase.inputToken.Token, testErr)
-			assert.Truef(t, strings.HasPrefix(returnToken.(*v3.Token).Token, "$2"), testErr)
-			testcase.expectedOutputToken.Token = ""
-			returnToken.(*v3.Token).Token = ""
-		}
 		assert.Equalf(t, testcase.expectedOutputToken, returnToken, fmt.Sprintf("%s", testcase.inputToken.Name), testErr)
 		if testcase.inputUserAttribute == nil {
 			continue
@@ -249,7 +235,6 @@ func TestTokenSync(t *testing.T) {
 
 func populateTestCases(tokens map[string]*v3.Token, userAttributes map[string]*v3.UserAttribute) []tokenTestCase {
 	timeNow := metav1.NewTime(time.Now())
-	hashedToken, _ := tokens2.CreateSHA256Hash("1234")
 	testCases := []tokenTestCase{
 		{
 			inputToken: &v3.Token{
@@ -344,19 +329,6 @@ func populateTestCases(tokens map[string]*v3.Token, userAttributes map[string]*v
 			},
 			description: "Tests that UserAttribute is not triggered for a refresh if it is not missing info that can" +
 				"potentially be provided by the token.",
-		},
-		{
-			inputToken: &v3.Token{
-				Token: "1234",
-			},
-			expectedOutputToken: &v3.Token{
-				ObjectMeta: metav1.ObjectMeta{
-					Annotations: map[string]string{tokens2.TokenHashed: "true"},
-				},
-				Token: hashedToken,
-			},
-			enableHashing: true,
-			description:   "",
 		},
 	}
 	for index, testCase := range testCases {

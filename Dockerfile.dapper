@@ -27,7 +27,9 @@ RUN yum update -y && \
     # software collections repo needed for git 2.x on OL7
     yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
     yum install -y bash rh-git227 gcc glibc-static docker-cli vim less libffi file curl wget ca-certificates unzip tar jq \
-                   openssl-devel libffi-devel python3 iproute && \
+                   openssl-devel libffi-devel python3 iproute oracle-golang-release-el7 && \
+    yum-config-manager --enable ol7_developer_golang119 && \
+    yum install -y golang-1.19 && \
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
     ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
     source /etc/profile.d/git.sh && \
@@ -40,22 +42,8 @@ ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
 RUN curl -sLf https://github.com/k3s-io/k3s-root/releases/download/${K3S_ROOT_VERSION}/k3s-root-${ARCH}.tar | tar xvf - -C / && \
   touch /bin/cni /bin/containerd /bin/containerd-shim-runc-v2 /bin/runc /bin/k3s
 
-RUN yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang119 && \
-    yum install -y golang-1.19
 
-RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin
-
-ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm \
-    HELM_URL_V2_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-arm64 \
-    HELM_URL_V2_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-s390x \
-    HELM_URL_V2=HELM_URL_V2_${ARCH} \
-    HELM_URL_V3=https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz \
-    TILLER_URL_amd64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller \
-    TILLER_URL_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-arm64 \
-    TILLER_URL_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-s390x \
-    TILLER_URL=TILLER_URL_${ARCH} \
-    KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
+ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin
 
@@ -68,21 +56,6 @@ RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/ol
     mv /usr/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize && \
     yum clean all
-
-# Set up the path for git 2.x by sourcing /etc/profile.d/git.sh since Helm install needs it
-RUN source /etc/profile.d/git.sh && \
-    curl -sLf ${HELM_URL_V2_amd64} -o /usr/bin/rancher-helm && \
-    curl -sLf ${TILLER_URL_amd64} -o /usr/bin/rancher-tiller && \
-    chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller && \
-    ln -s /usr/bin/rancher-helm /usr/bin/helm && \
-    ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
-    helm init --client-only --stable-repo-url=https://charts.helm.sh/stable/ && \
-    helm plugin install https://github.com/rancher/helm-unittest;
-
-# set up helm 3
-RUN curl ${HELM_URL_V3} | tar xvzf - --strip-components=1 -C /usr/tmp/ && \
-    mv /usr/tmp/helm /usr/bin/helm_v3 && \
-    chmod +x /usr/bin/kustomize
 
 RUN mkdir -p /go/src/github.com/rancher/rancher/.kube
 
