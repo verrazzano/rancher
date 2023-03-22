@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/features"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/rancher/rancher/pkg/settings"
@@ -42,15 +41,5 @@ func addRepos(ctx context.Context, wrangler *wrangler.Context) error {
 	if err := addRepo(wrangler, "rancher-charts", settings.ChartDefaultBranch.Get()); err != nil {
 		return err
 	}
-	if err := addRepo(wrangler, "rancher-partner-charts", settings.PartnerChartDefaultBranch.Get()); err != nil {
-		return err
-	}
-
-	if features.RKE2.Enabled() {
-		if err := addRepo(wrangler, "rancher-rke2-charts", settings.RKE2ChartDefaultBranch.Get()); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
