@@ -10,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/types"
 	"github.com/rancher/norman/types/convert"
-	"github.com/rancher/rancher/pkg/features"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/user"
 	"github.com/sirupsen/logrus"
@@ -129,44 +128,17 @@ func extractClusterIDFromResponseType(responseType string) string {
 	return responseSplit[1]
 }
 
-// Given a stored token with hashed key, check if the provided (unhashed) tokenKey matches and is valid
+// Given a stored token, check if the provided (unhashed) tokenKey matches and is valid
 func VerifyToken(storedToken *v3.Token, tokenName, tokenKey string) (int, error) {
 	invalidAuthTokenErr := errors.New("Invalid auth token value")
 	if storedToken.ObjectMeta.Name != tokenName {
 		return 422, invalidAuthTokenErr
 	}
-	if storedToken.Annotations != nil && storedToken.Annotations[TokenHashed] == "true" {
-		if err := VerifySHA256Hash(storedToken.Token, tokenKey); err != nil {
-			logrus.Errorf("VerifySHA256Hash failed with error: %v", err)
-			return 422, invalidAuthTokenErr
-		}
-	} else {
-		if storedToken.Token != tokenKey {
-			return 422, invalidAuthTokenErr
-		}
+	if storedToken.Token != tokenKey {
+		return 422, invalidAuthTokenErr
 	}
 	if IsExpired(*storedToken) {
 		return 410, errors.New("must authenticate")
 	}
 	return 200, nil
-}
-
-// ConvertTokenKeyToHash takes a token with an un-hashed key and converts it to a hashed key
-func ConvertTokenKeyToHash(token *v3.Token) error {
-	if !features.TokenHashing.Enabled() {
-		return nil
-	}
-	if token != nil && len(token.Token) > 0 {
-		hashedToken, err := CreateSHA256Hash(token.Token)
-		if err != nil {
-			logrus.Errorf("Failed to generate hash from token: %v", err)
-			return errors.New("failed to generate hash from token")
-		}
-		token.Token = hashedToken
-		if token.Annotations == nil {
-			token.Annotations = map[string]string{}
-		}
-		token.Annotations[TokenHashed] = "true"
-	}
-	return nil
 }

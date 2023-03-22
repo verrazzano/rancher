@@ -1,10 +1,8 @@
 package kubeconfig
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base32"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"strings"
@@ -12,7 +10,6 @@ import (
 	"github.com/moby/locker"
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/features"
 	mgmtcontrollers "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/wrangler"
@@ -29,12 +26,9 @@ import (
 )
 
 const (
-	userIDLabel     = "authn.management.cattle.io/token-userId"
-	tokenKindLabel  = "authn.management.cattle.io/kind"
-	tokenHashedAnno = "authn.management.cattle.io/token-hashed"
-
-	hashFormat = "$%d:%s:%s" // $version:salt:hash -> $1:abc:def
-	Version    = 2
+	userIDLabel    = "authn.management.cattle.io/token-userId"
+	tokenKindLabel = "authn.management.cattle.io/kind"
+	Version        = 2
 )
 
 type Manager struct {
@@ -187,29 +181,8 @@ func (m *Manager) createUserToken(userName string) (string, error) {
 		Token:        tokenValue,
 	}
 
-	if features.TokenHashing.Enabled() {
-		tokenHash, err := createSHA256Hash(tokenValue)
-		if err != nil {
-			return "", err
-		}
-		token.Token = tokenHash
-		token.Annotations[tokenHashedAnno] = "true"
-	}
-
 	_, err = m.tokens.Create(token)
 	return fmt.Sprintf("%s:%s", userName, tokenValue), err
-}
-
-func createSHA256Hash(secretKey string) (string, error) {
-	salt := make([]byte, 8)
-	_, err := rand.Read(salt)
-	if err != nil {
-		return "", err
-	}
-	hash := sha256.Sum256([]byte(fmt.Sprintf("%s%s", salt, secretKey)))
-	encSalt := base64.RawStdEncoding.EncodeToString(salt)
-	encKey := base64.RawStdEncoding.EncodeToString(hash[:])
-	return fmt.Sprintf(hashFormat, Version, encSalt, encKey), nil
 }
 
 func (m *Manager) GetCRTBForClusterOwner(cluster *v1.Cluster, status v1.ClusterStatus) (*v3.ClusterRoleTemplateBinding, error) {

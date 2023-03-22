@@ -37,7 +37,6 @@ const (
 	userPrincipalIndex     = "authn.management.cattle.io/user-principal-index"
 	UserIDLabel            = "authn.management.cattle.io/token-userId"
 	TokenKindLabel         = "authn.management.cattle.io/kind"
-	TokenHashed            = "authn.management.cattle.io/token-hashed"
 	tokenKeyIndex          = "authn.management.cattle.io/token-key-index"
 	secretNameEnding       = "-secret"
 	SecretNamespace        = "cattle-system"
@@ -138,10 +137,6 @@ func (m *Manager) createToken(k8sToken *v3.Token) (v3.Token, string, error) {
 	k8sToken.Token = key
 	k8sToken.ObjectMeta.Labels[UserIDLabel] = k8sToken.UserID
 	k8sToken.ObjectMeta.GenerateName = "token-"
-	err = ConvertTokenKeyToHash(k8sToken)
-	if err != nil {
-		return v3.Token{}, "", err
-	}
 	createdToken, err := m.tokensClient.Create(k8sToken)
 
 	if err != nil {
