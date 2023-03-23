@@ -9,7 +9,8 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/developer_EPEL/x86_64 && \
     yum-config-manager --enable ol7_developer_golang119 && \
-    yum install oracle-golang-release-el7 -y
+    yum install oracle-golang-release-el7 -y && \
+    yum clean all
 
 RUN yum update -y && \
     # software collections repo needed for git 2.x on OL7
