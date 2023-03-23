@@ -35,24 +35,18 @@ provisioningInput is needed to the run the RKE2 tests, specifically kubernetesVe
     ],
     "kubernetesVersion": ["v1.21.6+rke2r1"],
     "cni": ["calico"],
-    "providers": ["linode", "aws", "do", "harvester"],
+    "providers": ["aws", "do", "harvester"],
     "nodeProviders": ["ec2"]
   }
 ```
 
 ## Cloud Credentials
-These are the inputs needed for the different node provider cloud credentials, inlcuding linode, aws, digital ocean, harvester, azure, and google.
+These are the inputs needed for the different node provider cloud credentials, including aws, digital ocean, harvester, azure, and google.
 
 ### Digital Ocean
 ```json
 "digitalOceanCredentials": {
    "accessToken": ""
-  },
-```
-### Linode
-```json
-"linodeCredentials": {
-   "token": ""
   },
 ```
 ### Azure
@@ -121,25 +115,6 @@ Machine RKE2 config is the final piece needed for the config to run RKE2 provisi
     "sshUser": "root",
     "tags": "",
     "userdata": ""
-},
-```
-### Linode RKE2 Machine Config
-```json
-"linodeMachineConfig": {
-  "authorizedUsers": "",
-  "createPrivateIp": false,
-  "dockerPort": "2376",
-  "image": "linode/ubuntu20.04",
-  "instanceType": "g6-standard-2",
-  "region": "us-west",
-  "rootPass": "",
-  "sshPort": "22",
-  "sshUser": "",
-  "stackscript": "",
-  "stackscriptData": "",
-  "swapSize": "512",
-  "tags": "",
-  "uaPrefix": ""
 },
 ```
 ### Azure RKE2 Machine Config
