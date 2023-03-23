@@ -141,7 +141,6 @@ COPY kustomize.sh /usr/bin/
 COPY jailer.sh /usr/bin/
 RUN mkdir /license
 COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
-COPY k3s-airgap-images.tar /var/lib/rancher/k3s/agent/images/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
