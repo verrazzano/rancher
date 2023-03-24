@@ -21,69 +21,35 @@ ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
 ENV CATTLE_KDM_BRANCH=release-v2.7
 
 RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons
+    yum-config-manager --enable ol7_addons && \
+    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
+    yum-config-manager --enable ol7_developer_golang119 && \
+    yum install oracle-golang-release-el7 -y && \
+    yum clean all
 
 RUN yum update -y && \
-    # software collections repo needed for git 2.x on OL7
-    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum install -y bash rh-git227 gcc glibc-static docker-cli vim less libffi file curl wget ca-certificates unzip tar jq \
-                   openssl-devel libffi-devel python3 iproute oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang119 && \
-    yum install -y golang-1.19 && \
+    yum install -y bash rh-git227 gcc glibc-static vim less libffi file curl wget ca-certificates unzip tar jq \
+                   openssl-devel libffi-devel python3 iproute helm-3.3.4-2.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 docker-engine-19.03.11.ol-13.el7.x86_64 golang-1.19 && \
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
     ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
     source /etc/profile.d/git.sh && \
-    git version
+    git version && \
+    mv /usr/bin/helm /usr/bin/helm_v3 && \
+    go version && \
+    yum clean all && \
+    rm -rf /var/cache/yum
 
 # Update PATH to make sure git 2.27 is on the path
-ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
+ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}" \
+    KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz \
+    YQ_URL=https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_${ARCH}
 
-# setup k3s root
-RUN curl -sLf https://github.com/k3s-io/k3s-root/releases/download/${K3S_ROOT_VERSION}/k3s-root-${ARCH}.tar | tar xvf - -C / && \
-  touch /bin/cni /bin/containerd /bin/containerd-shim-runc-v2 /bin/runc /bin/k3s
+RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
+    wget -O - ${YQ_URL} > /usr/bin/yq && chmod +x /usr/bin/yq && \
+    chmod +x /usr/bin/kustomize
 
-
-ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
-
-RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin
-
-RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum install -y helm-3.3.4-2.el7.x86_64 && \
-    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
-    yum install -y kubectl-1.23.11-1.el7.x86_64 && \
-    yum -y install etcd-3.5.1-2.el7.x86_64 && \
-    mv /usr/bin/helm /usr/bin/helm_v3 && \
-    chmod +x /usr/bin/kustomize && \
-    yum clean all
-
-RUN mkdir -p /go/src/github.com/rancher/rancher/.kube
-
-RUN ln -s /usr/bin/bash /bin/bash && \
-    ln -s /usr/bin/cni /usr/bin/bridge && \
-    ln -s /usr/bin/cni /usr/bin/flannel && \
-    ln -s /usr/bin/cni /usr/bin/host-local && \
-    ln -s /usr/bin/cni /usr/bin/loopback && \
-    ln -s /usr/bin/cni /usr/bin/portmap && \
-    ln -s /usr/bin/k3s /usr/bin/crictl && \
-    #ln -s /usr/bin/k3s /usr/bin/ctr && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-agent && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-etcd-snapshot && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-server && \
-    #ln -s /usr/bin/k3s /usr/bin/kubectl && \
-    ln -s /usr/bin/pigz /usr/bin/unpigz && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-save && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-restore && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-translate && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-save && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-restore && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-translate && \
-    ln -s /etc/rancher/k3s/k3s.yaml /go/src/github.com/rancher/rancher/.kube/k3s.yaml
-
-ENV YQ_URL=https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_${ARCH}
-RUN wget -O - ${YQ_URL} > /usr/bin/yq && chmod +x /usr/bin/yq
 
 ENV HELM_HOME /root/.helm
 ENV DAPPER_ENV REPO TAG DRONE_TAG DRONE_COMMIT DRONE_BRANCH DRONE_BUILD_EVENT SYSTEM_CHART_DEFAULT_BRANCH FOSSA_API_KEY GOGET_MODULE GOGET_VERSION RELEASE_ACTION RELEASE_TYPE POSTRELEASE_RANCHER_VERSION POSTRELEASE_RANCHER_STABLE
