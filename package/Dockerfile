@@ -1,13 +1,20 @@
 FROM ghcr.io/oracle/oraclelinux:7-slim
 
+ARG ARCH=amd64
+
 RUN yum-config-manager --enable ol7_optional_latest && \
     yum-config-manager --enable ol7_addons && \
-    yum update -y && \
-    # software collections repo needed for git 2.x on OL7
     yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum install -y rh-git227 curl ca-certificates unzip tar docker-cli nc mkisofs && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/developer_EPEL/x86_64 && \
+    yum-config-manager --enable ol7_developer_golang119 && \
+    yum install oracle-golang-release-el7 -y && \
+    yum clean all
+
+RUN yum update -y && \
+    # software collections repo needed for git 2.x on OL7
+    yum -y install rh-git227 curl ca-certificates unzip tar nc mkisofs helm-3.3.4-2.el7.x86_64 golang-1.19 docker-engine-19.03.11.ol-13.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 etcd-3.5.1-2.el7.x86_64 tini-0.19.0-2.el7.x86_64 && \
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
     ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
     source /etc/profile.d/git.sh && \
@@ -16,15 +23,21 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
     mkdir -p /var/lib/rancher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
-    mkdir /root/.kube && \
-    ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/k3s.yaml  && \
-    ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/config && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
-    rm -f /bin/sh && ln -s /bin/bash /bin/sh
+    rm -f /bin/sh && ln -s /bin/bash /bin/sh && \
+    mv /usr/bin/helm /usr/bin/helm_v3 && \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
+ENV KUSTOMIZE_VERSION v4.5.5
+ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
+
+RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
+    chmod +x /usr/bin/kustomize
+
 WORKDIR /var/lib/rancher
 
-ARG ARCH=amd64
 ARG IMAGE_REPO=rancher
 ARG SYSTEM_CHART_DEFAULT_BRANCH=release-v2.7
 ARG CHART_DEFAULT_BRANCH=release-v2.7
@@ -49,7 +62,7 @@ ENV TELEMETRY_VERSION v0.5.20
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
 ENV HELM_VERSION 3.9.0-rancher1
-ENV KUSTOMIZE_VERSION v4.5.5
+
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=101.0.1+up0.5.1
@@ -80,21 +93,6 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b master --depth 1 https://github.com/rancher/charts /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
 
-
-
-ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
-
-RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/developer_EPEL/x86_64 && \
-    yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang119 && \
-    yum -y install helm-3.3.4-2.el7.x86_64 golang-1.19 docker-engine-19.03.11.ol-13.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 etcd-3.5.1-2.el7.x86_64 tini-0.19.0-2.el7.x86_64 && \
-    # set up helm 3
-    # Rancher uses its own Helm fork - build and install our BFS of that fork.
-    mv /usr/bin/helm /usr/bin/helm_v3 && \
-    chmod +x /usr/bin/kustomize
 
 RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
