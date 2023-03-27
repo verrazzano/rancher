@@ -23,12 +23,6 @@ var (
 		false,
 		true,
 		true)
-	IstioVirtualServiceUI = newFeature(
-		"istio-virtual-service-ui",
-		"Exposes a UI that enables users to create, read, update and delete virtual services and destination rules, which are traffic management features of Istio.",
-		true,
-		true,
-		true)
 	MCM = newFeature(
 		"multi-cluster-management",
 		"Multi-cluster provisioning and management of Kubernetes clusters.",
