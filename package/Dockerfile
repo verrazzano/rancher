@@ -59,8 +59,6 @@ ENV CATTLE_ETCD_VERSION v3.5.1
 ENV LOGLEVEL_VERSION v0.1.5
 ENV TINI_VERSION v0.19.0
 ENV TELEMETRY_VERSION v0.5.20
-ENV DOCKER_MACHINE_LINODE_VERSION v0.1.8
-ENV LINODE_UI_DRIVER_VERSION v0.4.0
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
 ENV HELM_VERSION 3.9.0-rancher1
@@ -122,7 +120,6 @@ ENV AUDIT_LEVEL 0
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
     curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
-    mkdir -p assets/rancher-ui-driver-linode && \
     mkdir -p /usr/share/rancher/ui/api-ui && \
     cd /usr/share/rancher/ui/api-ui && \
     curl -sL https://releases.rancher.com/api-ui/${CATTLE_API_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \

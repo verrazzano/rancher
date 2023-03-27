@@ -6,7 +6,6 @@ const (
 	DigitalOceandriver = "digitalocean"
 	ExoscaleDriver     = "exoscale"
 	HarvesterDriver    = "harvester"
-	Linodedriver       = "linode"
 	NutanixDriver      = "nutanix"
 	OCIDriver          = "oci"
 	OTCDriver          = "otc"
@@ -26,7 +25,6 @@ var DriverData = map[string]map[string][]string{
 	DigitalOceandriver: {"privateCredentialFields": []string{"accessToken"}},
 	ExoscaleDriver:     {"privateCredentialFields": []string{"apiSecretKey"}},
 	HarvesterDriver:    {"publicCredentialFields": []string{"clusterType", "clusterId"}, "privateCredentialFields": []string{"kubeconfigContent"}, "optionalCredentialFields": []string{"clusterId"}},
-	Linodedriver:       {"privateCredentialFields": []string{"token"}, "passwordFields": []string{"rootPass"}},
 	NutanixDriver:      {"publicCredentialFields": []string{"endpoint", "username", "port"}, "privateCredentialFields": []string{"password"}},
 	OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
 	OTCDriver:          {"privateCredentialFields": []string{"accessKeySecret"}},

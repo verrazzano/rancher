@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	// The json/yaml config key for the config of nodes of outside cloud provider e.g. linode or ec2
+	// The json/yaml config key for the config of nodes of outside cloud provider e.g. ec2
 	ExternalNodeConfigConfigurationFileKey = "externalNodes"
 	SSHPathConfigurationKey                = "sshPath"
 	defaultSSHPath                         = ".ssh"

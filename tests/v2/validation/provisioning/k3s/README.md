@@ -34,20 +34,14 @@ provisioningInput is needed to the run the K3S tests, specifically kubernetesVer
       }
     ],
     "kubernetesVersion": ["v1.24.4+k3s1"],
-    "providers": ["linode", "aws", "azure", "harvester"],
+    "providers": ["aws", "azure", "harvester"],
     "nodeProviders": ["ec2"]
   }
 ```
 
 ## Cloud Credentials
-These are the inputs needed for the different node provider cloud credentials, inlcuding linode, aws, harvester, azure, and google.
+These are the inputs needed for the different node provider cloud credentials, including aws, harvester, azure, and google.
 
-### Linode
-```json
-"linodeCredentials": {
-   "token": ""
-  },
-```
 ### Azure
 ```json
 "azureCredentials": {
@@ -96,25 +90,6 @@ Machine K3S config is the final piece needed for the config to run K3S provision
     "retries": "5",
     "rootSize": "16",
     "securityGroup": ["rancher-nodes"]
-},
-```
-### Linode K3S Machine Config
-```json
-"linodeMachineConfig": {
-  "authorizedUsers": "",
-  "createPrivateIp": false,
-  "dockerPort": "2376",
-  "image": "linode/ubuntu20.04",
-  "instanceType": "g6-standard-2",
-  "region": "us-west",
-  "rootPass": "",
-  "sshPort": "22",
-  "sshUser": "",
-  "stackscript": "",
-  "stackscriptData": "",
-  "swapSize": "512",
-  "tags": "",
-  "uaPrefix": ""
 },
 ```
 ### Azure K3S Machine Config
