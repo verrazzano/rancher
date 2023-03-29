@@ -84,7 +84,7 @@ func (h *handler) OnChange(key string, secret *corev1.Secret) (*corev1.Secret, e
 
 	if failedChecksum == planner.PlanHash(plan) {
 		logrus.Debugf("[plansecret] %s/%s: rv: %s: Detected failed plan application, reconciling machine PlanApplied condition to error", secret.Namespace, secret.Name, secret.ResourceVersion)
-		err = h.reconcileMachinePlanAppliedCondition(secret, fmt.Errorf("error applying plan -- check rancher-system-agent.service logs on node for more information"))
+		err = h.reconcileMachinePlanAppliedCondition(secret, fmt.Errorf("error applying plan"))
 		return secret, err
 	}
 

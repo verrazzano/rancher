@@ -5,10 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"testing"
-
-	"github.com/rancher/rancher/pkg/settings"
 
 	"github.com/coreos/go-semver/semver"
 	"github.com/rancher/rke/types/kdm"
@@ -114,7 +111,6 @@ func TestGetExternalImages(t *testing.T) {
 			case k3s:
 				tt.args.externalData = data.K3S
 			}
-			systemAgentInstallerImage := fmt.Sprintf("%s%s:%s", settings.SystemAgentInstallerImage.Default, tt.args.source, strings.ReplaceAll(tt.args.version, "+", "-"))
 
 			got, err := GetExternalImages(tt.args.rancherVersion, tt.args.externalData, tt.args.source, tt.args.minimumKubernetesVersion)
 			if err != nil {
@@ -122,7 +118,6 @@ func TestGetExternalImages(t *testing.T) {
 			}
 			if !tt.wantErr {
 				a.NotEmpty(got)
-				a.Contains(got, systemAgentInstallerImage)
 				a.Contains(got, tt.args.image1)
 				a.Contains(got, tt.args.image2)
 				a.Contains(got, tt.args.image3)
@@ -176,7 +171,7 @@ func Test_downloadExternalImageListFromURL(t *testing.T) {
 			args: args{
 				url:    fmt.Sprintf("https://github.com/rancher/rancher/releases/download/%s/rancher-images.txt", rancherVersion),
 				image1: "fleet-agent:v0.3.9",
-				image2: "rancher/system-agent-installer-rke2:v1.23.4-rke2r2",
+				image2: "rancher/rancher:" + rancherVersion,
 				image3: "rancher/rancher-agent:" + rancherVersion,
 			},
 		},

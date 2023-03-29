@@ -92,7 +92,6 @@ func Test_getBootstrapSecret(t *testing.T) {
 		secretName    string
 		os            string
 		namespaceName string
-		path          string
 		command       string
 		body          string
 	}
@@ -108,7 +107,6 @@ func Test_getBootstrapSecret(t *testing.T) {
 				secretName:    "mybestlinuxsecret",
 				command:       "sh",
 				namespaceName: "myfavoritelinuxnamespace",
-				path:          "/system-agent-install.sh",
 				body:          "#!/usr/bin/env sh",
 			},
 		},
@@ -119,7 +117,6 @@ func Test_getBootstrapSecret(t *testing.T) {
 				secretName:    "mybestwindowssecret",
 				command:       "powershell",
 				namespaceName: "myfavoritewindowsnamespace",
-				path:          "/wins-agent-install.ps1",
 				body:          "Invoke-WinsInstaller @PSBoundParameters",
 			},
 		},
