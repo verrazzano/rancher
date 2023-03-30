@@ -17,12 +17,6 @@ var (
 
 	// Features, ex.: ClusterRandomName = newFeature("cluster-randomizer", "Randomizes clusters.", false, false)
 
-	UnsupportedStorageDrivers = newFeature(
-		"unsupported-storage-drivers",
-		"Allows the use of types for storage providers and provisioners that are not enabled by default.",
-		false,
-		true,
-		true)
 	MCM = newFeature(
 		"multi-cluster-management",
 		"Multi-cluster provisioning and management of Kubernetes clusters.",
