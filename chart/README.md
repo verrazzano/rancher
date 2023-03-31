@@ -11,7 +11,7 @@ This chart bootstraps a [Rancher Server](https://rancher.com/docs/rancher/v2.x/e
 
 ### Prerequisites Details
 
-*For installations covered under [Rancher Support SLA](https://rancher.com/support-maintenance-terms/) the target cluster must be **[RKE](https://rancher.com/docs/rancher/v2.x/en/installation/k8s-install/kubernetes-rke/)** or **[K3s](https://rancher.com/docs/rancher/v2.x/en/installation/k8s-install/kubernetes-rke/)**.*
+*For installations covered under [Rancher Support SLA](https://rancher.com/support-maintenance-terms/) the target cluster must be **[RKE](https://rancher.com/docs/rancher/v2.x/en/installation/k8s-install/kubernetes-rke/)**.*
 
 Make sure the node(s) for the Rancher server fulfill the following requirements:
 

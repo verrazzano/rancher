@@ -17,7 +17,6 @@ func Test_shouldRotateEntry(t *testing.T) {
 		rotateETCD         bool
 	}{
 		{name: "rke2-server", services: []string{"rke2-server"}, rotateWorker: true, rotateControlPlane: true, rotateETCD: true},
-		{name: "k3s-server", services: []string{"k3s-server"}, rotateWorker: true, rotateControlPlane: true, rotateETCD: true},
 		{name: "api-server", services: []string{"api-server"}, rotateWorker: true, rotateControlPlane: true, rotateETCD: false},
 		{name: "kubelet", services: []string{"kubelet"}, rotateWorker: true, rotateControlPlane: true, rotateETCD: true},
 		{name: "kube-proxy", services: []string{"kube-proxy"}, rotateWorker: true, rotateControlPlane: true, rotateETCD: false},
@@ -25,7 +24,6 @@ func Test_shouldRotateEntry(t *testing.T) {
 		{name: "controller-manager", services: []string{"controller-manager"}, rotateWorker: false, rotateControlPlane: true, rotateETCD: false},
 		{name: "scheduler", services: []string{"scheduler"}, rotateWorker: false, rotateControlPlane: true, rotateETCD: false},
 		{name: "rke2-controller", services: []string{"rke2-controller"}, rotateWorker: false, rotateControlPlane: true, rotateETCD: false},
-		{name: "k3s-controller", services: []string{"k3s-controller"}, rotateWorker: false, rotateControlPlane: true, rotateETCD: false},
 		{name: "admin", services: []string{"admin"}, rotateWorker: false, rotateControlPlane: true, rotateETCD: false},
 		{name: "cloud-controller", services: []string{"cloud-controller"}, rotateWorker: false, rotateControlPlane: true, rotateETCD: false},
 		{name: "etcd", services: []string{"etcd"}, rotateWorker: false, rotateControlPlane: false, rotateETCD: true},

@@ -41,8 +41,6 @@ var (
 	ErrClusterNotFound = errors.New("cluster not found")
 	importDrivers      = map[string]bool{
 		v32.ClusterDriverImported: true,
-		v32.ClusterDriverK3s:      true,
-		v32.ClusterDriverK3os:     true,
 		v32.ClusterDriverRancherD: true,
 		v32.ClusterDriverRke2:     true,
 	}
