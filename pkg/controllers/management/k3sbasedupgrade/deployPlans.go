@@ -21,7 +21,7 @@ const MaxDisplayNodes = 10
 
 // deployPlans creates a master and worker plan in the downstream cluster to instrument
 // the system-upgrade-controller in the downstream cluster
-func (h *handler) deployPlans(cluster *v3.Cluster, isK3s, isRke2 bool) error {
+func (h *handler) deployPlans(cluster *v3.Cluster, isRke2 bool) error {
 	var (
 		upgradeImage   string
 		masterPlanName string
@@ -36,12 +36,6 @@ func (h *handler) deployPlans(cluster *v3.Cluster, isK3s, isRke2 bool) error {
 		workerPlanName = rke2WorkerPlanName
 		Version = cluster.Spec.Rke2Config.Version
 		strategy = cluster.Spec.Rke2Config.ClusterUpgradeStrategy
-	case isK3s:
-		upgradeImage = settings.PrefixPrivateRegistry(k3supgradeImage)
-		masterPlanName = k3sMasterPlanName
-		workerPlanName = k3sWorkerPlanName
-		Version = cluster.Spec.K3sConfig.Version
-		strategy = cluster.Spec.K3sConfig.ClusterUpgradeStrategy
 	}
 	// access downstream cluster
 	clusterCtx, err := h.manager.UserContextNoControllers(cluster.Name)
@@ -81,12 +75,12 @@ func (h *handler) deployPlans(cluster *v3.Cluster, isK3s, isRke2 bool) error {
 		} else {
 
 			switch name := plan.Name; name {
-			case k3sMasterPlanName, rke2MasterPlanName:
+			case rke2MasterPlanName:
 				if plan.Namespace == systemUpgradeNS {
 					// reference absolute memory location
 					masterPlan = &planList.Items[i]
 				}
-			case k3sWorkerPlanName, rke2WorkerPlanName:
+			case rke2WorkerPlanName:
 				if plan.Namespace == systemUpgradeNS {
 					// reference absolute memory location
 					workerPlan = &planList.Items[i]
