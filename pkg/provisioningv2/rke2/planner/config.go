@@ -95,11 +95,7 @@ func addUserConfig(config map[string]interface{}, controlPlane *rkev1.RKEControl
 
 func addRoleConfig(config map[string]interface{}, controlPlane *rkev1.RKEControlPlane, entry *planEntry, initNode bool, joinServer string) {
 	runtime := rke2.GetRuntime(controlPlane.Spec.KubernetesVersion)
-	if initNode {
-		if runtime == rke2.RuntimeK3S {
-			config["cluster-init"] = true
-		}
-	} else if joinServer != "" {
+	if joinServer != "" {
 		// it's very important that the joinServer param isn't used on the initNode. The init node is special
 		// because it will be evaluated twice, first with joinServer = "" and then with joinServer == self.
 		// If we use the joinServer param then we will get different nodePlan and cause issues.

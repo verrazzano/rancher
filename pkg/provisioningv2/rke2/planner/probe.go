@@ -120,17 +120,10 @@ func (p *Planner) addProbes(nodePlan plan.NodePlan, controlPlane *rkev1.RKEContr
 
 	nodePlan.Probes = map[string]plan.Probe{}
 
-	if runtime != rke2.RuntimeK3S && isEtcd(entry) {
-		probeNames = append(probeNames, "etcd")
-	}
 	if isControlPlane(entry) {
 		probeNames = append(probeNames, "kube-apiserver")
 		probeNames = append(probeNames, "kube-controller-manager")
 		probeNames = append(probeNames, "kube-scheduler")
-	}
-	if !(IsOnlyEtcd(entry) && runtime == rke2.RuntimeK3S) {
-		// k3s doesn't run the kubelet on etcd only nodes
-		probeNames = append(probeNames, "kubelet")
 	}
 	if !IsOnlyEtcd(entry) && isCalico(controlPlane, runtime) && !isWindows(entry) {
 		probeNames = append(probeNames, "calico")
