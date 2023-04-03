@@ -59,12 +59,6 @@ var (
 		false,
 		false,
 		true)
-	Legacy = newFeature(
-		"legacy",
-		"Enable legacy features",
-		false,
-		true,
-		true)
 	ProvisioningV2 = newFeature(
 		"provisioningv2",
 		"Enable cluster-api based provisioning framework",
