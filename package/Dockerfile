@@ -30,7 +30,7 @@ WORKDIR /var/lib/rancher
 ARG ARCH=amd64
 ARG IMAGE_REPO=rancher
 ARG SYSTEM_CHART_DEFAULT_BRANCH=release-v2.7
-ARG CHART_DEFAULT_BRANCH=release-v2.7
+ARG CHART_DEFAULT_BRANCH=oracle/release/2.7.1
 ARG PARTNER_CHART_DEFAULT_BRANCH=main
 ARG RKE2_CHART_DEFAULT_BRANCH=main
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
@@ -93,7 +93,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     #
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
-    git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://git.rancher.io/charts $RANCHER_CHARTS_DIR && \
+    git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://github.com/verrazzano/rancher-charts/ $RANCHER_CHARTS_DIR && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
     #
     git clone -b $CATTLE_PARTNER_CHART_DEFAULT_BRANCH https://git.rancher.io/partner-charts $RANCHER_PARTNER_CHARTS_DIR && \
@@ -102,7 +102,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b $CATTLE_RKE2_CHART_DEFAULT_BRANCH https://git.rancher.io/rke2-charts $RANCHER_RKE2_CHARTS_DIR && \
     git -C $RANCHER_RKE2_CHARTS_DIR checkout $RANCHER_RKE2_CHARTS_COMMIT && \
     #
-    git clone -b master --depth 1 https://github.com/rancher/charts /var/lib/rancher-data/local-catalogs/library && \
+    git clone -b master --depth 1 https://github.com/verrazzano/rancher-charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
 
 RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin && \
