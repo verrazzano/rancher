@@ -22,11 +22,8 @@ func MigrateFeatures(featuresClient managementv3.FeatureClient, crdClient v1.Cus
 		return nil
 	}
 
-	hasLegacy := false
 	for _, feature := range features.Items {
 		switch feature.Name {
-		case Legacy.Name():
-			hasLegacy = true
 		case MCM.Name():
 			if err := enableMCMIfPreviouslyEnabled(&feature, featuresClient, crdClient); err != nil {
 				return err
@@ -36,18 +33,6 @@ func MigrateFeatures(featuresClient managementv3.FeatureClient, crdClient v1.Cus
 				return err
 			}
 		}
-	}
-
-	if !hasLegacy {
-		_, err = featuresClient.Create(&v3.Feature{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: Legacy.Name(),
-			},
-			Spec: v3.FeatureSpec{
-				Value: &t,
-			},
-		})
-		return err
 	}
 
 	return nil

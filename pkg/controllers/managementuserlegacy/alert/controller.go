@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/features"
 	"github.com/rancher/rancher/pkg/ref"
 
 	"github.com/rancher/norman/controller"
@@ -45,9 +44,6 @@ func Register(ctx context.Context, mgmt *config.ScaledContext, cluster *config.U
 
 func AddStarter(ctx context.Context, cluster *config.UserContext, starter func() error) {
 	cluster.Management.Management.Features("").AddHandler(ctx, "alerts-deferred", func(key string, obj *v32.Feature) (runtime.Object, error) {
-		if features.Legacy.Enabled() {
-			return obj, starter()
-		}
 		return obj, nil
 	})
 
