@@ -1,7 +1,13 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+// This file has been modified by Oracle
+
 package cluster
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"reflect"
 	"strings"
@@ -248,17 +254,38 @@ func (v *Validator) validateGenericEngineConfig(request *types.APIContext, spec 
 		return nil
 	}
 
+	clusterName := request.ID
+	prevCluster, err := v.ClusterLister.Get("", clusterName)
+	if err != nil {
+		return err
+	}
+
 	if spec.AmazonElasticContainerServiceConfig != nil {
 		// compare with current cluster
-		clusterName := request.ID
-		prevCluster, err := v.ClusterLister.Get("", clusterName)
-		if err != nil {
-			return err
-		}
-
 		err = validateEKS(*prevCluster.Spec.GenericEngineConfig, *spec.AmazonElasticContainerServiceConfig)
 		if err != nil {
 			return err
+		}
+	}
+
+	if spec.GenericEngineConfig != nil {
+		genericConfig := *spec.GenericEngineConfig
+		driverName, ok := genericConfig["driverName"].(string)
+		if !ok {
+			return fmt.Errorf("no driver name found in engine config")
+		}
+		if driverName != "ociocneengine" {
+			return nil
+		}
+		
+		logrus.Info("Validating OCI OCNE Cloud Credential")
+
+		// check user's access to cloud credential
+		if ociocneCredential, ok := genericConfig["cloudCredentialId"].(string); ok && (prevCluster == nil || ociocneCredential != (*prevCluster.Spec.GenericEngineConfig)["cloudCredentialId"].(string)) {
+			if err := validateCredentialAuth(request, ociocneCredential); err != nil {
+				logrus.Errorf("Failed to validate OCI OCNE credential %s: %v", ociocneCredential, err)
+				return err
+			}
 		}
 	}
 
