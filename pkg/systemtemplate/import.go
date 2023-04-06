@@ -83,7 +83,7 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 		authImage = settings.AuthImage.Get()
 	}
 
-	registryURL, registryConfig, err := util.GeneratePrivateRegistryEncodedDockerConfig(registry, secretLister)
+	registryURL, registryConfig, err := util.GeneratePrivateRegistryEncodedDockerConfig(cluster, secretLister)
 	if err != nil {
 		return err
 	}
