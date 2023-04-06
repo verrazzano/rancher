@@ -2,7 +2,6 @@ package dashboard
 
 import (
 	"context"
-	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
@@ -25,7 +24,7 @@ func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 				Name: repoName,
 			},
 			Spec: v1.RepoSpec{
-				GitRepo:   "https://git.rancher.io/" + strings.TrimPrefix(repoName, prefix),
+				GitRepo:   "https://github.com/verrazzano/" + repoName,
 				GitBranch: branchName,
 			},
 		})
