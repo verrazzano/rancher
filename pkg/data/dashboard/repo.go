@@ -12,10 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var (
-	prefix = "rancher-"
-)
-
 func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 	repo, err := wrangler.Catalog.ClusterRepo().Get(repoName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
