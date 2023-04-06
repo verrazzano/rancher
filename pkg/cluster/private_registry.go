@@ -31,7 +31,7 @@ func GetPrivateRegistryURL(cluster *v3.Cluster) string {
 // clusters.management.cattle.io/v3 object. If a cluster-level registry is not defined, it will return the system
 // default registry if one exists.
 func GetPrivateRegistry(cluster *v3.Cluster) *rketypes.PrivateRegistry {
-	privateClusterLevelRegistry := GetPrivateClusterLevelRegistry(cluster.Spec.RancherKubernetesEngineConfig)
+	privateClusterLevelRegistry := GetPrivateClusterLevelRegistry(cluster)
 	if privateClusterLevelRegistry != nil {
 		return privateClusterLevelRegistry
 	}
