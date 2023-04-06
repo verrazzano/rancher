@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"io"
+	"os"
 	"sort"
 	"strings"
 	"text/template"
@@ -19,6 +20,7 @@ import (
 	"github.com/rancher/rancher/pkg/image"
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rke/templates"
+	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -44,6 +46,8 @@ type context struct {
 	PrivateRegistryConfig string
 	Tolerations           string
 	ClusterRegistry       string
+	WebhookImage          string
+	WebhookImageTag       string
 }
 
 func toFeatureString(features map[string]bool) string {
@@ -70,7 +74,7 @@ func toFeatureString(features map[string]bool) string {
 }
 
 func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url string, isWindowsCluster bool,
-	cluster *apimgmtv3.Cluster, features map[string]bool, taints []corev1.Taint, secretLister v1.SecretLister) error {
+	cluster *apimgmtv3.Cluster, registry *rketypes.PrivateRegistry, features map[string]bool, taints []corev1.Taint, secretLister v1.SecretLister) error {
 	var tolerations, agentEnvVars string
 	d := md5.Sum([]byte(url + token + namespace))
 	tokenKey := hex.EncodeToString(d[:])[:7]
@@ -79,9 +83,13 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 		authImage = settings.AuthImage.Get()
 	}
 
-	registryURL, registryConfig, err := util.GeneratePrivateRegistryEncodedDockerConfig(cluster, secretLister)
+	registryURL, registryConfig, err := util.GeneratePrivateRegistryEncodedDockerConfig(registry, secretLister)
 	if err != nil {
 		return err
+	}
+
+	if registry != nil {
+		registryURL = registry.URL
 	}
 
 	if taints != nil {
@@ -94,6 +102,16 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 	}
 
 	agentEnvVars = templates.ToYAML(envVars)
+
+	// Handle override of rancher-webhook image
+	var webhookImage = ""
+	var webhookImageTag = ""
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE"); ok {
+		webhookImage = envVal
+	}
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE_TAG"); ok {
+		webhookImageTag = envVal
+	}
 
 	context := &context{
 		Features:              toFeatureString(features),
@@ -111,6 +129,8 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 		PrivateRegistryConfig: registryConfig,
 		Tolerations:           tolerations,
 		ClusterRegistry:       registryURL,
+		WebhookImage:          webhookImage,
+		WebhookImageTag:       webhookImageTag,
 	}
 
 	return t.Execute(resp, context)
@@ -128,12 +148,12 @@ func GetDesiredFeatures(cluster *apimgmtv3.Cluster) map[string]bool {
 	}
 }
 
-func ForCluster(cluster *apimgmtv3.Cluster, token string, taints []corev1.Taint, secretLister v1.SecretLister) ([]byte, error) {
+func ForCluster(cluster *apimgmtv3.Cluster, token string, registry *rketypes.PrivateRegistry, taints []corev1.Taint, secretLister v1.SecretLister) ([]byte, error) {
 	buf := &bytes.Buffer{}
 	err := SystemTemplate(buf, GetDesiredAgentImage(cluster),
 		GetDesiredAuthImage(cluster),
 		cluster.Name, token, settings.ServerURL.Get(), cluster.Spec.WindowsPreferedCluster,
-		cluster, GetDesiredFeatures(cluster), taints, secretLister)
+		cluster, registry, GetDesiredFeatures(cluster), taints, secretLister)
 	return buf.Bytes(), err
 }
 

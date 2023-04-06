@@ -198,6 +198,14 @@ spec:
           - name: CATTLE_FEATURES
             value: "{{.Features}}"
           {{- end }}
+          {{- if ne .WebhookImage "" }}
+          - name: RANCHER_WEBHOOK_IMAGE
+            value: "{{.WebhookImage}}"
+          {{- end }}
+          {{- if ne .WebhookImageTag "" }}
+          - name: RANCHER_WEBHOOK_IMAGE_TAG
+            value: "{{.WebhookImageTag}}"
+          {{- end }}
           - name: CATTLE_IS_RKE
             value: "{{.IsRKE}}"
           - name: CATTLE_SERVER
