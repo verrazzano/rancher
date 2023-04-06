@@ -50,17 +50,6 @@ func TestPlanner_addInstruction(t *testing.T) {
 				envs:            []string{"$env:RESTART_STAMP", "$env:INSTALL_RKE2_EXEC"},
 			},
 		},
-		{
-			name: "Checking K3s Instructions",
-			args: args{
-				version:         "v1.21.5+k3s2",
-				expectedVersion: "v1.21.5-k3s2",
-				os:              "linux",
-				command:         "sh",
-				scriptName:      "run.sh",
-				envs:            []string{"INSTALL_K3S_EXEC"},
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

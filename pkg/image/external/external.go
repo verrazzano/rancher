@@ -15,12 +15,11 @@ import (
 type Source string
 
 const (
-	K3S  Source = "k3s"
 	RKE2 Source = "rke2"
 )
 
 func GetExternalImages(rancherVersion string, externalData map[string]interface{}, source Source, minimumKubernetesVersion *semver.Version) ([]string, error) {
-	if source != K3S && source != RKE2 {
+	if source != RKE2 {
 		return nil, fmt.Errorf("invalid source provided: %s", source)
 	}
 
@@ -138,8 +137,6 @@ func downloadExternalSupportingImages(release string, source Source) (string, er
 		builder.WriteString("\n")
 		builder.WriteString(windowsImages)
 		return builder.String(), nil
-	case K3S:
-		return downloadExternalImageListFromURL(fmt.Sprintf("https://github.com/k3s-io/k3s/releases/download/%s/k3s-images.txt", release))
 	default:
 		// This function should never be called with an invalid source, but we will anticipate this
 		// error for safety.

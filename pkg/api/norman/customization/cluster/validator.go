@@ -89,11 +89,10 @@ func (v *Validator) validateLocalClusterAuthEndpoint(request *types.APIContext, 
 		isValidCluster = cluster.Status.Driver == "" ||
 			cluster.Status.Driver == v32.ClusterDriverRKE ||
 			cluster.Status.Driver == v32.ClusterDriverImported ||
-			cluster.Status.Driver == v32.ClusterDriverK3s ||
 			cluster.Status.Driver == v32.ClusterDriverRke2
 	}
 	if !isValidCluster {
-		return httperror.NewFieldAPIError(httperror.InvalidState, "LocalClusterAuthEndpoint.Enabled", "Can only enable LocalClusterAuthEndpoint with RKE, RKE2, or K3s")
+		return httperror.NewFieldAPIError(httperror.InvalidState, "LocalClusterAuthEndpoint.Enabled", "Can only enable LocalClusterAuthEndpoint with RKE or RKE2")
 	}
 
 	if spec.LocalClusterAuthEndpoint.CACerts != "" && spec.LocalClusterAuthEndpoint.FQDN == "" {
@@ -159,27 +158,20 @@ func (v *Validator) validateK3sBasedVersionUpgrade(request *types.APIContext, sp
 	if request.Method == http.MethodPost {
 		return nil
 	}
-	isK3s := spec.K3sConfig != nil
 	isrke2 := spec.Rke2Config != nil
-	if !isK3s && !isrke2 {
+	if !isrke2 {
 		// only applies to k3s clusters
 		return nil
 	}
 
 	// must wait for original spec version to be set
-	if (isK3s && spec.K3sConfig.Version == "") || (isrke2 && spec.Rke2Config.Version == "") {
+	if isrke2 && spec.Rke2Config.Version == "" {
 		return upgradeNotReadyErr
 	}
 
 	cluster, err := v.ClusterLister.Get("", request.ID)
 	if err != nil {
 		return err
-	}
-
-	if isK3s && cluster.Spec.K3sConfig == nil {
-		// prevents embedded cluster from have k3sConfig set. Embedded cluster cannot be upgraded. Non-embedded
-		// clusters' config will be set my controller.
-		return httperror.NewAPIError(httperror.InvalidBodyContent, "k3sConfig cannot be changed from nil")
 	}
 
 	// must wait for original status version to be set
@@ -190,8 +182,6 @@ func (v *Validator) validateK3sBasedVersionUpgrade(request *types.APIContext, sp
 	var updateVersion string
 	if cluster.Status.Driver == v32.ClusterDriverRke2 {
 		updateVersion = spec.Rke2Config.Version
-	} else {
-		updateVersion = spec.K3sConfig.Version
 	}
 
 	prevVersion := cluster.Status.Version.GitVersion

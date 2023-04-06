@@ -83,7 +83,6 @@ const (
 	PlanApplied         = condition.Cond("PlanApplied")
 	InfrastructureReady = condition.Cond(capi.InfrastructureReadyCondition)
 
-	RuntimeK3S  = "k3s"
 	RuntimeRKE2 = "rke2"
 
 	RoleBootstrap = "bootstrap"
@@ -124,9 +123,6 @@ func GetRuntimeCommand(kubernetesVersion string) string {
 }
 
 func GetRuntimeServerUnit(kubernetesVersion string) string {
-	if GetRuntime(kubernetesVersion) == RuntimeK3S {
-		return RuntimeK3S
-	}
 	return RuntimeRKE2 + "-server"
 }
 
@@ -139,9 +135,6 @@ func GetRuntimeEnv(kubernetesVersion string) string {
 }
 
 func GetRuntime(kubernetesVersion string) string {
-	if strings.Contains(kubernetesVersion, RuntimeK3S) {
-		return RuntimeK3S
-	}
 	return RuntimeRKE2
 }
 

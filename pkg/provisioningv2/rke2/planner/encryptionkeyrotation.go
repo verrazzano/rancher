@@ -453,9 +453,9 @@ func (p *Planner) encryptionKeyRotationRestartService(cp *rkev1.RKEControlPlane,
 	}
 	// retry is important here because without it, we always seem to run into some sort of issue such as:
 	// - the follower node reporting the wrong status after a restart
-	// - the plan failing with the k3s/rke2-server services crashing the first, and resuming subsequent times
+	// - the plan failing with the rke2-server services crashing the first, and resuming subsequent times
 	// It's not necessarily ideal if encryption key rotation can never complete, especially since we don't have access to
-	// the downstream k3s/rke2-server service logs, but it has to be done in order for encryption key rotation to succeed
+	// the downstream rke2-server service logs, but it has to be done in order for encryption key rotation to succeed
 	err := assignAndCheckPlan(p.store, fmt.Sprintf("encryption key rotation [%s] for machine [%s]", cp.Status.RotateEncryptionKeysPhase, entry.Machine.Name), entry, nodePlan, 5, 5)
 	if err != nil {
 		if isErrWaiting(err) {
@@ -720,7 +720,7 @@ func encryptionKeyRotationWaitForSystemctlStatusInstruction(cp *rkev1.RKEControl
 	}
 }
 
-// encryptionKeyRotationRestartInstruction generates a restart command for the rke2/k3s server, using the last known
+// encryptionKeyRotationRestartInstruction generates a restart command for the rke2 server, using the last known
 // leader stage in order to ensure that non-init nodes have a refreshed plan if the leader stage changes. If
 // secrets-encrypt commands were run on a node that is not the init node, this ensures that after this situation is
 // identified and the leader is restarted, other control plane nodes will be restarted given that the leader stage will

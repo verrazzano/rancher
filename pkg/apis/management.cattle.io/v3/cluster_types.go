@@ -80,8 +80,6 @@ const (
 	ClusterDriverImported = "imported"
 	ClusterDriverLocal    = "local"
 	ClusterDriverRKE      = "rancherKubernetesEngine"
-	ClusterDriverK3s      = "k3s"
-	ClusterDriverK3os     = "k3os"
 	ClusterDriverRke2     = "rke2"
 	ClusterDriverAKS      = "AKS"
 	ClusterDriverEKS      = "EKS"
@@ -132,7 +130,6 @@ type ClusterSpec struct {
 	DisplayName                         string                      `json:"displayName" norman:"required"`
 	Description                         string                      `json:"description"`
 	Internal                            bool                        `json:"internal" norman:"nocreate,noupdate"`
-	K3sConfig                           *K3sConfig                  `json:"k3sConfig,omitempty"`
 	Rke2Config                          *Rke2Config                 `json:"rke2Config,omitempty"`
 	ImportedConfig                      *ImportedConfig             `json:"importedConfig,omitempty" norman:"nocreate,noupdate"`
 	GoogleKubernetesEngineConfig        *MapStringInterface         `json:"googleKubernetesEngineConfig,omitempty"`

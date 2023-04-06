@@ -25,14 +25,13 @@ func (h *handler) onClusterChange(key string, cluster *v3.Cluster) (*v3.Cluster,
 	if cluster == nil || cluster.DeletionTimestamp != nil {
 		return nil, nil
 	}
-	isK3s := cluster.Status.Driver == v32.ClusterDriverK3s
 	isRke2 := cluster.Status.Driver == v32.ClusterDriverRke2
-	// only applies to k3s/rke2 clusters
-	if !isK3s && !isRke2 {
+	// only applies to rke2 clusters
+	if !isRke2 {
 		return cluster, nil
 	}
 	// Don't allow nil configs to continue for given cluster type
-	if (isK3s && cluster.Spec.K3sConfig == nil) || (isRke2 && cluster.Spec.Rke2Config == nil) {
+	if isRke2 && cluster.Spec.Rke2Config == nil {
 		return cluster, nil
 	}
 
@@ -41,9 +40,6 @@ func (h *handler) onClusterChange(key string, cluster *v3.Cluster) (*v3.Cluster,
 		strategy      v32.ClusterUpgradeStrategy
 	)
 	switch {
-	case isK3s:
-		updateVersion = cluster.Spec.K3sConfig.Version
-		strategy = cluster.Spec.K3sConfig.ClusterUpgradeStrategy
 	case isRke2:
 		updateVersion = cluster.Spec.Rke2Config.Version
 		strategy = cluster.Spec.Rke2Config.ClusterUpgradeStrategy
@@ -80,21 +76,21 @@ func (h *handler) onClusterChange(key string, cluster *v3.Cluster) (*v3.Cluster,
 	}
 
 	// create or update k3supgradecontroller if necessary
-	if err = h.deployK3sBasedUpgradeController(cluster.Name, isK3s, isRke2); err != nil {
+	if err = h.deployK3sBasedUpgradeController(cluster.Name, isRke2); err != nil {
 		return cluster, err
 	}
 
 	// deploy plans into downstream cluster
-	if err = h.deployPlans(cluster, isK3s, isRke2); err != nil {
+	if err = h.deployPlans(cluster, isRke2); err != nil {
 		return cluster, err
 	}
 
 	return cluster, nil
 }
 
-// deployK3sBaseUpgradeController creates a rancher k3s/rke2 upgrader controller if one does not exist.
+// deployK3sBaseUpgradeController creates a rancher rke2 upgrader controller if one does not exist.
 // Updates k3s upgrader controller if one exists and is not the newest available version.
-func (h *handler) deployK3sBasedUpgradeController(clusterName string, isK3s, isRke2 bool) error {
+func (h *handler) deployK3sBasedUpgradeController(clusterName string, isRke2 bool) error {
 	userCtx, err := h.manager.UserContextNoControllers(clusterName)
 	if err != nil {
 		return err
@@ -136,8 +132,6 @@ func (h *handler) deployK3sBasedUpgradeController(clusterName string, isK3s, isR
 	latestVersionID := latestTemplateVersion.ExternalID
 	var appname string
 	switch {
-	case isK3s:
-		appname = "rancher-k3s-upgrader"
 	case isRke2:
 		appname = "rancher-rke2-upgrader"
 	}

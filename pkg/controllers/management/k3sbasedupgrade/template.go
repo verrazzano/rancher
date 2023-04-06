@@ -10,10 +10,7 @@ import (
 	"k8s.io/kubectl/pkg/describe"
 )
 
-const k3sMasterPlanName = "k3s-master-plan"
-const k3sWorkerPlanName = "k3s-worker-plan"
 const systemUpgradeServiceAccount = "system-upgrade-controller"
-const k3supgradeImage = "rancher/k3s-upgrade"
 const rke2upgradeImage = "rancher/rke2-upgrade"
 const rke2MasterPlanName = "rke2-master-plan"
 const rke2WorkerPlanName = "rke2-worker-plan"

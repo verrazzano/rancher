@@ -757,8 +757,6 @@ func (p *Provisioner) censorGenericEngineConfig(input apimgmtv3.ClusterSpec) (ap
 func skipLocalK3sImported(cluster *apimgmtv3.Cluster) bool {
 	return cluster.Status.Driver == apimgmtv3.ClusterDriverLocal ||
 		cluster.Status.Driver == apimgmtv3.ClusterDriverImported ||
-		cluster.Status.Driver == apimgmtv3.ClusterDriverK3s ||
-		cluster.Status.Driver == apimgmtv3.ClusterDriverK3os ||
 		cluster.Status.Driver == apimgmtv3.ClusterDriverRke2 ||
 		cluster.Status.Driver == apimgmtv3.ClusterDriverRancherD
 }
@@ -1070,33 +1068,12 @@ func (p *Provisioner) k3sBasedClusterConfig(cluster *apimgmtv3.Cluster, nodes []
 			Err:    fmt.Errorf("waiting for full cluster configuration"),
 			Reason: "Pending"}
 	}
-	if cluster.Status.Driver == apimgmtv3.ClusterDriverK3s ||
-		cluster.Status.Driver == apimgmtv3.ClusterDriverK3os ||
-		cluster.Status.Driver == apimgmtv3.ClusterDriverRke2 ||
+	if cluster.Status.Driver == apimgmtv3.ClusterDriverRke2 ||
 		cluster.Status.Driver == apimgmtv3.ClusterDriverRancherD ||
 		imported.IsAdministratedByProvisioningCluster(cluster) {
 		return nil //no-op
 	}
-	isEmbedded := cluster.Status.Driver == apimgmtv3.ClusterDriverLocal
-
-	if strings.Contains(cluster.Status.Version.String(), "k3s") {
-		for _, node := range nodes {
-			if _, ok := node.Status.NodeLabels["k3os.io/mode"]; ok {
-				cluster.Status.Driver = apimgmtv3.ClusterDriverK3os
-				break
-			}
-		}
-		if cluster.Status.Driver != apimgmtv3.ClusterDriverK3os {
-			cluster.Status.Driver = apimgmtv3.ClusterDriverK3s
-		}
-		// only set these values on init, and not for embedded clusters as those shouldn't be upgraded
-		if cluster.Spec.K3sConfig == nil && !isEmbedded {
-			cluster.Spec.K3sConfig = &apimgmtv3.K3sConfig{
-				Version: cluster.Status.Version.String(),
-			}
-			cluster.Spec.K3sConfig.SetStrategy(1, 1)
-		}
-	} else if strings.Contains(cluster.Status.Version.String(), "rke2") {
+	if strings.Contains(cluster.Status.Version.String(), "rke2") {
 
 		_, err := p.DaemonsetLister.Get("cattle-system", "rancher")
 		if apierrors.IsNotFound(err) {
@@ -1118,7 +1095,7 @@ func (p *Provisioner) k3sBasedClusterConfig(cluster *apimgmtv3.Cluster, nodes []
 }
 
 func reconcileACE(cluster *apimgmtv3.Cluster) {
-	if imported.IsAdministratedByProvisioningCluster(cluster) || cluster.Status.Driver == apimgmtv3.ClusterDriverRke2 || cluster.Status.Driver == apimgmtv3.ClusterDriverK3s {
+	if imported.IsAdministratedByProvisioningCluster(cluster) || cluster.Status.Driver == apimgmtv3.ClusterDriverRke2 {
 		cluster.Status.AppliedSpec.LocalClusterAuthEndpoint = cluster.Spec.LocalClusterAuthEndpoint
 	}
 }

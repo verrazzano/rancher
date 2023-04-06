@@ -155,7 +155,6 @@ func shouldRotateEntry(rotation *rkev1.RotateCertificates, entry *planEntry) boo
 
 	if isWorker(entry) {
 		relevantServices["rke2-server"] = struct{}{}
-		relevantServices["k3s-server"] = struct{}{}
 		relevantServices["api-server"] = struct{}{}
 		relevantServices["kubelet"] = struct{}{}
 		relevantServices["kube-proxy"] = struct{}{}
@@ -164,7 +163,6 @@ func shouldRotateEntry(rotation *rkev1.RotateCertificates, entry *planEntry) boo
 
 	if isControlPlane(entry) {
 		relevantServices["rke2-server"] = struct{}{}
-		relevantServices["k3s-server"] = struct{}{}
 		relevantServices["api-server"] = struct{}{}
 		relevantServices["kubelet"] = struct{}{}
 		relevantServices["kube-proxy"] = struct{}{}
@@ -172,7 +170,6 @@ func shouldRotateEntry(rotation *rkev1.RotateCertificates, entry *planEntry) boo
 		relevantServices["controller-manager"] = struct{}{}
 		relevantServices["scheduler"] = struct{}{}
 		relevantServices["rke2-controller"] = struct{}{}
-		relevantServices["k3s-controller"] = struct{}{}
 		relevantServices["admin"] = struct{}{}
 		relevantServices["cloud-controller"] = struct{}{}
 	}
@@ -180,7 +177,6 @@ func shouldRotateEntry(rotation *rkev1.RotateCertificates, entry *planEntry) boo
 	if isEtcd(entry) {
 		relevantServices["etcd"] = struct{}{}
 		relevantServices["kubelet"] = struct{}{}
-		relevantServices["k3s-server"] = struct{}{}
 		relevantServices["rke2-server"] = struct{}{}
 	}
 
