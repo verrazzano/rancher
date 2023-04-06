@@ -277,7 +277,7 @@ func (v *Validator) validateGenericEngineConfig(request *types.APIContext, spec 
 		if driverName != "ociocneengine" {
 			return nil
 		}
-		
+
 		logrus.Info("Validating OCI OCNE Cloud Credential")
 
 		// check user's access to cloud credential
