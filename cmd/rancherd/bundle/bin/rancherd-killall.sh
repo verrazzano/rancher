@@ -58,7 +58,6 @@ systemctl stop rancherd-agent.service || true
 
 killtree $({ set +x; } 2>/dev/null; getshims; set -x)
 
-do_unmount '/run/k3s'
 do_unmount '/var/lib/rancher/rke2'
 do_unmount '/var/lib/kubelet/pods'
 do_unmount '/run/netns/cni-'
