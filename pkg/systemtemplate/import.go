@@ -20,7 +20,6 @@ import (
 	"github.com/rancher/rancher/pkg/image"
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rke/templates"
-	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -74,7 +73,7 @@ func toFeatureString(features map[string]bool) string {
 }
 
 func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url string, isWindowsCluster bool,
-	cluster *apimgmtv3.Cluster, registry *rketypes.PrivateRegistry, features map[string]bool, taints []corev1.Taint, secretLister v1.SecretLister) error {
+	cluster *apimgmtv3.Cluster, features map[string]bool, taints []corev1.Taint, secretLister v1.SecretLister) error {
 	var tolerations, agentEnvVars string
 	d := md5.Sum([]byte(url + token + namespace))
 	tokenKey := hex.EncodeToString(d[:])[:7]
@@ -86,10 +85,6 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 	registryURL, registryConfig, err := util.GeneratePrivateRegistryEncodedDockerConfig(cluster, secretLister)
 	if err != nil {
 		return err
-	}
-
-	if registry != nil {
-		registryURL = registry.URL
 	}
 
 	if taints != nil {
@@ -148,12 +143,12 @@ func GetDesiredFeatures(cluster *apimgmtv3.Cluster) map[string]bool {
 	}
 }
 
-func ForCluster(cluster *apimgmtv3.Cluster, token string, registry *rketypes.PrivateRegistry, taints []corev1.Taint, secretLister v1.SecretLister) ([]byte, error) {
+func ForCluster(cluster *apimgmtv3.Cluster, token string, taints []corev1.Taint, secretLister v1.SecretLister) ([]byte, error) {
 	buf := &bytes.Buffer{}
 	err := SystemTemplate(buf, GetDesiredAgentImage(cluster),
 		GetDesiredAuthImage(cluster),
 		cluster.Name, token, settings.ServerURL.Get(), cluster.Spec.WindowsPreferedCluster,
-		cluster, registry, GetDesiredFeatures(cluster), taints, secretLister)
+		cluster, GetDesiredFeatures(cluster), taints, secretLister)
 	return buf.Bytes(), err
 }
 
