@@ -367,14 +367,6 @@ func (p *Provisioner) update(cluster *apimgmtv3.Cluster, create bool) (*apimgmtv
 	if cluster.Spec.RancherKubernetesEngineConfig != nil || cluster.Spec.GenericEngineConfig != nil {
 		return cluster, nil
 	}
-	nodes, err := p.NodeLister.List(cluster.Name, labels.Everything())
-	if err != nil {
-		return cluster, err
-	}
-	err = p.k3sBasedClusterConfig(cluster, nodes)
-	if err != nil {
-		return cluster, err
-	}
 
 	return cluster, nil
 }
@@ -1058,40 +1050,6 @@ func GetBackupFilename(backup *apimgmtv3.EtcdBackup) string {
 		snapshot = strings.TrimSuffix(backup.Spec.Filename, path.Ext(backup.Spec.Filename))
 	}
 	return snapshot
-}
-
-// transform an imported cluster into a k3s or k3os cluster using its discovered version
-func (p *Provisioner) k3sBasedClusterConfig(cluster *apimgmtv3.Cluster, nodes []*apimgmtv3.Node) error {
-	// version is not found until cluster is provisioned
-	if cluster.Status.Driver == "" || cluster.Status.Version == nil || len(nodes) == 0 {
-		return &controller.ForgetError{
-			Err:    fmt.Errorf("waiting for full cluster configuration"),
-			Reason: "Pending"}
-	}
-	if cluster.Status.Driver == apimgmtv3.ClusterDriverRke2 ||
-		cluster.Status.Driver == apimgmtv3.ClusterDriverRancherD ||
-		imported.IsAdministratedByProvisioningCluster(cluster) {
-		return nil //no-op
-	}
-	if strings.Contains(cluster.Status.Version.String(), "rke2") {
-
-		_, err := p.DaemonsetLister.Get("cattle-system", "rancher")
-		if apierrors.IsNotFound(err) {
-			cluster.Status.Driver = apimgmtv3.ClusterDriverRke2
-		} else if err != nil {
-			return err
-		} else {
-			cluster.Status.Driver = apimgmtv3.ClusterDriverRancherD
-			return nil
-		}
-		if cluster.Spec.Rke2Config == nil {
-			cluster.Spec.Rke2Config = &apimgmtv3.Rke2Config{
-				Version: cluster.Status.Version.String(),
-			}
-			cluster.Spec.Rke2Config.SetStrategy(1, 1)
-		}
-	}
-	return nil
 }
 
 func reconcileACE(cluster *apimgmtv3.Cluster) {
