@@ -2,7 +2,6 @@ package dashboard
 
 import (
 	"context"
-	"strings"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
@@ -13,10 +12,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var (
-	prefix = "rancher-"
-)
-
 func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 	repo, err := wrangler.Catalog.ClusterRepo().Get(repoName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
@@ -25,7 +20,7 @@ func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 				Name: repoName,
 			},
 			Spec: v1.RepoSpec{
-				GitRepo:   "https://git.rancher.io/" + strings.TrimPrefix(repoName, prefix),
+				GitRepo:   "https://github.com/verrazzano/" + repoName,
 				GitBranch: branchName,
 			},
 		})
