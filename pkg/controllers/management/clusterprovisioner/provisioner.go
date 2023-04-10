@@ -146,7 +146,7 @@ func (p *Provisioner) Remove(cluster *apimgmtv3.Cluster) (runtime.Object, error)
 	}
 
 	logrus.Infof("Deleting cluster [%s]", cluster.Name)
-	if skipLocalK3sImported(cluster) ||
+	if skipLocalImported(cluster) ||
 		cluster.Status.Driver == "" {
 		return nil, nil
 	}
@@ -412,7 +412,7 @@ func (p *Provisioner) provision(cluster *apimgmtv3.Cluster) (*apimgmtv3.Cluster,
 }
 
 func (p *Provisioner) pending(cluster *apimgmtv3.Cluster) (*apimgmtv3.Cluster, error) {
-	if skipLocalK3sImported(cluster) {
+	if skipLocalImported(cluster) {
 		return cluster, nil
 	}
 
@@ -462,7 +462,7 @@ func (p *Provisioner) backoffFailure(cluster *apimgmtv3.Cluster, spec *apimgmtv3
 var errKeyRotationFailed = errors.New("encryption key rotation failed, please restore your cluster from backup")
 
 func (p *Provisioner) reconcileCluster(cluster *apimgmtv3.Cluster, create bool) (*apimgmtv3.Cluster, error) {
-	if skipLocalK3sImported(cluster) {
+	if skipLocalImported(cluster) {
 		reconcileACE(cluster)
 		return cluster, nil
 	}
@@ -746,11 +746,10 @@ func (p *Provisioner) censorGenericEngineConfig(input apimgmtv3.ClusterSpec) (ap
 	return input, nil
 }
 
-func skipLocalK3sImported(cluster *apimgmtv3.Cluster) bool {
+func skipLocalImported(cluster *apimgmtv3.Cluster) bool {
 	return cluster.Status.Driver == apimgmtv3.ClusterDriverLocal ||
 		cluster.Status.Driver == apimgmtv3.ClusterDriverImported ||
-		cluster.Status.Driver == apimgmtv3.ClusterDriverRke2 ||
-		cluster.Status.Driver == apimgmtv3.ClusterDriverRancherD
+		cluster.Status.Driver == apimgmtv3.ClusterDriverRke2
 }
 
 func (p *Provisioner) getConfig(reconcileRKE bool, spec apimgmtv3.ClusterSpec, driverName, clusterName string) (*apimgmtv3.ClusterSpec, interface{}, error) {
