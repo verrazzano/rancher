@@ -83,7 +83,6 @@ func (c *ClusterLifecycleCleanup) Remove(obj *v3.Cluster) (runtime.Object, error
 		if obj.Name == "local" && obj.Spec.Internal {
 			err = c.cleanupLocalCluster(obj)
 		} else if obj.Status.Driver == v32.ClusterDriverRke2 ||
-			obj.Status.Driver == v32.ClusterDriverRancherD ||
 			(obj.Status.Driver == v32.ClusterDriverImported && !imported.IsAdministratedByProvisioningCluster(obj)) ||
 			(obj.Status.AKSStatus.UpstreamSpec != nil && obj.Status.AKSStatus.UpstreamSpec.Imported) ||
 			(obj.Status.EKSStatus.UpstreamSpec != nil && obj.Status.EKSStatus.UpstreamSpec.Imported) ||

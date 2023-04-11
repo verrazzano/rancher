@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/coreos/go-semver/semver"
-	"github.com/rancher/rancher/pkg/controllers/management/k3sbasedupgrade"
 	"github.com/sirupsen/logrus"
 )
 
@@ -59,7 +58,7 @@ func GetExternalImages(rancherVersion string, externalData map[string]interface{
 				continue
 			}
 
-			versionGTMin, err := k3sbasedupgrade.IsNewerVersion(minVersion, rancherVersion)
+			versionGTMin, err := isNewerVersion(minVersion, rancherVersion)
 			if err != nil {
 				continue
 			}
@@ -68,7 +67,7 @@ func GetExternalImages(rancherVersion string, externalData map[string]interface{
 				continue
 			}
 
-			versionLTMax, err := k3sbasedupgrade.IsNewerVersion(rancherVersion, maxVersion)
+			versionLTMax, err := isNewerVersion(rancherVersion, maxVersion)
 			if err != nil {
 				continue
 			}
@@ -161,4 +160,31 @@ func downloadExternalImageListFromURL(url string) (string, error) {
 	}
 
 	return string(body), nil
+}
+
+// isNewerVersion returns true if updated versions semver is newer and false if its
+// semver is older. If semver is equal then metadata is alphanumerically compared.
+func isNewerVersion(prevVersion, updatedVersion string) (bool, error) {
+	parseErrMsg := "failed to parse version: %v"
+	prevVer, err := semver.NewVersion(strings.TrimPrefix(prevVersion, "v"))
+	if err != nil {
+		return false, fmt.Errorf(parseErrMsg, err)
+	}
+
+	updatedVer, err := semver.NewVersion(strings.TrimPrefix(updatedVersion, "v"))
+	if err != nil {
+		return false, fmt.Errorf(parseErrMsg, err)
+	}
+
+	switch updatedVer.Compare(*prevVer) {
+	case -1:
+		return false, nil
+	case 1:
+		return true, nil
+	default:
+		// using metadata to determine precedence is against semver standards
+		// this is ignored because it because k3s uses it to precedence between
+		// two versions based on same k8s version
+		return updatedVer.Metadata > prevVer.Metadata, nil
+	}
 }

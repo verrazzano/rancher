@@ -65,7 +65,6 @@ var OriginMap = map[string]string{
 	"istio-installer":                                         "https://github.com/rancher/istio-installer",
 	"istio-kubectl":                                           "https://github.com/istio/istio",
 	"jimmidyson-configmap-reload":                             "https://github.com/jimmidyson/configmap-reload",
-	"k3s-upgrade":                                             "https://github.com/rancher/k3s-upgrade",
 	"klipper-helm":                                            "https://github.com/rancher/klipper-helm",
 	"klipper-lb":                                              "https://github.com/rancher/klipper-lb",
 	"kube-api-auth":                                           "https://github.com/rancher/kube-api-auth",

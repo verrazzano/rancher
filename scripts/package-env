@@ -16,8 +16,3 @@ WINS_AGENT_UPGRADE_IMAGE=${REPO}/wins:${WINS_AGENT_UPGRADE_TAG}
 RKE2_RELEASE_VERSIONS=$(jq -r '[.rke2.releases[] | select(.serverArgs) | .version] | join(" ")' ../bin/data.json)
 # Convert versions with build metadata into valid image tags (replace + for -) and construct an array of tags.
 RKE2_RELEASE_TAGS=( $(echo $RKE2_RELEASE_VERSIONS | tr + -) )
-
-# Query KDM data for K3S released versions where server args are defined.
-K3S_RELEASE_VERSIONS=$(jq -r '[.k3s.releases[] | select(.serverArgs) | .version] | join(" ")' ../bin/data.json)
-# Convert versions with build metadata into valid image tags (replace + for -) and construct an array of tags.
-K3S_RELEASE_TAGS=( $(echo $K3S_RELEASE_VERSIONS | tr + -) )

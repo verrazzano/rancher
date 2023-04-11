@@ -84,7 +84,6 @@ const (
 	ClusterDriverAKS      = "AKS"
 	ClusterDriverEKS      = "EKS"
 	ClusterDriverGKE      = "GKE"
-	ClusterDriverRancherD = "rancherd"
 
 	ClusterPrivateRegistrySecret = "PrivateRegistrySecret"
 	ClusterPrivateRegistryURL    = "PrivateRegistryURL"
