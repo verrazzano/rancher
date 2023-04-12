@@ -1,13 +1,11 @@
 package management
 
 import (
-	"fmt"
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/types/config"
-	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
 	"github.com/sirupsen/logrus"
-	"os/exec"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reflect"
 	"strings"
 )
@@ -52,11 +50,6 @@ var DriverData = map[string]map[string][]string{
 	OutscaleDriver:     {"publicCredentialFields": []string{"accessKey", "region"}, "privateCredentialFields": []string{"secretKey"}},
 }
 
-var driverDefaults = map[string]map[string]string{
-	HarvesterDriver: {"clusterType": "imported"},
-	Vmwaredriver:    {"vcenterPort": "443"},
-}
-
 type machineDriverCompare struct {
 	builtin            bool
 	addCloudCredential bool
@@ -95,13 +88,7 @@ func addMachineDriver(name, url, uiURL, checksum string, whitelist []string, act
 	for key, fields := range DriverData[name] {
 		annotations[key] = strings.Join(fields, ",")
 	}
-	defaults := []string{}
-	for key, val := range driverDefaults[name] {
-		defaults = append(defaults, fmt.Sprintf("%s:%s", key, val))
-	}
-	if len(defaults) > 0 {
-		annotations["defaults"] = strings.Join(defaults, ",")
-	}
+
 	if m != nil {
 		old := machineDriverCompare{
 			builtin:            m.Spec.Builtin,
@@ -158,8 +145,4 @@ func addMachineDriver(name, url, uiURL, checksum string, whitelist []string, act
 	})
 
 	return err
-}
-
-func isCommandAvailable(name string) bool {
-	return exec.Command("command", "-v", name).Run() == nil
 }
