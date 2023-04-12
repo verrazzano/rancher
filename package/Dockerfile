@@ -100,6 +100,8 @@ RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     chmod +x /usr/bin/tini /usr/bin/telemetry && \
     mkdir -p /var/lib/rancher-data/driver-metadata
 
+RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin
+
 # Versions for UI, DASHBOARD and CLI will be the same as 2.6 until new releases are made to these
 ENV CATTLE_UI_VERSION 2.7.1
 ENV CATTLE_DASHBOARD_UI_VERSION v2.6.8
