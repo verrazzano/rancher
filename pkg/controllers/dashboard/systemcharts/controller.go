@@ -100,6 +100,10 @@ func (h *handler) onRepo(key string, repo *catalog.ClusterRepo) (*catalog.Cluste
 				values[k] = v
 			}
 		}
+
+		if chartDef.ChartName == webhookChartName {
+			overrideRancherWebhookImage(values)
+		}
 		// webhook needs to be able to adopt the MutatingWebhookConfiguration which originally wasn't a part of the
 		// chart definition, but is now part of the chart definition
 		if err := h.manager.Ensure(chartDef.ReleaseNamespace, chartDef.ChartName, chartDef.MinVersionSetting.Get(), values, chartDef.ChartName == webhookChartName, installImageOverride); err != nil {
