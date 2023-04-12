@@ -36,6 +36,7 @@ ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     chmod +x /usr/bin/kustomize
 
+
 WORKDIR /var/lib/rancher
 
 ARG IMAGE_REPO=rancher
@@ -64,6 +65,7 @@ ENV LINODE_UI_DRIVER_VERSION v0.4.0
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
 ENV HELM_VERSION 3.9.0-rancher1
 
+RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=101.0.1+up0.5.1
