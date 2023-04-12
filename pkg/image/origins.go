@@ -195,6 +195,8 @@ var OriginMap = map[string]string{
 	"mirrored-sig-storage-csi-provisioner":                    "https://github.com/kubernetes-csi/external-provisioner",
 	"mirrored-sig-storage-csi-resizer":                        "https://github.com/kubernetes-csi/external-resizer",
 	"mirrored-sig-storage-livenessprobe":                      "https://github.com/kubernetes-csi/livenessprobe",
+	"mirrored-sig-storage-snapshot-controller":                "https://github.com/kubernetes-csi/external-snapshotter",
+	"mirrored-sig-storage-snapshot-validation-webhook":        "https://github.com/kubernetes-csi/external-snapshotter",
 	"mirrored-sigwindowstools-k8s-gmsa-webhook":               "https://github.com/kubernetes-sigs/windows-gmsa/tree/master/admission-webhook",
 	"mirrored-skopeo-skopeo":                                  "https://github.com/containers/skopeo",
 	"mirrored-sonobuoy-sonobuoy":                              "https://github.com/vmware-tanzu/sonobuoy",
