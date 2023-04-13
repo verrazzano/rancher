@@ -49,7 +49,6 @@ type Config struct {
 	ProjectAlertRules                        map[string]managementClient.ProjectAlertRule                        `json:"projectAlertRules,omitempty" yaml:"projectAlertRules,omitempty"`
 	ComposeConfigs                           map[string]managementClient.ComposeConfig                           `json:"composeConfigs,omitempty" yaml:"composeConfigs,omitempty"`
 	ProjectCatalogs                          map[string]managementClient.ProjectCatalog                          `json:"projectCatalogs,omitempty" yaml:"projectCatalogs,omitempty"`
-	ClusterCatalogs                          map[string]managementClient.ClusterCatalog                          `json:"clusterCatalogs,omitempty" yaml:"clusterCatalogs,omitempty"`
 	MultiClusterApps                         map[string]managementClient.MultiClusterApp                         `json:"multiClusterApps,omitempty" yaml:"multiClusterApps,omitempty"`
 	MultiClusterAppRevisions                 map[string]managementClient.MultiClusterAppRevision                 `json:"multiClusterAppRevisions,omitempty" yaml:"multiClusterAppRevisions,omitempty"`
 	GlobalDnss                               map[string]managementClient.GlobalDns                               `json:"globalDnses,omitempty" yaml:"globalDnses,omitempty"`

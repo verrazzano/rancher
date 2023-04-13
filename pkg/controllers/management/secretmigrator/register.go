@@ -24,8 +24,6 @@ type handler struct {
 	notifiers                v3.NotifierInterface
 	catalogLister            v3.CatalogLister
 	catalogs                 v3.CatalogInterface
-	clusterCatalogLister     v3.ClusterCatalogLister
-	clusterCatalogs          v3.ClusterCatalogInterface
 	projectCatalogLister     v3.ProjectCatalogLister
 	projectCatalogs          v3.ProjectCatalogInterface
 	projectLister            v3.ProjectLister
@@ -51,8 +49,6 @@ func Register(ctx context.Context, management *config.ManagementContext) {
 		notifiers:                management.Management.Notifiers(""),
 		catalogLister:            management.Management.Catalogs("").Controller().Lister(),
 		catalogs:                 management.Management.Catalogs(""),
-		clusterCatalogLister:     management.Management.ClusterCatalogs("").Controller().Lister(),
-		clusterCatalogs:          management.Management.ClusterCatalogs(""),
 		projectCatalogLister:     management.Management.ProjectCatalogs("").Controller().Lister(),
 		projectCatalogs:          management.Management.ProjectCatalogs(""),
 		projectLister:            management.Management.Projects("").Controller().Lister(),

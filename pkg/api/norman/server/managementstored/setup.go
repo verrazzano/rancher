@@ -121,7 +121,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.CatalogTemplateVersionType,
 		client.ClusterAlertType,
 		client.ClusterAlertGroupType,
-		client.ClusterCatalogType,
 		client.ClusterAlertRuleType,
 		client.ClusterMonitorGraphType,
 		client.ClusterScanType,
@@ -181,7 +180,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 	TemplateVersion(ctx, schemas, apiContext)
 	Catalog(schemas, apiContext)
 	ProjectCatalog(schemas, apiContext)
-	ClusterCatalog(schemas, apiContext)
 	App(schemas, apiContext, clusterManager)
 	Alert(schemas, apiContext)
 	TemplateContent(schemas)
@@ -291,7 +289,6 @@ func Templates(ctx context.Context, schemas *types.Schemas, managementContext *c
 
 	wrapper := catalog.TemplateWrapper{
 		CatalogLister:                managementContext.Management.Catalogs("").Controller().Lister(),
-		ClusterCatalogLister:         managementContext.Management.ClusterCatalogs("").Controller().Lister(),
 		ProjectCatalogLister:         managementContext.Management.ProjectCatalogs("").Controller().Lister(),
 		CatalogTemplateVersionLister: managementContext.Management.CatalogTemplateVersions("").Controller().Lister(),
 		SecretLister:                 managementContext.Core.Secrets("").Controller().Lister(),
@@ -317,7 +314,6 @@ func TemplateVersion(ctx context.Context, schemas *types.Schemas, managementCont
 		"catalogtemplateversions")
 	t := catalog.TemplateVerionFormatterWrapper{
 		CatalogLister:        managementContext.Management.Catalogs("").Controller().Lister(),
-		ClusterCatalogLister: managementContext.Management.ClusterCatalogs("").Controller().Lister(),
 		ProjectCatalogLister: managementContext.Management.ProjectCatalogs("").Controller().Lister(),
 		SecretLister:         managementContext.Core.Secrets("").Controller().Lister(),
 	}
@@ -362,24 +358,6 @@ func ProjectCatalog(schemas *types.Schemas, managementContext *config.ScaledCont
 		ProjectCatalogClient: managementContext.Management.ProjectCatalogs(""),
 	}
 	schema.ActionHandler = handler.RefreshProjectCatalogActionHandler
-	schema.CollectionFormatter = catalog.CollectionFormatter
-	schema.Validator = catalog.Validator
-	users := managementContext.Management.Users("")
-	grbLister := managementContext.Management.GlobalRoleBindings("").Controller().Lister()
-	grLister := managementContext.Management.GlobalRoles("").Controller().Lister()
-	secretLister := managementContext.Core.Secrets("").Controller().Lister()
-	secrets := managementContext.Core.Secrets("")
-	clusterLister := managementContext.Management.Clusters("").Controller().Lister()
-	schema.Store = catalogStore.Wrap(schema.Store, managementContext, users, grbLister, grLister, secretLister, secrets, clusterLister)
-}
-
-func ClusterCatalog(schemas *types.Schemas, managementContext *config.ScaledContext) {
-	schema := schemas.Schema(&managementschema.Version, client.ClusterCatalogType)
-	schema.Formatter = catalog.Formatter
-	handler := catalog.ActionHandler{
-		ClusterCatalogClient: managementContext.Management.ClusterCatalogs(""),
-	}
-	schema.ActionHandler = handler.RefreshClusterCatalogActionHandler
 	schema.CollectionFormatter = catalog.CollectionFormatter
 	schema.Validator = catalog.Validator
 	users := managementContext.Management.Users("")

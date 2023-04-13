@@ -45,7 +45,6 @@ var (
 		Init(alertTypes).
 		Init(composeType).
 		Init(projectCatalogTypes).
-		Init(clusterCatalogTypes).
 		Init(multiClusterAppTypes).
 		Init(globalDNSTypes).
 		Init(kontainerTypes).
@@ -863,23 +862,6 @@ func projectCatalogTypes(schemas *types.Schemas) *types.Schemas {
 			&m.Drop{Field: "helmVersionCommits"},
 			&mapper.NamespaceIDMapper{}).
 		MustImportAndCustomize(&Version, v3.ProjectCatalog{}, func(schema *types.Schema) {
-			schema.ResourceActions = map[string]types.Action{
-				"refresh": {Output: "catalogRefresh"},
-			}
-			schema.CollectionActions = map[string]types.Action{
-				"refresh": {Output: "catalogRefresh"},
-			}
-		})
-}
-
-func clusterCatalogTypes(schemas *types.Schemas) *types.Schemas {
-	return schemas.
-		AddMapperForType(&Version, v3.ClusterCatalog{},
-			&m.Move{From: "catalogKind", To: "kind"},
-			&m.Embed{Field: "status"},
-			&m.Drop{Field: "helmVersionCommits"},
-			&mapper.NamespaceIDMapper{}).
-		MustImportAndCustomize(&Version, v3.ClusterCatalog{}, func(schema *types.Schema) {
 			schema.ResourceActions = map[string]types.Action{
 				"refresh": {Output: "catalogRefresh"},
 			}

@@ -164,7 +164,6 @@ func addRoles(wrangler *wrangler.Context, management *config.ManagementContext) 
 		addRule().apiGroups("management.cattle.io").resources("clusteralertrules").verbs("get", "list", "watch").
 		addRule().apiGroups("management.cattle.io").resources("clusteralertgroups").verbs("get", "list", "watch").
 		addRule().apiGroups("management.cattle.io").resources("notifiers").verbs("get", "list", "watch").
-		addRule().apiGroups("management.cattle.io").resources("clustercatalogs").verbs("get", "list", "watch").
 		addRule().apiGroups("management.cattle.io").resources("clustermonitorgraphs").verbs("get", "list", "watch").
 		addRule().apiGroups("management.cattle.io").resources("catalogtemplates").verbs("get", "list", "watch").
 		addRule().apiGroups("management.cattle.io").resources("catalogtemplateversions").verbs("get", "list", "watch").

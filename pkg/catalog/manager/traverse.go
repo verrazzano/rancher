@@ -29,16 +29,12 @@ func (m *Manager) traverseAndUpdate(helm *helmlib.Helm, commit string, cmt *Cata
 	var catalogName, templateNamespace string
 	catalog := cmt.catalog
 	projectCatalog := cmt.projectCatalog
-	clusterCatalog := cmt.clusterCatalog
 	catalogType := getCatalogType(cmt)
 
 	switch catalogType {
 	case client.CatalogType:
 		templateNamespace = namespace.GlobalNamespace
 		catalogName = catalog.Name
-	case client.ClusterCatalogType:
-		templateNamespace = clusterCatalog.Namespace
-		catalogName = clusterCatalog.Name
 	case client.ProjectCatalogType:
 		templateNamespace = projectCatalog.Namespace
 		catalogName = projectCatalog.Name
@@ -168,17 +164,6 @@ func (m *Manager) traverseAndUpdate(helm *helmlib.Helm, commit string, cmt *Cata
 		switch catalogType {
 		case client.CatalogType:
 			template.Spec.CatalogID = catalog.Name
-		case client.ClusterCatalogType:
-			if clusterCatalog == nil || clusterCatalog.Name == "" {
-				return errors.New("Cluster catalog is no longer available")
-			}
-			labelMap := make(map[string]string)
-			cname := clusterCatalog.Namespace + ":" + clusterCatalog.Name
-			template.Spec.ClusterCatalogID = cname
-			template.Spec.ClusterID = clusterCatalog.ClusterName
-			labelMap[template.Spec.ClusterID+"-"+clusterCatalog.Name] = clusterCatalog.Name
-			newLabels := labels.Merge(template.Labels, labelMap)
-			template.Labels = newLabels
 		case client.ProjectCatalogType:
 			if projectCatalog == nil || projectCatalog.Name == "" {
 				return errors.New("Project catalog is no longer available")
@@ -198,7 +183,6 @@ func (m *Manager) traverseAndUpdate(helm *helmlib.Helm, commit string, cmt *Cata
 
 		catalog = cmt.catalog
 		projectCatalog = cmt.projectCatalog
-		clusterCatalog = cmt.clusterCatalog
 		if catalog == nil || catalog.Name == "" {
 			return errors.New("Catalog is no longer available")
 		}
@@ -253,8 +237,6 @@ func (m *Manager) traverseAndUpdate(helm *helmlib.Helm, commit string, cmt *Cata
 
 	if projectCatalog != nil {
 		projectCatalog.Catalog = *catalog
-	} else if clusterCatalog != nil {
-		clusterCatalog.Catalog = *catalog
 	}
 	/*conditions need to be set here to stop templates from updating
 	each time when they have no changes
@@ -269,7 +251,7 @@ func (m *Manager) traverseAndUpdate(helm *helmlib.Helm, commit string, cmt *Cata
 	}
 	if len(entriesWithErrors) > 0 && len(errstrings) == 0 {
 		invalidChartErrors := processInvalidChartErrors(entriesWithErrors)
-		setCatalogIgnoreErrorState(commit, cmt, catalog, projectCatalog, clusterCatalog, fmt.Sprintf("Error in chart(s): %s", invalidChartErrors))
+		setCatalogIgnoreErrorState(commit, cmt, catalog, projectCatalog, fmt.Sprintf("Error in chart(s): %s", invalidChartErrors))
 		if _, err := m.updateCatalogInfo(cmt, catalogType, "", false, true); err != nil {
 			return err
 		}
@@ -279,7 +261,7 @@ func (m *Manager) traverseAndUpdate(helm *helmlib.Helm, commit string, cmt *Cata
 	if len(errstrings) > 0 {
 		invalidChartErrors := processInvalidChartErrors(entriesWithErrors)
 		errstrings = append(errstrings, invalidChartErrors)
-		setCatalogErrorState(cmt, catalog, projectCatalog, clusterCatalog)
+		setCatalogErrorState(cmt, catalog, projectCatalog)
 		if _, err := m.updateCatalogInfo(cmt, catalogType, "", false, true); err != nil {
 			return err
 		}
@@ -294,12 +276,9 @@ func (m *Manager) traverseAndUpdate(helm *helmlib.Helm, commit string, cmt *Cata
 	catalog.Status.Commit = commit
 	if projectCatalog != nil {
 		projectCatalog.Catalog = *catalog
-	} else if clusterCatalog != nil {
-		clusterCatalog.Catalog = *catalog
 	}
 	cmt.catalog = catalog
 	cmt.projectCatalog = projectCatalog
-	cmt.clusterCatalog = clusterCatalog
 	if _, err := m.updateCatalogInfo(cmt, catalogType, "", true, true); err != nil {
 		return err
 	}
@@ -315,12 +294,6 @@ func (m *Manager) dropDeprecatedFields(cmt *CatalogInfo, catalogType string) err
 			return nil
 		}
 		catalog.Status.HelmVersionCommits = nil
-	case client.ClusterCatalogType:
-		clusterCatalog := cmt.clusterCatalog
-		if clusterCatalog.Status.HelmVersionCommits == nil {
-			return nil
-		}
-		clusterCatalog.Status.HelmVersionCommits = nil
 	case client.ProjectCatalogType:
 		projectCatalog := cmt.projectCatalog
 		if projectCatalog.Status.HelmVersionCommits == nil {

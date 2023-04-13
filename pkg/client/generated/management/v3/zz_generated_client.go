@@ -49,7 +49,6 @@ type Client struct {
 	ProjectAlertRule                        ProjectAlertRuleOperations
 	ComposeConfig                           ComposeConfigOperations
 	ProjectCatalog                          ProjectCatalogOperations
-	ClusterCatalog                          ClusterCatalogOperations
 	MultiClusterApp                         MultiClusterAppOperations
 	MultiClusterAppRevision                 MultiClusterAppRevisionOperations
 	GlobalDns                               GlobalDnsOperations
@@ -125,7 +124,6 @@ func NewClient(opts *clientbase.ClientOpts) (*Client, error) {
 	client.ProjectAlertRule = newProjectAlertRuleClient(client)
 	client.ComposeConfig = newComposeConfigClient(client)
 	client.ProjectCatalog = newProjectCatalogClient(client)
-	client.ClusterCatalog = newClusterCatalogClient(client)
 	client.MultiClusterApp = newMultiClusterAppClient(client)
 	client.MultiClusterAppRevision = newMultiClusterAppRevisionClient(client)
 	client.GlobalDns = newGlobalDnsClient(client)

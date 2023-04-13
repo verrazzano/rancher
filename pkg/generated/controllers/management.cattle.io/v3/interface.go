@@ -46,7 +46,6 @@ type Interface interface {
 	ClusterAlert() ClusterAlertController
 	ClusterAlertGroup() ClusterAlertGroupController
 	ClusterAlertRule() ClusterAlertRuleController
-	ClusterCatalog() ClusterCatalogController
 	ClusterLogging() ClusterLoggingController
 	ClusterMonitorGraph() ClusterMonitorGraphController
 	ClusterRegistrationToken() ClusterRegistrationTokenController
@@ -167,9 +166,6 @@ func (c *version) ClusterAlertGroup() ClusterAlertGroupController {
 }
 func (c *version) ClusterAlertRule() ClusterAlertRuleController {
 	return NewClusterAlertRuleController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterAlertRule"}, "clusteralertrules", true, c.controllerFactory)
-}
-func (c *version) ClusterCatalog() ClusterCatalogController {
-	return NewClusterCatalogController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterCatalog"}, "clustercatalogs", true, c.controllerFactory)
 }
 func (c *version) ClusterLogging() ClusterLoggingController {
 	return NewClusterLoggingController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterLogging"}, "clusterloggings", true, c.controllerFactory)

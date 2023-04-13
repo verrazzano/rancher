@@ -35,20 +35,17 @@ type Store struct {
 	secretMigrator       *secretmigrator.Migrator
 	clusterLister        v3.ClusterLister
 	catalogClient        dynamic.ResourceInterface
-	clusterCatalogClient dynamic.NamespaceableResourceInterface
 	projectCatalogClient dynamic.NamespaceableResourceInterface
 }
 
 func Wrap(store types.Store, mgmt *config.ScaledContext, users v3.UserInterface, grbLister v3.GlobalRoleBindingLister, grLister v3.GlobalRoleLister, secretLister v1.SecretLister, secrets v1.SecretInterface, clusterLister v3.ClusterLister) types.Store {
 	var catalogClient dynamic.ResourceInterface
-	var clusterCatalogClient dynamic.NamespaceableResourceInterface
 	var projectCatalogClient dynamic.NamespaceableResourceInterface
 	dynamicClient, err := dynamic.NewForConfig(&mgmt.RESTConfig)
 	if err != nil {
 		logrus.Warnf("GetClusterStore error creating K8s dynamic client: %v", err)
 	} else {
 		catalogClient = dynamicClient.Resource(v3.CatalogGroupVersionResource)
-		clusterCatalogClient = dynamicClient.Resource(v3.ClusterCatalogGroupVersionResource)
 		projectCatalogClient = dynamicClient.Resource(v3.ProjectCatalogGroupVersionResource)
 
 	}
@@ -60,7 +57,6 @@ func Wrap(store types.Store, mgmt *config.ScaledContext, users v3.UserInterface,
 		secretMigrator:       secretmigrator.NewMigrator(secretLister, secrets),
 		clusterLister:        clusterLister,
 		catalogClient:        catalogClient,
-		clusterCatalogClient: clusterCatalogClient,
 		projectCatalogClient: projectCatalogClient,
 	}
 }
@@ -196,18 +192,7 @@ func (s *Store) Update(apiContext *types.APIContext, schema *types.Schema, data 
 		if s.catalogClient == nil {
 			return nil, fmt.Errorf("Error updating the catalog: k8s client is nil")
 		}
-		if clusterID, ok := data["clusterId"]; ok {
-			_, id = ref.Parse(id)
-			catalog, err := s.clusterCatalogClient.Namespace(clusterID.(string)).Get(context.Background(), id, metav1.GetOptions{})
-			if err != nil {
-				return nil, err
-			}
-			values.RemoveValue(catalog.Object, "status", catalogSecretKey)
-			_, err = s.clusterCatalogClient.Namespace(clusterID.(string)).Update(context.Background(), catalog, metav1.UpdateOptions{})
-			if err != nil {
-				return nil, err
-			}
-		} else if projectID, ok := data["projectId"]; ok {
+		if projectID, ok := data["projectId"]; ok {
 			_, prj := ref.Parse(projectID.(string))
 			_, id = ref.Parse(id)
 			catalog, err := s.projectCatalogClient.Namespace(prj).Get(context.Background(), id, metav1.GetOptions{})

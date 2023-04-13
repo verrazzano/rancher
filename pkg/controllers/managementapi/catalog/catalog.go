@@ -20,7 +20,6 @@ import (
 type CacheCleaner struct {
 	catalogClient        v3.CatalogInterface
 	projectCatalogClient v3.ProjectCatalogInterface
-	clusterCatalogClient v3.ClusterCatalogInterface
 	debounce             func(func())
 }
 
@@ -28,13 +27,11 @@ func Register(ctx context.Context, context *config.ScaledContext) {
 	cleaner := &CacheCleaner{
 		catalogClient:        context.Management.Catalogs(""),
 		projectCatalogClient: context.Management.ProjectCatalogs(""),
-		clusterCatalogClient: context.Management.ClusterCatalogs(""),
 		debounce:             debounce.New(time.Minute),
 	}
 	go cleaner.runPeriodicCatalogCacheCleaner(ctx, time.Hour)
 
 	context.Management.Catalogs("").Controller().AddHandler(ctx, "catalogCache", cleaner.destroyCatalogSync)
-	context.Management.ClusterCatalogs("").Controller().AddHandler(ctx, "clusterCatalogCache", cleaner.destroyClusterCatalogSync)
 	context.Management.ProjectCatalogs("").Controller().AddHandler(ctx, "projectCatalogCache", cleaner.destroyProjectCatalogSync)
 }
 
@@ -46,11 +43,6 @@ func (c *CacheCleaner) runPeriodicCatalogCacheCleaner(ctx context.Context, inter
 }
 
 func (c *CacheCleaner) destroyCatalogSync(key string, obj *v3.Catalog) (runtime.Object, error) {
-	c.debounce(c.GoCleanupLogError)
-	return nil, nil
-}
-
-func (c *CacheCleaner) destroyClusterCatalogSync(key string, obj *v3.ClusterCatalog) (runtime.Object, error) {
 	c.debounce(c.GoCleanupLogError)
 	return nil, nil
 }
@@ -91,13 +83,6 @@ func (c *CacheCleaner) Cleanup() error {
 	}
 	for _, catalog := range catalogs.Items {
 		catalogHashes[helmlib.CatalogSHA256Hash(&catalog)] = true
-	}
-	clusterCatalogs, err := c.clusterCatalogClient.List(metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-	for _, clusterCatalog := range clusterCatalogs.Items {
-		catalogHashes[helmlib.CatalogSHA256Hash(&clusterCatalog.Catalog)] = true
 	}
 	projectCatalogs, err := c.projectCatalogClient.List(metav1.ListOptions{})
 	if err != nil {

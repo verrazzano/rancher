@@ -54,7 +54,6 @@ type Interface interface {
 	ProjectAlertRulesGetter
 	ComposeConfigsGetter
 	ProjectCatalogsGetter
-	ClusterCatalogsGetter
 	MultiClusterAppsGetter
 	MultiClusterAppRevisionsGetter
 	GlobalDnsesGetter
@@ -700,20 +699,6 @@ func (c *Client) ProjectCatalogs(namespace string) ProjectCatalogInterface {
 	sharedClient := c.clientFactory.ForResourceKind(ProjectCatalogGroupVersionResource, ProjectCatalogGroupVersionKind.Kind, true)
 	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ProjectCatalogResource, ProjectCatalogGroupVersionKind, projectCatalogFactory{})
 	return &projectCatalogClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
-type ClusterCatalogsGetter interface {
-	ClusterCatalogs(namespace string) ClusterCatalogInterface
-}
-
-func (c *Client) ClusterCatalogs(namespace string) ClusterCatalogInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterCatalogGroupVersionResource, ClusterCatalogGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterCatalogResource, ClusterCatalogGroupVersionKind, clusterCatalogFactory{})
-	return &clusterCatalogClient{
 		ns:           namespace,
 		client:       c,
 		objectClient: objectClient,
