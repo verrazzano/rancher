@@ -64,10 +64,10 @@ type machineDriverCompare struct {
 func addMachineDrivers(management *config.ManagementContext) error {
 	if err := addMachineDriver(Amazonec2driver, "local://", "", "",
 		[]string{"iam.amazonaws.com", "iam.us-gov.amazonaws.com", "iam.%.amazonaws.com.cn", "ec2.%.amazonaws.com", "ec2.%.amazonaws.com.cn", "eks.%.amazonaws.com", "eks.%.amazonaws.com.cn", "kms.%.amazonaws.com", "kms.%.amazonaws.com.cn"},
-		true, true, false, management); err != nil {
+		false, true, true, management); err != nil {
 		return err
 	}
-	if err := addMachineDriver(Azuredriver, "local://", "", "", nil, true, true, false, management); err != nil {
+	if err := addMachineDriver(Azuredriver, "local://", "", "", nil, false, true, true, management); err != nil {
 		return err
 	}
 
