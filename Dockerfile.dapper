@@ -1,4 +1,4 @@
-`FROM ghcr.io/oracle/oraclelinux:7-slim
+FROM ghcr.io/oracle/oraclelinux:7-slim
 
 ARG DAPPER_HOST_ARCH
 ARG CATTLE_DASHBOARD_TAR_URL
