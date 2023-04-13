@@ -22,6 +22,7 @@ import (
 	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2/secret"
 	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2/unmanaged"
 	"github.com/rancher/rancher/pkg/features"
+	"github.com/rancher/rancher/pkg/provisioningv2/kubeconfig"
 	planner2 "github.com/rancher/rancher/pkg/provisioningv2/rke2/planner"
 	"github.com/rancher/rancher/pkg/wrangler"
 )
