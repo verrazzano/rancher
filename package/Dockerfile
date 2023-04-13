@@ -141,7 +141,7 @@ COPY kustomize.sh /usr/bin/
 COPY jailer.sh /usr/bin/
 RUN mkdir /license
 COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
-RUN chmod +x /usr/bin/entrypoint.sh \
+RUN chmod +x /usr/bin/entrypoint.sh && \
     chmod +x /usr/bin/kustomize.sh
 
 COPY data.json /var/lib/rancher-data/driver-metadata/
