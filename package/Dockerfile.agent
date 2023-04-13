@@ -26,16 +26,15 @@ RUN yum update -y && \
     git version
 
 # Update PATH to make sure git 2.27 is on the path
-ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
-
-ENV LOGLEVEL_VERSION v0.1.5
+ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}" \
+    LOGLEVEL_VERSION=v0.1.5
 
 RUN curl -sLf https://github.com/rancher/loglevel/releases/download/${LOGLEVEL_VERSION}/loglevel-${ARCH}-${LOGLEVEL_VERSION}.tar.gz | tar xvzf - -C /usr/bin
 
 ARG VERSION=dev
 LABEL io.cattle.agent true
-ENV AGENT_IMAGE rancher/rancher-agent:${VERSION}
-ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
+ENV AGENT_IMAGE rancher/rancher-agent:${VERSION} \
+    SSL_CERT_DIR /etc/kubernetes/ssl/certs
 
 # Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
 RUN cat /etc/profile.d/git.sh >> /etc/profile
