@@ -23,6 +23,9 @@ if [ ! -e /run/secrets/kubernetes.io/serviceaccount ] && [ -f /sys/fs/cgroup/cgr
   sed -e 's/ / +/g' -e 's/^/+/' <"/sys/fs/cgroup/cgroup.controllers" >"/sys/fs/cgroup/cgroup.subtree_control"
 fi
 
+# Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
+source /etc/profile.d/git.sh
+
 rm -f /var/lib/rancher/k3s/server/cred/node-passwd
 if [ -e /var/lib/rancher/management-state/etcd ] && [ ! -e /var/lib/rancher/k3s/server/db/etcd ]; then
   mkdir -p /var/lib/rancher/k3s/server/db
