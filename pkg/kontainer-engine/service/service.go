@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net"
 	"os"
 	"os/exec"
+	"path"
 	"reflect"
 	"strconv"
 	"strings"
@@ -47,10 +49,50 @@ var (
 	}
 )
 
+const kubeconfigFMT = `apiVersion: v1
+kind: Config
+clusters:
+- name: default-cluster
+  cluster:
+    certificate-authority-data: %s
+    server: %s
+contexts:
+- name: default-context
+  context:
+    cluster: default-cluster
+    namespace: cattle-system
+    user: default-user
+current-context: default-context
+users:
+- name: default-user
+  user:
+    token: %s`
+
 type controllerConfigGetter struct {
 	driverName  string
 	clusterSpec v3.ClusterSpec
 	clusterName string
+}
+
+func getKubeConfig() ([]byte, error) {
+	loadSAData := func(name string) ([]byte, error) {
+		saPath := "/var/run/secrets/kubernetes.io/serviceaccount/"
+		p := path.Join(saPath, name)
+		return os.ReadFile(p)
+	}
+
+	tok, err := loadSAData("token")
+	if err != nil {
+		return nil, err
+	}
+	ca, err := loadSAData("ca.crt")
+	if err != nil {
+		return nil, err
+	}
+	caString := base64.StdEncoding.EncodeToString(ca)
+	serverURL := fmt.Sprintf("https://%s:%s", os.Getenv("KUBERNETES_SERVICE_HOST"), os.Getenv("KUBERNETES_SERVICE_PORT"))
+
+	return []byte(fmt.Sprintf(kubeconfigFMT, caString, serverURL, string(tok))), nil
 }
 
 func (c controllerConfigGetter) GetConfig() (types.DriverOptions, error) {
@@ -445,12 +487,17 @@ func (r *RunningDriver) Start() (string, error) {
 		if err != nil {
 			return "", errors.WithMessage(err, "failed to setup jail command")
 		}
+		kubeconfig, err := getKubeConfig()
+		if err != nil {
+			return "", fmt.Errorf("error creating kubeconfig: %v", err)
+		}
+		cmd.Env = append(cmd.Env, fmt.Sprintf("INJECTED_KUBECONFIG=%s", base64.StdEncoding.EncodeToString(kubeconfig)))
 
 		// redirect output to console
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
-		err := cmd.Start()
+		err = cmd.Start()
 		if err != nil {
 			return "", fmt.Errorf("error starting driver: %v", err)
 		}

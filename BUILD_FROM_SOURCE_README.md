@@ -6,9 +6,9 @@ The Rancher Dockerfile used to build the Rancher image uses `git clone` to embed
 
 To fix this problem, we have modified the [Dockerfile](package/Dockerfile#L95-L102) to checkout specific commits in the system chart repositories. When building a new version of Rancher from source, you must determine the commit ids that are used in the upstream Rancher image and set them in the [Dockerfile](package/Dockerfile#L80-L82). The easiest way to determine the commit ids is to run the upstream Rancher image interactively and use `git`
 
-For example, to find the relevant chart git commits for v2.7:
+For example, to find the relevant chart git commits for v2.7.2:
 ```
-$ docker run --privileged -it --entrypoint=bash rancher/rancher:v2.7
+$ docker run --privileged -it --entrypoint=bash rancher/rancher:v2.7.2
 
 b30c6a40e26c:/var/lib/rancher # git -C /var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721 rev-parse HEAD
 176424fce4f19ab8b01141dcec2d4453f075aad2
@@ -22,7 +22,7 @@ de3522e27b72f7a99077fa0584f0902861da0453
 
 ## Build Instructions
 
-The upstream tag this release is branched from is `v2.7`
+The upstream tag this release is branched from is `v2.7.2`
 
 ### Create Environment Variables
 
