@@ -32,7 +32,7 @@ RUN yum update -y && \
 
 ENV KUSTOMIZE_VERSION v4.5.5
 ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz \
-    CATTLE_MACHINE_VERSION=v0.15.0-rancher951
+    CATTLE_MACHINE_VERSION=v0.15.0-rancher95
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     chmod +x /usr/bin/kustomize
