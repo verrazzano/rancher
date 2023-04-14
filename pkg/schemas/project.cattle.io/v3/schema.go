@@ -46,7 +46,6 @@ var (
 		Init(cronJobTypes).
 		Init(podTemplateSpecTypes).
 		Init(workloadTypes).
-		Init(appTypes).
 		Init(monitoringTypes).
 		Init(autoscalingTypes)
 )
@@ -803,24 +802,6 @@ func volumeTypes(schemas *types.Schemas) *types.Schemas {
 				return field
 			})
 		}, projectOverride{})
-}
-
-func appTypes(schema *types.Schemas) *types.Schemas {
-	return schema.
-		AddMapperForType(&Version, v3.App{}, &m.Embed{Field: "status"}).
-		MustImport(&Version, v3.AppUpgradeConfig{}).
-		MustImport(&Version, v3.RollbackRevision{}).
-		MustImportAndCustomize(&Version, v3.App{}, func(schema *types.Schema) {
-			schema.ResourceActions = map[string]types.Action{
-				"upgrade": {
-					Input: "appUpgradeConfig",
-				},
-				"rollback": {
-					Input: "rollbackRevision",
-				},
-			}
-		}).
-		MustImport(&Version, v3.AppRevision{})
 }
 
 func podTemplateSpecTypes(schemas *types.Schemas) *types.Schemas {

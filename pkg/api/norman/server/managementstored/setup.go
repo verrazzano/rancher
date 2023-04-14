@@ -145,11 +145,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.RancherUserNotificationType,
 	)
 
-	factory.BatchCreateCRDs(ctx, config.ManagementStorageContext, scheme.Scheme, schemas, &projectschema.Version,
-		projectclient.AppType,
-		projectclient.AppRevisionType,
-	)
-
 	if err := factory.BatchWait(); err != nil {
 		return err
 	}
