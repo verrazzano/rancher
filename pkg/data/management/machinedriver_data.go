@@ -155,7 +155,6 @@ func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 		}
 
 		resourceFields[name] = field
-		logrus.Infof("+++ Resource field for cloud %v = %v", name, field)
 	}
 	dynamicSchema := &v3.DynamicSchema{
 		Spec: v32.DynamicSchemaSpec{
