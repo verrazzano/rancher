@@ -139,7 +139,9 @@ func (h *handler) getChartsToInstall() []*chart.Definition {
 				}
 				return values
 			},
-			Enabled: func() bool { return true },
+			Enabled: func() bool {
+				return features.MCM.Enabled() || features.EmbeddedClusterAPI.Enabled()
+			},
 		},
 		{
 			ReleaseNamespace: "rancher-operator-system",
