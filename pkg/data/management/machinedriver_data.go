@@ -2,7 +2,6 @@ package management
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	errs "github.com/pkg/errors"
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/data/management/utils"
@@ -124,7 +123,6 @@ func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 	if err != nil {
 		return err
 	}
-	spew.Dump(flags)
 	credFields := map[string]v32.Field{}
 	resourceFields := map[string]v32.Field{}
 
@@ -132,8 +130,6 @@ func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 	for _, flag := range flags {
 
 		name, field, err := utils.FlagToField(flag)
-		logrus.Infof(" +++ Flag name = %v +++", name)
-		spew.Dump(field)
 		if err != nil {
 			return err
 		}
