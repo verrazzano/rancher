@@ -752,23 +752,10 @@ func projectNetworkPolicyTypes(schema *types.Schemas) *types.Schemas {
 
 func logTypes(schema *types.Schemas) *types.Schemas {
 	return schema.
-		AddMapperForType(&Version, v3.ClusterLogging{},
-			&m.Embed{Field: "status"},
-			m.DisplayName{}).
 		AddMapperForType(&Version, v3.ProjectLogging{},
 			m.DisplayName{}).
 		MustImport(&Version, v3.ClusterTestInput{}).
 		MustImport(&Version, v3.ProjectTestInput{}).
-		MustImportAndCustomize(&Version, v3.ClusterLogging{}, func(schema *types.Schema) {
-			schema.CollectionActions = map[string]types.Action{
-				"test": {
-					Input: "clusterTestInput",
-				},
-				"dryRun": {
-					Input: "clusterTestInput",
-				},
-			}
-		}).
 		MustImportAndCustomize(&Version, v3.ProjectLogging{}, func(schema *types.Schema) {
 			schema.CollectionActions = map[string]types.Action{
 				"test": {

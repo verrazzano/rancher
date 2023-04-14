@@ -45,7 +45,6 @@ var (
 	ClusterAlertGroupResourceName                       = "clusteralertgroups"
 	ClusterAlertRuleResourceName                        = "clusteralertrules"
 	ClusterCatalogResourceName                          = "clustercatalogs"
-	ClusterLoggingResourceName                          = "clusterloggings"
 	ClusterMonitorGraphResourceName                     = "clustermonitorgraphs"
 	ClusterRegistrationTokenResourceName                = "clusterregistrationtokens"
 	ClusterRoleTemplateBindingResourceName              = "clusterroletemplatebindings"
@@ -163,8 +162,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ClusterAlertRuleList{},
 		&ClusterCatalog{},
 		&ClusterCatalogList{},
-		&ClusterLogging{},
-		&ClusterLoggingList{},
 		&ClusterMonitorGraph{},
 		&ClusterMonitorGraphList{},
 		&ClusterRegistrationToken{},

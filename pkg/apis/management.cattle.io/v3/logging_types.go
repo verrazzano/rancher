@@ -12,28 +12,6 @@ import (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type ClusterLogging struct {
-	types.Namespaced
-
-	metav1.TypeMeta `json:",inline"`
-	// Standard object’s metadata. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#metadata
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// Specification of the desired behavior of the the cluster. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#spec-and-status
-	Spec ClusterLoggingSpec `json:"spec"`
-	// Most recent observed status of the cluster. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#spec-and-status
-	Status ClusterLoggingStatus `json:"status"`
-}
-
-func (c *ClusterLogging) ObjClusterName() string {
-	return c.Spec.ObjClusterName()
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 type ProjectLogging struct {
 	types.Namespaced
 
@@ -69,17 +47,6 @@ type LoggingTargets struct {
 	CustomTargetConfig    *CustomTargetConfig    `json:"customTargetConfig,omitempty"`
 }
 
-type ClusterLoggingSpec struct {
-	LoggingTargets
-	LoggingCommonField
-	ClusterName            string `json:"clusterName" norman:"type=reference[cluster]"`
-	IncludeSystemComponent *bool  `json:"includeSystemComponent,omitempty" norman:"default=true"`
-}
-
-func (c *ClusterLoggingSpec) ObjClusterName() string {
-	return c.ClusterName
-}
-
 type ProjectLoggingSpec struct {
 	LoggingTargets
 	LoggingCommonField
@@ -91,12 +58,6 @@ func (p *ProjectLoggingSpec) ObjClusterName() string {
 		return parts[0]
 	}
 	return ""
-}
-
-type ClusterLoggingStatus struct {
-	Conditions  []LoggingCondition  `json:"conditions,omitempty"`
-	AppliedSpec ClusterLoggingSpec  `json:"appliedSpec,omitempty"`
-	FailedSpec  *ClusterLoggingSpec `json:"failedSpec,omitempty"`
 }
 
 type ProjectLoggingStatus struct {
