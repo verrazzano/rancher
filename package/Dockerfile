@@ -78,8 +78,8 @@ ENV RANCHER_RKE2_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-rke2
 
 # System chart commits
 ENV RANCHER_CHARTS_COMMIT=44e96408636e91cfbc88d3a30e5706b96021b390
-ENV RANCHER_PARTNER_CHARTS_COMMIT=d3ad2ded37158ac75e44db651fc5ad223e3587d6
-ENV RANCHER_RKE2_CHARTS_COMMIT=de3522e27b72f7a99077fa0584f0902861da0453
+ENV RANCHER_PARTNER_CHARTS_COMMIT=8c3df241d265ae75d1b7150f2e864171d6dc844f
+ENV RANCHER_RKE2_CHARTS_COMMIT=479c43307869f1969b16d760a1c8f9c38dd7fc1a
 
 RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
