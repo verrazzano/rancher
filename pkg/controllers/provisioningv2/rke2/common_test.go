@@ -1,6 +1,7 @@
 package rke2
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -109,7 +110,7 @@ func TestFindOwnerCAPICluster(t *testing.T) {
 		{
 			name:        "no owner",
 			expected:    nil,
-			expectedErr: errors.New("RKECluster testnamespace/testcluster does not have a controller owner reference"),
+			expectedErr: ErrNoMatchingControllerOwnerRef,
 			obj: &rkev1.RKECluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind: "RKECluster",
@@ -123,7 +124,7 @@ func TestFindOwnerCAPICluster(t *testing.T) {
 		{
 			name:        "no controller",
 			expected:    nil,
-			expectedErr: errors.New("RKECluster testnamespace/testcluster does not have a controller owner reference"),
+			expectedErr: ErrNoMatchingControllerOwnerRef,
 			obj: &rkev1.RKECluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind: "RKECluster",
@@ -142,7 +143,7 @@ func TestFindOwnerCAPICluster(t *testing.T) {
 		{
 			name:        "owner wrong kind",
 			expected:    nil,
-			expectedErr: errors.New("RKECluster testnamespace/testcluster has wrong owner kind nil"),
+			expectedErr: ErrNoMatchingControllerOwnerRef,
 			obj: &rkev1.RKECluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind: "RKECluster",
@@ -163,7 +164,7 @@ func TestFindOwnerCAPICluster(t *testing.T) {
 		{
 			name:        "owner wrong api version",
 			expected:    nil,
-			expectedErr: errors.New("RKECluster testnamespace/testcluster has wrong owner api version nil"),
+			expectedErr: ErrNoMatchingControllerOwnerRef,
 			obj: &rkev1.RKECluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind: "RKECluster",
@@ -215,6 +216,110 @@ func TestFindOwnerCAPICluster(t *testing.T) {
 				assert.Fail(t, "expected err to be nil, was actually %s", err)
 			}
 			assert.Equal(t, tt.expected, cluster)
+		})
+	}
+}
+
+func TestSafeConcatName(t *testing.T) {
+
+	testcase := []struct {
+		name           string
+		input          []string
+		expectedOutput string
+		maxLength      int
+	}{
+		{
+			name:           "max k8s name shortening",
+			input:          []string{"very", "long", "name", "to", "test", "shortening", "behavior", "this", "should", "exceed", "max", "k8s", "name", "length"},
+			expectedOutput: "very-long-name-to-test-shortening-behavior-this-should-ex-e8118",
+			maxLength:      63,
+		},
+		{
+			name:           "max helm release name shortening",
+			maxLength:      53,
+			input:          []string{"long", "cluster", "name", "testing", "managed", "system-upgrade", "controller", "fleet", "agent"},
+			expectedOutput: "long-cluster-name-testing-managed-system-upgrad-0beef",
+		},
+		{
+			name:           "max length smaller than hash size should concat and shorten but not hash",
+			maxLength:      3,
+			input:          []string{"this", "will", "not", "be", "hashed"},
+			expectedOutput: "thi",
+		},
+		{
+			name:           "concat but not shorten",
+			maxLength:      90,
+			input:          []string{"simple", "concat", "no", "hash", "needed"},
+			expectedOutput: "simple-concat-no-hash-needed",
+		},
+		{
+			name:           "no max length, no output",
+			maxLength:      0,
+			input:          []string{"input"},
+			expectedOutput: "",
+		},
+		{
+			name:           "input equal to hash length should return hash without leading '-'",
+			maxLength:      6,
+			input:          []string{"input", "s"},
+			expectedOutput: "deab5",
+		},
+		{
+			name:           "avoid special characters",
+			maxLength:      8,
+			input:          []string{"a", "&", "b", "=", "c"},
+			expectedOutput: "a-359087",
+		},
+	}
+
+	for _, tc := range testcase {
+		t.Run(tc.name, func(t *testing.T) {
+			out := SafeConcatName(tc.maxLength, tc.input...)
+			if len(out) > tc.maxLength || out != tc.expectedOutput {
+				t.Fail()
+				t.Logf("expected output %s with length of %d, got %s with length of %d", tc.expectedOutput, len(tc.expectedOutput), out, len(out))
+			}
+			t.Log(out)
+		})
+	}
+}
+
+func TestCompressInterface(t *testing.T) {
+	tests := []struct {
+		name  string
+		value any
+	}{
+		{
+			name:  "int",
+			value: &[]int{1}[0],
+		},
+		{
+			name:  "string",
+			value: &[]string{"test"}[0],
+		},
+		{
+			name: "struct",
+			value: &struct {
+				TestInt    int
+				TestString string
+			}{
+				TestInt:    1,
+				TestString: "test",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := CompressInterface(tt.value)
+			assert.Nil(t, err)
+			assert.True(t, result != "")
+
+			target := reflect.New(reflect.ValueOf(tt.value).Elem().Type()).Interface()
+
+			err = DecompressInterface(result, target)
+			assert.Nil(t, err)
+			assert.Equal(t, tt.value, target)
 		})
 	}
 }

@@ -12,6 +12,7 @@ import (
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	apisV1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
 	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
+	kubeProvisioning "github.com/rancher/rancher/tests/framework/clients/provisioning"
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
 	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
 	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
@@ -72,6 +73,7 @@ func IsProvisioningClusterReady(event watch.Event) (ready bool, err error) {
 	for _, condition := range cluster.Status.Conditions {
 		if condition.Type == "Updated" && condition.Status == corev1.ConditionTrue {
 			updated = true
+			logrus.Infof("Cluster status is active!")
 		}
 	}
 
@@ -89,6 +91,7 @@ func IsHostedProvisioningClusterReady(event watch.Event) (ready bool, err error)
 	}
 	for _, cond := range cluster.Status.Conditions {
 		if cond.Type == "Ready" && cond.Status == "True" {
+			logrus.Infof("Cluster status is active!")
 			return true, nil
 		}
 	}
@@ -271,11 +274,6 @@ func HardenK3SRKE2ClusterConfig(clusterName, namespace, cni, cloudCredentialSecr
 // CreateRKE1Cluster is a "helper" functions that takes a rancher client, and the rke1 cluster config as parameters. This function
 // registers a delete cluster fuction with a wait.WatchWait to ensure the cluster is removed cleanly.
 func CreateRKE1Cluster(client *rancher.Client, rke1Cluster *management.Cluster) (*management.Cluster, error) {
-	opts := metav1.ListOptions{
-		FieldSelector:  "metadata.name=",
-		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-	}
-
 	cluster, err := client.Management.Cluster.Create(rke1Cluster)
 	if err != nil {
 		return nil, err
@@ -287,18 +285,30 @@ func CreateRKE1Cluster(client *rancher.Client, rke1Cluster *management.Cluster) 
 	}
 
 	client.Session.RegisterCleanupFunc(func() error {
-		err := client.Management.Cluster.Delete(rke1Cluster)
-		if err != nil {
-			return err
-		}
-
 		adminClient, err := rancher.NewClient(client.RancherConfig.AdminToken, client.Session)
 		if err != nil {
 			return err
 		}
 
-		watchInterface, err := adminClient.GetManagementWatchInterface(management.ClusterType, opts)
+		clusterResp, err := client.Management.Cluster.ByID(cluster.ID)
+		if err != nil {
+			return err
+		}
 
+		client, err = client.ReLogin()
+		if err != nil {
+			return err
+		}
+
+		err = client.Management.Cluster.Delete(clusterResp)
+		if err != nil {
+			return err
+		}
+
+		watchInterface, err := adminClient.GetManagementWatchInterface(management.ClusterType, metav1.ListOptions{
+			FieldSelector:  "metadata.name=" + clusterResp.ID,
+			TimeoutSeconds: &defaults.WatchTimeoutSeconds,
+		})
 		if err != nil {
 			return err
 		}
@@ -520,4 +530,29 @@ func logClusterInfoWithChanges(clusterID, clusterInfo string, summary summary.Su
 	}
 
 	return clusterInfo
+}
+
+func WatchAndWaitForCluster(steveClient *v1.Client, kubeProvisioningClient *kubeProvisioning.Client, ns string, clusterName string) error {
+	err := kwait.Poll(5*time.Second, 2*time.Minute, func() (done bool, err error) {
+		clusterResp, err := steveClient.SteveType(ProvisioningSteveResouceType).ByID(ns + "/" + clusterName)
+		if err != nil {
+			return false, err
+		}
+		state := clusterResp.ObjectMeta.State.Name
+		return state != "active", nil
+	})
+	if err != nil {
+		return err
+	}
+	logrus.Infof("waiting for cluster to be up.............")
+	result, err := kubeProvisioningClient.Clusters(ns).Watch(context.TODO(), metav1.ListOptions{
+		FieldSelector:  "metadata.name=" + clusterName,
+		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
+	})
+	if err != nil {
+		return err
+	}
+
+	err = wait.WatchWait(result, IsProvisioningClusterReady)
+	return err
 }

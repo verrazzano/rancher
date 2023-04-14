@@ -7,7 +7,7 @@ platform:
   arch: amd64
 
 steps:
-- name: provisioning-tests
+- name: provisioning-tests-pr
   image: rancher/dapper:v0.5.8
   commands:
   - dapper provisioning-tests
@@ -17,8 +17,25 @@ steps:
     path: /var/run/docker.sock
   when:
     event:
-    - push
     - pull_request
+- name: provisioning-tests-push
+  image: rancher/dapper:v0.5.8
+  commands:
+  - dapper provisioning-tests
+  privileged: true
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
+  when:
+    instance:
+      - drone-publish.rancher.io
+    ref:
+      include:
+        - "refs/heads/master"
+        - "refs/heads/release/v*"
+        - "refs/tags/v*"
+    event:
+    - push
 
 volumes:
 - name: docker
@@ -38,7 +55,7 @@ platform:
   arch: amd64
 
 steps:
-- name: provisioning-tests
+- name: provisioning-tests-pr
   image: rancher/dapper:v0.5.8
   commands:
   - dapper provisioning-tests-rke
@@ -48,8 +65,25 @@ steps:
     path: /var/run/docker.sock
   when:
     event:
-    - push
     - pull_request
+- name: provisioning-tests-push
+  image: rancher/dapper:v0.5.8
+  commands:
+  - dapper provisioning-tests-rke
+  privileged: true
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
+  when:
+    instance:
+      - drone-publish.rancher.io
+    ref:
+      include:
+        - "refs/heads/master"
+        - "refs/heads/release/v*"
+        - "refs/tags/v*"
+    event:
+    - push
 
 volumes:
 - name: docker
@@ -795,6 +829,11 @@ platform:
   arch: amd64
   version: 1809
 
+# Currently have to define "depth" as otherwise clone fails at
+# https://github.com/drone/drone-git/blob/39d233b3d9eccc68e66508a06a725a2567f33143/windows/clone-tag.ps1#L12
+clone:
+  depth: 20
+
 steps:
   - name: build-pr
     pull: always
@@ -915,15 +954,12 @@ platform:
   arch: amd64
   version: 2022
 
-# remove this and use upstream images when https://github.com/drone/drone-git/pull/25 is merged
+# Currently have to define "depth" as otherwise clone fails at
+# https://github.com/drone/drone-git/blob/39d233b3d9eccc68e66508a06a725a2567f33143/windows/clone-tag.ps1#L12
 clone:
-  disable: true
+  depth: 20
 
 steps:
-  - name: clone
-    image: rancher/drone-images:git-amd64-ltsc2022
-    settings:
-      depth: 20
   - name: build-pr
     pull: always
     image: rancher/dapper:v0.5.8
@@ -1370,6 +1406,11 @@ platform:
   arch: amd64
   version: 1809
 
+# Currently have to define "depth" as otherwise clone fails at
+# https://github.com/drone/drone-git/blob/39d233b3d9eccc68e66508a06a725a2567f33143/windows/clone-tag.ps1#L12
+clone:
+  depth: 20
+
 steps:
 - name: docker-image-digests
   image: rancher/drone-docker-image-digests:v0.0.12
@@ -1415,16 +1456,12 @@ platform:
   arch: amd64
   version: 2022
 
-# remove this and use upstream images when https://github.com/drone/drone-git/pull/25 is merged
+# Currently have to define "depth" as otherwise clone fails at
+# https://github.com/drone/drone-git/blob/39d233b3d9eccc68e66508a06a725a2567f33143/windows/clone-tag.ps1#L12
 clone:
-  disable: true
+  depth: 20
 
 steps:
-- name: clone
-  image: rancher/drone-images:git-amd64-ltsc2022
-  settings:
-    depth: 1
-
 - name: docker-image-digests
   image: rancher/drone-docker-image-digests:v0.0.12
   environment:

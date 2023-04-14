@@ -70,7 +70,7 @@ type handler struct {
 
 func Register(
 	ctx context.Context,
-	clients *wrangler.Context) {
+	clients *wrangler.Context, kubeconfigManager *kubeconfig.Manager) {
 	h := handler{
 		mgmtClusterCache:      clients.Mgmt.Cluster().Cache(),
 		mgmtClusters:          clients.Mgmt.Cluster(),
@@ -86,7 +86,7 @@ func Register(
 		capiClustersCache:     clients.CAPI.Cluster().Cache(),
 		capiClusters:          clients.CAPI.Cluster(),
 		capiMachinesCache:     clients.CAPI.Machine().Cache(),
-		kubeconfigManager:     kubeconfig.New(clients),
+		kubeconfigManager:     kubeconfigManager,
 		apply: clients.Apply.WithCacheTypes(
 			clients.Provisioning.Cluster(),
 			clients.Mgmt.Cluster()),
@@ -283,6 +283,7 @@ func (h *handler) createNewCluster(cluster *v1.Cluster, status v1.ClusterStatus,
 	spec.Description = cluster.Annotations["field.cattle.io/description"]
 	spec.FleetWorkspaceName = cluster.Namespace
 	spec.DefaultPodSecurityPolicyTemplateName = cluster.Spec.DefaultPodSecurityPolicyTemplateName
+	spec.DefaultPodSecurityAdmissionConfigurationTemplateName = cluster.Spec.DefaultPodSecurityAdmissionConfigurationTemplateName
 	spec.DefaultClusterRoleForProjectMembers = cluster.Spec.DefaultClusterRoleForProjectMembers
 	spec.EnableNetworkPolicy = cluster.Spec.EnableNetworkPolicy
 	spec.DesiredAgentImage = image.ResolveWithCluster(settings.AgentImage.Get(), cluster)

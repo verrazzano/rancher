@@ -25,44 +25,28 @@ var (
 	InjectDefaults string
 
 	systemNamespaces = []string{
-		"kube-node-lease",
-		"kube-public",
 		"kube-system",
-		"cattle-alerting",
-		"cattle-csp-adapter-system",
-		"cattle-epinio-system",
-		"cattle-externalip-system",
-		"cattle-fleet-local-system",
-		"cattle-fleet-system",
-		"cattle-gatekeeper-system",
-		"cattle-global-data",
-		"cattle-global-nt",
-		"cattle-helm-system",
-		"cattle-impersonation-system",
-		"cattle-istio",
-		"cattle-logging",
-		"cattle-logging-system",
-		"cattle-monitoring-system",
-		"cattle-neuvector-system",
-		"cattle-prometheus",
-		"cattle-resources-system",
-		"cattle-sriov-system",
+		"kube-public",
 		"cattle-system",
-		"cattle-ui-plugin-system",
-		"cattle-windows-gmsa-system",
-		"cattle-wins-system",
-		"rancher-operator-system",
-		"calico-apiserver",
-		"calico-system",
-		"cert-manager",
-		"cis-operator-system",
-		"fleet-system",
+		"cattle-alerting",
+		"cattle-logging",
+		"cattle-prometheus",
 		"ingress-nginx",
-		"istio-system",
-		"longhorn-system",
-		"rio-system",
+		"cattle-global-data",
+		"cattle-istio",
+		"kube-node-lease",
+		"cert-manager",
+		"cattle-global-nt",
 		"security-scan",
+		"cattle-fleet-system",
+		"cattle-fleet-local-system",
+		"calico-system",
 		"tigera-operator",
+		"cattle-impersonation-system",
+		"rancher-operator-system",
+		"cattle-csp-adapter-system",
+		"calico-apiserver",
+		"cattle-elemental-system",
 	}
 
 	AgentImage                          = NewSetting("agent-image", "rancher/rancher-agent:v2.7-head")
@@ -97,7 +81,7 @@ var (
 	KubernetesVersionToSystemImages     = NewSetting("k8s-version-to-images", "")
 	KubernetesVersionsCurrent           = NewSetting("k8s-versions-current", "")
 	KubernetesVersionsDeprecated        = NewSetting("k8s-versions-deprecated", "")
-	KDMBranch                           = NewSetting("kdm-branch", "dev-v2.7")
+	KDMBranch                           = NewSetting("kdm-branch", "release-v2.7")
 	MachineVersion                      = NewSetting("machine-version", "dev")
 	Namespace                           = NewSetting("namespace", os.Getenv("CATTLE_NAMESPACE"))
 	PasswordMinLength                   = NewSetting("password-min-length", "12")
@@ -112,7 +96,7 @@ var (
 	WinsAgentVersion                    = NewSetting("wins-agent-version", "")
 	CSIProxyAgentVersion                = NewSetting("csi-proxy-agent-version", "")
 	CSIProxyAgentURL                    = NewSetting("csi-proxy-agent-url", "https://acs-mirror.azureedge.net/csi-proxy/%[1]s/binaries/csi-proxy-%[1]s.tar.gz")
-	SystemAgentInstallScript            = NewSetting("system-agent-install-script", "https://raw.githubusercontent.com/rancher/system-agent/v0.2.13/install.sh")
+	SystemAgentInstallScript            = NewSetting("system-agent-install-script", "https://raw.githubusercontent.com/rancher/system-agent/v0.3.2/install.sh")
 	WinsAgentInstallScript              = NewSetting("wins-agent-install-script", "https://raw.githubusercontent.com/rancher/wins/v0.4.11/install.ps1")
 	SystemAgentInstallerImage           = NewSetting("system-agent-installer-image", "rancher/system-agent-installer-")
 	SystemAgentUpgradeImage             = NewSetting("system-agent-upgrade-image", "")
@@ -130,11 +114,11 @@ var (
 	ClusterTemplateEnforcement          = NewSetting("cluster-template-enforcement", "false")
 	InitialDockerRootDir                = NewSetting("initial-docker-root-dir", "/var/lib/docker")
 	SystemCatalog                       = NewSetting("system-catalog", "external") // Options are 'external' or 'bundled'
-	ChartDefaultBranch                  = NewSetting("chart-default-branch", "dev-v2.7")
+	ChartDefaultBranch                  = NewSetting("chart-default-branch", "release-v2.7")
 	PartnerChartDefaultBranch           = NewSetting("partner-chart-default-branch", "main")
 	RKE2ChartDefaultBranch              = NewSetting("rke2-chart-default-branch", "main")
 	FleetDefaultWorkspaceName           = NewSetting("fleet-default-workspace-name", fleetconst.ClustersDefaultNamespace) // fleetWorkspaceName to assign to clusters with none
-	ShellImage                          = NewSetting("shell-image", "rancher/shell:v0.1.19-rc7")
+	ShellImage                          = NewSetting("shell-image", "rancher/shell:v0.1.19")
 	IgnoreNodeName                      = NewSetting("ignore-node-name", "") // nodes to ignore when syncing v1.node to v3.node
 	NoDefaultAdmin                      = NewSetting("no-default-admin", "")
 	RestrictedDefaultAdmin              = NewSetting("restricted-default-admin", "false") // When bootstrapping the admin for the first time, give them the global role restricted-admin
@@ -208,7 +192,7 @@ var (
 	UIDashboardPath = NewSetting("ui-dashboard-path", "/usr/share/rancher/ui-dashboard")
 
 	// UIDashboardIndex depends on ui-offline-preferred, use this version of the dashboard instead of the one contained in Rancher Manager.
-	UIDashboardIndex = NewSetting("ui-dashboard-index", "https://releases.rancher.com/dashboard/latest/index.html")
+	UIDashboardIndex = NewSetting("ui-dashboard-index", "https://releases.rancher.com/dashboard/release-2.7.2/index.html")
 
 	// UIDashboardHarvesterLegacyPlugin depending on ui-offline-preferred and if a Harvester Cluster does not contain it's own Harvester plugin, use this version of the plugin instead.
 	UIDashboardHarvesterLegacyPlugin = NewSetting("ui-dashboard-harvester-legacy-plugin", "https://releases.rancher.com/harvester-ui/plugin/harvester-1.0.3-head/harvester-1.0.3-head.umd.min.js")
@@ -223,7 +207,7 @@ var (
 	UIFeedBackForm = NewSetting("ui-feedback-form", "")
 
 	// UIIndex depends on ui-offline-preferred, use this version of the old ember UI instead of the one contained in Rancher Manager.
-	UIIndex = NewSetting("ui-index", "https://releases.rancher.com/ui/latest2/index.html")
+	UIIndex = NewSetting("ui-index", "https://releases.rancher.com/ui/release-2.7.2/index.html")
 
 	// UIIssues use a url address to send new 'File an Issue' reports instead of sending users to the Github issues page.
 	// Deprecated in favour of UICustomLinks = NewSetting("ui-custom-links", {}).

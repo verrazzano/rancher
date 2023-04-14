@@ -2,27 +2,30 @@ package rke2
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
-	"github.com/rancher/norman/types"
 	apisV1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
 	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
+	steveV1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters"
 	"github.com/rancher/rancher/tests/framework/extensions/machinepools"
 	"github.com/rancher/rancher/tests/framework/extensions/workloads"
+	"github.com/rancher/rancher/tests/framework/extensions/workloads/pods"
 	"github.com/sirupsen/logrus"
 	appv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	kwait "k8s.io/apimachinery/pkg/util/wait"
 )
 
 const (
+	defaultNamespace             = "default"
 	localClusterName             = "local"
 	wloadBeforeRestore           = "wload-before-restore"
 	ingressName                  = "ingress"
 	wloadServiceName             = "wload-service"
-	wloadAfterRestore            = "wload-after-restore"
+	wloadAfterBackup             = "wload-after-backup"
 	ProvisioningSteveResouceType = "provisioning.cattle.io.cluster"
 )
 
@@ -67,13 +70,13 @@ func restoreSnapshot(client *rancher.Client, clustername string, name string,
 }
 
 func getSnapshots(client *rancher.Client,
-	localClusterID string) ([]v1.SteveAPIObject, error) {
+	localClusterID string) ([]steveV1.SteveAPIObject, error) {
 
 	steveclient, err := client.Steve.ProxyDownstream(localClusterID)
 	if err != nil {
 		return nil, err
 	}
-	snapshotSteveObjList, err := steveclient.SteveType("rke.cattle.io.etcdsnapshot").List(&types.ListOpts{})
+	snapshotSteveObjList, err := steveclient.SteveType("rke.cattle.io.etcdsnapshot").List(nil)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +85,7 @@ func getSnapshots(client *rancher.Client,
 
 }
 
-func createRKE2NodeDriverCluster(client *rancher.Client, provider *Provider, clusterName string, k8sVersion string, namespace string, cni string) (*v1.SteveAPIObject, error) {
+func createRKE2NodeDriverCluster(client *rancher.Client, provider *Provider, clusterName string, k8sVersion string, namespace string, cni string) (*steveV1.SteveAPIObject, error) {
 
 	nodeRoles := []machinepools.NodeRoles{
 		{
@@ -125,14 +128,14 @@ func createRKE2NodeDriverCluster(client *rancher.Client, provider *Provider, clu
 
 }
 
-func getProvisioningClusterByName(client *rancher.Client, clusterName string, namespace string) (*apisV1.Cluster, *v1.SteveAPIObject, error) {
+func getProvisioningClusterByName(client *rancher.Client, clusterName string, namespace string) (*apisV1.Cluster, *steveV1.SteveAPIObject, error) {
 	clusterObj, err := client.Steve.SteveType(ProvisioningSteveResouceType).ByID(namespace + "/" + clusterName)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	cluster := new(apisV1.Cluster)
-	err = v1.ConvertToK8sType(clusterObj, &cluster)
+	err = steveV1.ConvertToK8sType(clusterObj, &cluster)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -156,7 +159,7 @@ func upgradeClusterK8sVersion(client *rancher.Client, clustername string, k8sUpg
 	return nil
 }
 
-func createDeployment(deployment *appv1.Deployment, steveclient *v1.Client, client *rancher.Client, clusterID string) (*v1.SteveAPIObject, error) {
+func createDeployment(deployment *appv1.Deployment, steveclient *steveV1.Client, client *rancher.Client, clusterID string) (*steveV1.SteveAPIObject, error) {
 	deploymentResp2, err := steveclient.SteveType(workloads.DeploymentSteveType).Create(deployment)
 	if err != nil {
 		return nil, err
@@ -175,7 +178,7 @@ func createDeployment(deployment *appv1.Deployment, steveclient *v1.Client, clie
 			return false, nil
 		}
 		deployment := &appv1.Deployment{}
-		err = v1.ConvertToK8sType(deploymentResp.JSONResp, deployment)
+		err = steveV1.ConvertToK8sType(deploymentResp.JSONResp, deployment)
 		if err != nil {
 			return false, nil
 		}
@@ -186,4 +189,62 @@ func createDeployment(deployment *appv1.Deployment, steveclient *v1.Client, clie
 	})
 	return deploymentResp2, err
 
+}
+
+func watchAndWaitForPods(client *rancher.Client, clusterID string) error {
+	logrus.Infof("waiting for all Pods to be up.............")
+	err := kwait.Poll(5*time.Second, 5*time.Minute, func() (done bool, err error) {
+		steveClient, err := client.Steve.ProxyDownstream(clusterID)
+		if err != nil {
+			return false, nil
+		}
+		pods, err := steveClient.SteveType(pods.PodResourceSteveType).List(nil)
+		if err != nil {
+			return false, nil
+		}
+		isIngressControllerPodPresent := false
+		isKubeControllerManagerPresent := false
+		for _, pod := range pods.Data {
+			podStatus := &corev1.PodStatus{}
+			err = steveV1.ConvertToK8sType(pod.Status, podStatus)
+			if err != nil {
+				return false, err
+			}
+			if !isIngressControllerPodPresent && strings.Contains(pod.ObjectMeta.Name, "ingress-nginx-controller") {
+				isIngressControllerPodPresent = true
+			}
+			if !isKubeControllerManagerPresent && strings.Contains(pod.ObjectMeta.Name, "kube-controller-manager") {
+				isKubeControllerManagerPresent = true
+			}
+
+			phase := podStatus.Phase
+			if phase != corev1.PodRunning && phase != corev1.PodSucceeded {
+				return false, nil
+			}
+
+		}
+		if isIngressControllerPodPresent && isKubeControllerManagerPresent {
+			return true, nil
+		}
+		return false, nil
+	})
+	return err
+}
+
+func upgradeClusterK8sVersionWithUpgradeStrategy(client *rancher.Client, clustername string, k8sUpgradedVersion string, namespaceName string) error {
+	clusterObj, existingSteveAPIObj, err := getProvisioningClusterByName(client, clustername, namespaceName)
+	if err != nil {
+		return err
+	}
+
+	clusterObj.Spec.RKEConfig.UpgradeStrategy.ControlPlaneConcurrency = "15%"
+	clusterObj.Spec.RKEConfig.UpgradeStrategy.WorkerConcurrency = "20%"
+	clusterObj.Spec.KubernetesVersion = k8sUpgradedVersion
+
+	_, err = client.Steve.SteveType(clusters.ProvisioningSteveResouceType).Update(existingSteveAPIObj, clusterObj)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

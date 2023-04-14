@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strings"
-
+	kwait "k8s.io/apimachinery/pkg/util/wait"
+	"time"
 	"github.com/rancher/rancher/pkg/api/scheme"
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
 	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
@@ -27,9 +28,15 @@ const (
 // CreateNamespace is a helper function that uses the dynamic client to create a namespace on a project.
 // It registers a delete function with a wait.WatchWait to ensure the namspace is deleted cleanly.
 func CreateNamespace(client *rancher.Client, namespaceName, containerDefaultResourceLimit string, labels, annotations map[string]string, project *management.Project) (*v1.SteveAPIObject, error) {
-	// Namespace object for a project name space
-	annotations["field.cattle.io/containerDefaultResourceLimit"] = containerDefaultResourceLimit
-	annotations["field.cattle.io/projectId"] = project.ID
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	if containerDefaultResourceLimit != "" {
+		annotations["field.cattle.io/containerDefaultResourceLimit"] = containerDefaultResourceLimit
+	}
+	if project != nil {
+		annotations["field.cattle.io/projectId"] = project.ID
+	}
 	namespace := &coreV1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        namespaceName,
@@ -126,6 +133,16 @@ func CreateNamespace(client *rancher.Client, namespaceName, containerDefaultReso
 			return false, nil
 		})
 	})
-
+	err = kwait.Poll(300*time.Millisecond, 3*time.Minute, func() (done bool, err error) {
+		namespaceStatus := &coreV1.NamespaceStatus{}
+		err = v1.ConvertToK8sType(resp.Status, namespaceStatus)
+		if err != nil {
+			return false, err
+		}
+		if namespaceStatus.Phase == "Active" {
+			return true, nil
+		}
+		return false, nil
+	})
 	return resp, nil
 }
