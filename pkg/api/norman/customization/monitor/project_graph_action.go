@@ -4,7 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/rancher/rancher/pkg/types/config"
+	"k8s.io/apimachinery/pkg/labels"
 	"net/http"
+	"strings"
+	"time"
 
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 
@@ -158,4 +162,77 @@ func parseResponse(seriesSlice []*TimeSeries) []*v32.TimeSeries {
 		})
 	}
 	return series
+}
+
+func getRefferenceGraphName(namespace, name string) string {
+	return fmt.Sprintf("%s:%s", namespace, name)
+}
+
+func graph2Metrics(userContext *config.UserContext, mgmtClient v3.Interface, clusterName, resourceType, refGraphName string, metricSelector, detailsMetricSelector map[string]string, metricParams map[string]string, isDetails bool) ([]*metricWrap, error) {
+	projectName, _ := ref.Parse(refGraphName)
+	nodeLister := mgmtClient.Nodes(metav1.NamespaceAll).Controller().Lister()
+	newMetricParams, err := parseMetricParams(userContext, nodeLister, resourceType, clusterName, projectName, metricParams)
+	if err != nil {
+		return nil, err
+	}
+
+	var excuteMetrics []*metricWrap
+	var set labels.Set
+	if isDetails && detailsMetricSelector != nil {
+		set = labels.Set(detailsMetricSelector)
+	} else {
+		set = labels.Set(metricSelector)
+	}
+	metrics, err := mgmtClient.MonitorMetrics(clusterName).List(metav1.ListOptions{LabelSelector: set.AsSelector().String()})
+	if err != nil {
+		return nil, fmt.Errorf("list metrics failed, %v", err)
+	}
+
+	for _, v := range metrics.Items {
+		executeExpression := replaceParams(newMetricParams, v.Spec.Expression)
+		excuteMetrics = append(excuteMetrics, &metricWrap{
+			MonitorMetric:              *v.DeepCopy(),
+			ExecuteExpression:          executeExpression,
+			ReferenceGraphName:         refGraphName,
+			ReferenceGraphResourceType: resourceType,
+		})
+	}
+	return excuteMetrics, nil
+}
+
+func metrics2PrometheusQuery(metrics []*metricWrap, start, end time.Time, step time.Duration, isInstanceQuery bool) []*PrometheusQuery {
+	var queries []*PrometheusQuery
+	for _, v := range metrics {
+		id := getPrometheusQueryID(v.ReferenceGraphName, v.ReferenceGraphResourceType, v.Name)
+		queries = append(queries, InitPromQuery(id, start, end, step, v.ExecuteExpression, v.Spec.LegendFormat, isInstanceQuery))
+	}
+	return queries
+}
+
+func getPrometheusQueryID(graphName, graphResoureceType, metricName string) string {
+	return fmt.Sprintf("%s_%s_%s", graphName, graphResoureceType, metricName)
+}
+
+func parseID(ref string) (graphName, resourceType, metricName string) {
+	parts := strings.SplitN(ref, "_", 3)
+
+	if len(parts) < 2 {
+		return parts[0], "", ""
+	}
+
+	if len(parts) == 2 {
+		return parts[0], parts[1], ""
+	}
+
+	if len(parts) == 3 {
+		return parts[0], parts[1], parts[2]
+	}
+	return parts[0], parts[1], parts[1]
+}
+
+type metricWrap struct {
+	v3.MonitorMetric
+	ExecuteExpression          string
+	ReferenceGraphName         string
+	ReferenceGraphResourceType string
 }
