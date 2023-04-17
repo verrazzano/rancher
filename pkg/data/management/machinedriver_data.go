@@ -8,7 +8,6 @@ import (
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reflect"
 	"strings"
 )
@@ -142,34 +141,6 @@ func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 
 		resourceFields[name] = field
 	}
-	dynamicSchema := &v3.DynamicSchema{
-		Spec: v32.DynamicSchemaSpec{
-			ResourceFields: resourceFields,
-		},
-	}
-
-	// Creating dynamic schema cloud config objects
-	dynamicSchema.Name = name + "config"
-	dynamicSchema.Labels = map[string]string{}
-	dynamicSchema.Labels[driverNameLabel] = name
-
-	_, err = d.schemaClient.Create(dynamicSchema)
-	if err != nil {
-		if !errors.IsAlreadyExists(err) {
-			return err
-		}
-		ds, err := d.schemaClient.Get(dynamicSchema.Name, metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-		ds.Spec.ResourceFields = resourceFields
-
-		_, err = d.schemaClient.Update(ds)
-		if err != nil {
-			return err
-		}
-	}
-
 	err = d.createCredSchema(name, credFields)
 	if err != nil {
 		return err
