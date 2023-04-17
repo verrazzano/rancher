@@ -19,7 +19,6 @@ var (
 	}
 	disallowGet = map[string]bool{
 		"preferences":               true,
-		"sourcecodecredentials":     true,
 		"sourcecodeproviderconfigs": true,
 		"sourcecoderepositories":    true,
 		"templatecontents":          true,
