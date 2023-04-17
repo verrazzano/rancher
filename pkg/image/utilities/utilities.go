@@ -19,20 +19,14 @@ import (
 
 var (
 	scriptMap = map[string]string{
-		"linux-save":     linuxSaveScript,
-		"linux-load":     linuxLoadScript,
-		"linux-mirror":   linuxMirrorScript,
-		"windows-save":   windowsSaveScript,
-		"windows-load":   windowsLoadScript,
-		"windows-mirror": windowsMirrorScript,
+		"linux-save":   linuxSaveScript,
+		"linux-load":   linuxLoadScript,
+		"linux-mirror": linuxMirrorScript,
 	}
 	scriptNameMap = map[string]string{
-		"linux-save":     "rancher-save-images.sh",
-		"linux-load":     "rancher-load-images.sh",
-		"linux-mirror":   "rancher-mirror-to-rancher-org.sh",
-		"windows-save":   "rancher-save-images.ps1",
-		"windows-load":   "rancher-load-images.ps1",
-		"windows-mirror": "rancher-mirror-to-rancher-org.ps1",
+		"linux-save":   "rancher-save-images.sh",
+		"linux-load":   "rancher-load-images.sh",
+		"linux-mirror": "rancher-mirror-to-rancher-org.sh",
 	}
 	filenameMap = map[string]string{
 		"linux":   "rancher-images.txt",
@@ -58,7 +52,7 @@ type ImageTargetsAndSources struct {
 // GatherTargetImagesAndSources queries KDM and charts/system-charts to gather all the images used by Rancher and their source.
 // it an aggregate type, ImageTargetsAndSources, which contains the images required to run Rancher on Linux and Windows, as well
 // as the source of each image.
-func GatherTargetImagesAndSources(systemChartsPath, chartsPath string, imagesFromArgs []string) (ImageTargetsAndSources, error) {
+func GatherTargetImagesAndSources(chartsPath string, imagesFromArgs []string) (ImageTargetsAndSources, error) {
 	rancherVersion, ok := os.LookupEnv("TAG")
 	if !ok {
 		return ImageTargetsAndSources{}, fmt.Errorf("no tag defining current Rancher version, cannot gather target images and sources")
@@ -82,11 +76,10 @@ func GatherTargetImagesAndSources(systemChartsPath, chartsPath string, imagesFro
 		return ImageTargetsAndSources{}, fmt.Errorf("could not load KDM data: %w", err)
 	}
 
-	linuxInfo, windowsInfo := kd.GetK8sVersionInfo(
+	linuxInfo := kd.GetK8sVersionInfo(
 		rancherVersion,
 		data.K8sVersionRKESystemImages,
 		data.K8sVersionServiceOptions,
-		data.K8sVersionWindowsServiceOptions,
 		data.K8sVersionInfo,
 	)
 
