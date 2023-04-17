@@ -586,15 +586,10 @@ func Alert(schemas *types.Schemas, management *config.ScaledContext) {
 }
 
 func Monitor(schemas *types.Schemas, management *config.ScaledContext, clusterManager *clustermanager.Manager) {
-	clusterGraphHandler := monitor.NewClusterGraphHandler(management.Dialer, clusterManager)
 	projectGraphHandler := monitor.NewProjectGraphHandler(management.Dialer, clusterManager)
 	metricHandler := monitor.NewMetricHandler(management.Dialer, clusterManager)
 
-	schema := schemas.Schema(&managementschema.Version, client.ClusterMonitorGraphType)
-	schema.CollectionFormatter = monitor.QueryGraphCollectionFormatter
-	schema.ActionHandler = clusterGraphHandler.QuerySeriesAction
-
-	schema = schemas.Schema(&managementschema.Version, client.ProjectMonitorGraphType)
+	schema := schemas.Schema(&managementschema.Version, client.ProjectMonitorGraphType)
 	schema.CollectionFormatter = monitor.QueryGraphCollectionFormatter
 	schema.ActionHandler = projectGraphHandler.QuerySeriesAction
 

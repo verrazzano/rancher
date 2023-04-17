@@ -22,9 +22,9 @@ var (
 	}
 
 	AuthSchemas = factory.Schemas(&Version).
-			Init(authnTypes).
-			Init(tokens).
-			Init(userTypes)
+		Init(authnTypes).
+		Init(tokens).
+		Init(userTypes)
 
 	Schemas = factory.Schemas(&Version).
 		Init(nativeNodeTypes).
@@ -59,7 +59,7 @@ var (
 		Init(notificationTypes)
 
 	TokenSchemas = factory.Schemas(&Version).
-			Init(tokens)
+		Init(tokens)
 )
 
 func fleetTypes(schemas *types.Schemas) *types.Schemas {
@@ -871,7 +871,6 @@ func kontainerTypes(schemas *types.Schemas) *types.Schemas {
 func monitorTypes(schemas *types.Schemas) *types.Schemas {
 	return schemas.
 		MustImport(&Version, v3.QueryGraphInput{}).
-		MustImport(&Version, v3.QueryClusterGraphOutput{}).
 		MustImport(&Version, v3.QueryProjectGraphOutput{}).
 		MustImport(&Version, v3.QueryClusterMetricInput{}).
 		MustImport(&Version, v3.QueryProjectMetricInput{}).
