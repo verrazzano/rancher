@@ -108,13 +108,7 @@ func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 	defer credLock.Unlock()
 
 	err := errs.New("cloud credential creation failed")
-	var existingSchema *v3.DynamicSchema
 	annotations := map[string]string{}
-	if existingSchema != nil {
-		for k, v := range existingSchema.Annotations {
-			annotations[k] = v
-		}
-	}
 	for key, fields := range DriverData[name] {
 		annotations[key] = strings.Join(fields, ",")
 	}
@@ -164,14 +158,6 @@ func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 
 	// Creating dynamic schema cloud config objects
 	dynamicSchema.Name = name + "config"
-	//dynamicSchema.OwnerReferences = []metav1.OwnerReference{
-	//	{
-	//		UID:        obj.UID,
-	//		Kind:       obj.Kind,
-	//		APIVersion: obj.APIVersion,
-	//		Name:       obj.Name,
-	//	},
-	//}
 	dynamicSchema.Labels = map[string]string{}
 	dynamicSchema.Labels[driverNameLabel] = name
 
@@ -224,14 +210,6 @@ func (d *DynamicSchemaClients) createCredSchema(driverDisplayName string, credFi
 				},
 			}
 			credentialSchema.Name = name
-			//credentialSchema.OwnerReferences = []metav1.OwnerReference{
-			//	{
-			//		UID:        obj.UID,
-			//		Kind:       obj.Kind,
-			//		APIVersion: obj.APIVersion,
-			//		Name:       obj.Name,
-			//	},
-			//}
 			_, err := d.schemaClient.Create(credentialSchema)
 			return err
 		}

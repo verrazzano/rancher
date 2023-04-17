@@ -114,8 +114,6 @@ RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     mkdir -p /var/lib/rancher-data/driver-metadata && \
     mkdir -p /var/log/auditlog
 
-RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin
-
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
     curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
