@@ -40,14 +40,6 @@ echo
 
 cd ../bin
 
-<<<<<<< HEAD
-if [ ! -d build/system-charts ]; then
-    mkdir -p build
-    # Oracle - Removed the --no-tags option since we are using oraclelinux:7-slim as the base image, and that has an older version of git that does not support this option
-    git clone --depth=1 --branch $SYSTEM_CHART_DEFAULT_BRANCH https://github.com/rancher/system-charts $SYSTEM_CHART_REPO_DIR
-fi
-=======
->>>>>>> bfs/mgianata/vz-9149
 
 if [ ! -d $CHART_REPO_DIR ]; then
     git clone --branch $CHART_DEFAULT_BRANCH https://github.com/rancher/charts $CHART_REPO_DIR
