@@ -7,48 +7,11 @@ import (
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/namespace"
 	rketypes "github.com/rancher/rke/types"
-	"github.com/rancher/rke/types/kdm"
 	"github.com/rancher/rke/util"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-func GetCisConfigParams(
-	name string,
-	cisConfigLister v3.CisConfigLister,
-	cisConfig v3.CisConfigInterface,
-) (kdm.CisConfigParams, error) {
-	c, err := cisConfigLister.Get(namespace.GlobalNamespace, name)
-	if err != nil {
-		if !errors.IsNotFound(err) {
-			return kdm.CisConfigParams{}, err
-		}
-		c, err = cisConfig.GetNamespaced(namespace.GlobalNamespace, name, metav1.GetOptions{})
-		if err != nil {
-			return kdm.CisConfigParams{}, err
-		}
-	}
-	return c.Params, nil
-}
-
-func GetCisBenchmarkVersionInfo(
-	name string,
-	cisBenchmarkVersionLister v3.CisBenchmarkVersionLister,
-	cisBenchmarkVersion v3.CisBenchmarkVersionInterface,
-) (kdm.CisBenchmarkVersionInfo, error) {
-	b, err := cisBenchmarkVersionLister.Get(namespace.GlobalNamespace, name)
-	if err != nil {
-		if !errors.IsNotFound(err) {
-			return kdm.CisBenchmarkVersionInfo{}, err
-		}
-		b, err = cisBenchmarkVersion.GetNamespaced(namespace.GlobalNamespace, name, metav1.GetOptions{})
-		if err != nil {
-			return kdm.CisBenchmarkVersionInfo{}, err
-		}
-	}
-	return b.Info, nil
-}
 
 func GetRKESystemImages(k8sVersion string, sysImageLister v3.RkeK8sSystemImageLister, sysImages v3.RkeK8sSystemImageInterface) (rketypes.RKESystemImages, error) {
 	name := k8sVersion
