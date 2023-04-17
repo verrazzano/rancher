@@ -2,124 +2,66 @@ FROM ghcr.io/oracle/oraclelinux:7-slim
 
 ARG DAPPER_HOST_ARCH
 ARG CATTLE_DASHBOARD_TAR_URL
-ENV CATTLE_DASHBOARD_TAR_URL=$CATTLE_DASHBOARD_TAR_URL
-ENV HOST_ARCH=${DAPPER_HOST_ARCH} ARCH=${DAPPER_HOST_ARCH}
-ENV K3S_ROOT_VERSION v0.11.0
-ENV CATTLE_HELM_VERSION v2.16.8-rancher2
-ENV CATTLE_MACHINE_VERSION v0.15.0-rancher98
-ENV CATTLE_K3S_VERSION v1.25.5+k3s1
-# version used by helm plugin install script
-ENV CATTLE_HELM_UNITTEST_VERSION v0.1.7-rancher4
-# helm 3 version
-ENV HELM_VERSION v3.9.0
-ENV KUSTOMIZE_VERSION v5.0.0
-ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
-
-# kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
-ENV CATTLE_KDM_BRANCH=release-v2.7
 
 RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons
+    yum-config-manager --enable ol7_addons && \
+    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
+    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
+    yum-config-manager --enable ol7_developer_golang119 && \
+    yum install oracle-golang-release-el7 -y && \
+    yum clean all
 
 RUN yum update -y && \
-    # software collections repo needed for git 2.x on OL7
-    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum install -y bash rh-git227 gcc glibc-static docker-cli vim less libffi file curl wget ca-certificates unzip tar jq \
-                   openssl-devel libffi-devel python3 iproute && \
+    yum install -y bash rh-git227 gcc glibc-static vim less libffi file curl wget ca-certificates unzip tar jq \
+                   openssl-devel libffi-devel python3 iproute helm-3.3.4-2.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 docker-engine-19.03.11.ol-13.el7.x86_64 golang-1.19 && \
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
     ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
     source /etc/profile.d/git.sh && \
-    git version
-
-# Update PATH to make sure git 2.27 is on the path
-ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
-
-# setup k3s root
-RUN curl -sLf https://github.com/k3s-io/k3s-root/releases/download/${K3S_ROOT_VERSION}/k3s-root-${ARCH}.tar | tar xvf - -C / && \
-  touch /bin/cni /bin/containerd /bin/containerd-shim-runc-v2 /bin/runc /bin/k3s
-
-RUN yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang119 && \
-    yum install -y golang-1.19
-
-RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin
-
-ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm \
-    HELM_URL_V2_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-arm64 \
-    HELM_URL_V2_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-helm-s390x \
-    HELM_URL_V2=HELM_URL_V2_${ARCH} \
-    HELM_URL_V3=https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz \
-    TILLER_URL_amd64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller \
-    TILLER_URL_arm64=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-arm64 \
-    TILLER_URL_s390x=https://github.com/rancher/helm/releases/download/${CATTLE_HELM_VERSION}/rancher-tiller-s390x \
-    TILLER_URL=TILLER_URL_${ARCH} \
-    KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
-
-RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin
-
-RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum install -y helm-3.3.4-2.el7.x86_64 && \
-    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
-    yum install -y kubectl-1.23.11-1.el7.x86_64 && \
-    yum -y install etcd-3.5.1-2.el7.x86_64 && \
+    git version && \
     mv /usr/bin/helm /usr/bin/helm_v3 && \
-    chmod +x /usr/bin/kustomize && \
-    yum clean all
+    go version && \
+    yum clean all && \
+    rm -rf /var/cache/yum
 
-# Set up the path for git 2.x by sourcing /etc/profile.d/git.sh since Helm install needs it
-RUN source /etc/profile.d/git.sh && \
-    curl -sLf ${HELM_URL_V2_amd64} -o /usr/bin/rancher-helm && \
-    curl -sLf ${TILLER_URL_amd64} -o /usr/bin/rancher-tiller && \
-    chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller && \
-    ln -s /usr/bin/rancher-helm /usr/bin/helm && \
-    ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
-    helm init --client-only --stable-repo-url=https://charts.helm.sh/stable/ && \
-    helm plugin install https://github.com/rancher/helm-unittest;
+ENV KUSTOMIZE_VERSION=v5.0.0 \
+    HOST_ARCH=${DAPPER_HOST_ARCH} \
+    ARCH=${DAPPER_HOST_ARCH}
 
-# set up helm 3
-RUN curl ${HELM_URL_V3} | tar xvzf - --strip-components=1 -C /usr/tmp/ && \
-    mv /usr/tmp/helm /usr/bin/helm_v3 && \
+ENV CATTLE_DASHBOARD_TAR_URL=$CATTLE_DASHBOARD_TAR_URL \
+    K3S_ROOT_VERSION=v0.11.0 \
+    CATTLE_HELM_VERSION=v2.16.8-rancher2 \
+    CATTLE_MACHINE_VERSION=v0.15.0-rancher98 \
+    CATTLE_K3S_VERSION=v1.25.5+k3s1 \
+    # version used by helm plugin install script
+    CATTLE_HELM_UNITTEST_VERSION=v0.1.7-rancher4 \
+    # helm 3 version
+    HELM_VERSION=v3.9.0 \
+    GOPATH=/go \
+    PATH=/go/bin:/usr/local/go/bin:${PATH} \
+    SHELL=/bin/bash \
+    # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
+    CATTLE_KDM_BRANCH=release-v2.7 \
+    # Update PATH to make sure git 2.27 is on the path
+    PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}" \
+    KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz \
+    YQ_URL=https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_${ARCH} \
+    HELM_HOME=/root/.helm \
+    DAPPER_SOURCE=/go/src/github.com/rancher/rancher/ \
+    DAPPER_DOCKER_SOCKET=true \
+    DAPPER_RUN_ARGS="-v rancher2-go16-pkg-1:/go/pkg -v rancher2-go16-cache-1:/root/.cache/go-build --privileged" \
+    GOCACHE=/root/.cache/go-build
+
+
+
+RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
+    wget -O - ${YQ_URL} > /usr/bin/yq && chmod +x /usr/bin/yq && \
     chmod +x /usr/bin/kustomize
 
-RUN mkdir -p /go/src/github.com/rancher/rancher/.kube
 
-RUN ln -s /usr/bin/bash /bin/bash && \
-    ln -s /usr/bin/cni /usr/bin/bridge && \
-    ln -s /usr/bin/cni /usr/bin/flannel && \
-    ln -s /usr/bin/cni /usr/bin/host-local && \
-    ln -s /usr/bin/cni /usr/bin/loopback && \
-    ln -s /usr/bin/cni /usr/bin/portmap && \
-    ln -s /usr/bin/k3s /usr/bin/crictl && \
-    #ln -s /usr/bin/k3s /usr/bin/ctr && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-agent && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-etcd-snapshot && \
-    ln -s /usr/bin/k3s /usr/bin/k3s-server && \
-    #ln -s /usr/bin/k3s /usr/bin/kubectl && \
-    ln -s /usr/bin/pigz /usr/bin/unpigz && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-save && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-restore && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/iptables-translate && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-save && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-restore && \
-    ln -s /usr/bin/xtables-legacy-multi /usr/bin/ip6tables-translate && \
-    ln -s /etc/rancher/k3s/k3s.yaml /go/src/github.com/rancher/rancher/.kube/k3s.yaml
-
-RUN curl -sLf https://github.com/rancher/k3s/releases/download/${CATTLE_K3S_VERSION}/k3s-images.txt -o /usr/tmp/k3s-images.txt
-
-ENV YQ_URL=https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_${ARCH}
-RUN wget -O - ${YQ_URL} > /usr/bin/yq && chmod +x /usr/bin/yq
-
-ENV HELM_HOME /root/.helm
-ENV DAPPER_ENV REPO TAG DRONE_TAG DRONE_COMMIT DRONE_BRANCH DRONE_BUILD_EVENT SYSTEM_CHART_DEFAULT_BRANCH FOSSA_API_KEY GOGET_MODULE GOGET_VERSION RELEASE_ACTION RELEASE_TYPE POSTRELEASE_RANCHER_VERSION POSTRELEASE_RANCHER_STABLE DEBUG
-ENV DAPPER_SOURCE /go/src/github.com/rancher/rancher/
+ENV DAPPER_ENV REPO TAG DRONE_TAG DRONE_COMMIT DRONE_BRANCH DRONE_BUILD_EVENT SYSTEM_CHART_DEFAULT_BRANCH FOSSA_API_KEY GOGET_MODULE GOGET_VERSION RELEASE_ACTION RELEASE_TYPE POSTRELEASE_RANCHER_VERSION POSTRELEASE_RANCHER_STABLE
 ENV DAPPER_OUTPUT ./bin ./dist ./go.mod ./go.sum ./pkg/apis/go.mod ./pkg/apis/go.sum ./pkg/client/go.mod ./pkg/client/go.sum ./scripts/package ./pkg/settings/setting.go ./package/Dockerfile ./Dockerfile.dapper
-ENV DAPPER_DOCKER_SOCKET true
-ENV DAPPER_RUN_ARGS "-v rancher2-go16-pkg-1:/go/pkg -v rancher2-go16-cache-1:/root/.cache/go-build --privileged"
-ENV GOCACHE /root/.cache/go-build
-ENV HOME ${DAPPER_SOURCE}
+ENV HOME=${DAPPER_SOURCE}
 VOLUME /var/lib/rancher
 VOLUME /var/lib/kubelet
 WORKDIR ${DAPPER_SOURCE}

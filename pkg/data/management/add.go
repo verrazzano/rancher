@@ -41,9 +41,5 @@ func Add(ctx context.Context, wrangler *wrangler.Context, management *config.Man
 		return err
 	}
 
-	if err := addCattleGlobalNamespaces(management); err != nil {
-		return err
-	}
-
-	return addMachineDrivers(management)
+	return addCattleGlobalNamespaces(management)
 }
