@@ -11,7 +11,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reflect"
 	"strings"
-	"sync"
 )
 
 const (
@@ -36,8 +35,6 @@ const (
 )
 
 var (
-	credSchemaLock       = sync.Mutex{}
-	credLock             = sync.Mutex{}
 	DriverToSchemaFields = map[string]map[string]string{
 		"aliyunecs":     {"sshKeypath": "sshKeyContents"},
 		"amazonec2":     {"sshKeypath": "sshKeyContents", "userdata": "userdata"},
@@ -103,9 +100,6 @@ func addCloudCredentials(management *config.ManagementContext) error {
 
 func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 	// annotations can have keys cred and password, values []string to be considered as a part of cloud credential
-	credLock.Lock()
-	defer credLock.Unlock()
-
 	annotations := map[string]string{}
 	for key, fields := range DriverData[name] {
 		annotations[key] = strings.Join(fields, ",")
@@ -224,9 +218,6 @@ func (d *DynamicSchemaClients) createCredSchema(driverDisplayName string, credFi
 }
 
 func (d *DynamicSchemaClients) createOrUpdateNodeForEmbeddedTypeCredential(embeddedType, fieldName string, embedded bool) error {
-	credSchemaLock.Lock()
-	defer credSchemaLock.Unlock()
-
 	return d.createOrUpdateNodeForEmbeddedTypeWithParents(embeddedType, fieldName, "credentialconfig", "cloudCredential", embedded, true)
 }
 
