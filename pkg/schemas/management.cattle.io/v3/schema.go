@@ -900,14 +900,6 @@ func monitorTypes(schemas *types.Schemas) *types.Schemas {
 				},
 			}
 		}).
-		MustImportAndCustomize(&Version, v3.ClusterMonitorGraph{}, func(schema *types.Schema) {
-			schema.CollectionActions = map[string]types.Action{
-				"query": {
-					Input:  "queryGraphInput",
-					Output: "queryClusterGraphOutput",
-				},
-			}
-		}).
 		MustImportAndCustomize(&Version, v3.ProjectMonitorGraph{}, func(schema *types.Schema) {
 			schema.CollectionActions = map[string]types.Action{
 				"query": {

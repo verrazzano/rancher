@@ -13,7 +13,6 @@ import (
 
 var (
 	preDefinedClusterMetrics = getPredefinedClusterMetrics()
-	preDefinedClusterGraph   = getPredefinedClusterGraph()
 	preDefinedProjectGraph   = getPredefinedProjectGraph()
 )
 
@@ -26,23 +25,6 @@ func getPredefinedClusterMetrics() []*managementv3.MonitorMetric {
 	var rtn []*managementv3.MonitorMetric
 	for _, yml := range yamls {
 		var tmp managementv3.MonitorMetric
-		if err := yamlToObject(yml, &tmp); err != nil {
-			panic(err)
-		}
-		if tmp.Name == "" {
-			continue
-		}
-		rtn = append(rtn, &tmp)
-	}
-
-	return rtn
-}
-
-func getPredefinedClusterGraph() []*managementv3.ClusterMonitorGraph {
-	yamls := strings.Split(ClusterMetricExpression, "\n---\n")
-	var rtn []*managementv3.ClusterMonitorGraph
-	for _, yml := range yamls {
-		var tmp managementv3.ClusterMonitorGraph
 		if err := yamlToObject(yml, &tmp); err != nil {
 			panic(err)
 		}

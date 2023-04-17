@@ -41,24 +41,6 @@ const (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type ClusterMonitorGraph struct {
-	types.Namespaced
-
-	metav1.TypeMeta `json:",inline"`
-	// Standard object’s metadata. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#metadata
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec ClusterMonitorGraphSpec `json:"spec"`
-}
-
-func (c *ClusterMonitorGraph) ObjClusterName() string {
-	return c.Spec.ObjClusterName()
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 type ProjectMonitorGraph struct {
 	types.Namespaced
 
@@ -72,17 +54,6 @@ type ProjectMonitorGraph struct {
 
 func (p *ProjectMonitorGraph) ObjClusterName() string {
 	return p.Spec.ObjClusterName()
-}
-
-type ClusterMonitorGraphSpec struct {
-	ClusterName         string `json:"clusterName" norman:"type=reference[cluster]"`
-	ResourceType        string `json:"resourceType,omitempty"  norman:"type=enum,options=node|cluster|etcd|apiserver|scheduler|controllermanager|fluentd|istiocluster|istioproject"`
-	DisplayResourceType string `json:"displayResourceType,omitempty" norman:"type=enum,options=node|cluster|etcd|kube-component|rancher-component"`
-	CommonMonitorGraphSpec
-}
-
-func (c *ClusterMonitorGraphSpec) ObjClusterName() string {
-	return c.ClusterName
 }
 
 type ProjectMonitorGraphSpec struct {

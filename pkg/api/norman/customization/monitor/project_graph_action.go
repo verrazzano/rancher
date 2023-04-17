@@ -93,21 +93,6 @@ func (h *ProjectGraphHandler) QuerySeriesAction(actionName string, action *types
 		}
 		svcName, svcNamespace, svcPort = monitorutil.IstioPrometheusEndpoint(app.Spec.Answers)
 
-		mgmtClient := h.clustermanager.ScaledContext.Management
-		istioGraphs, err := mgmtClient.ClusterMonitorGraphs(clusterName).List(metav1.ListOptions{LabelSelector: "component=istio,level=project"})
-		if err != nil {
-			return fmt.Errorf("list istio graph failed, %v", err)
-		}
-		for _, graph := range istioGraphs.Items {
-			_, projectName := ref.Parse(inputParser.ProjectID)
-			refName := getRefferenceGraphName(projectName, graph.Name)
-			monitorMetrics, err := graph2Metrics(userContext, mgmtClient, clusterName, graph.Spec.ResourceType, refName, graph.Spec.MetricsSelector, graph.Spec.DetailsMetricsSelector, inputParser.Input.MetricParams, inputParser.Input.IsDetails)
-			if err != nil {
-				return err
-			}
-
-			queries = append(queries, metrics2PrometheusQuery(monitorMetrics, inputParser.Start, inputParser.End, inputParser.Step, isInstanceGraph(graph.Spec.GraphType))...)
-		}
 	} else {
 		svcName, svcNamespace, svcPort = monitorutil.ClusterPrometheusEndpoint()
 

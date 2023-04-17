@@ -123,7 +123,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.ClusterAlertGroupType,
 		client.ClusterCatalogType,
 		client.ClusterAlertRuleType,
-		client.ClusterMonitorGraphType,
 		client.ClusterScanType,
 		client.ComposeConfigType,
 		client.MultiClusterAppType,
