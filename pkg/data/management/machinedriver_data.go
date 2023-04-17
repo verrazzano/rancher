@@ -55,7 +55,7 @@ var (
 		HarvesterDriver:    {"publicCredentialFields": []string{"clusterType", "clusterId"}, "privateCredentialFields": []string{"kubeconfigContent"}, "optionalCredentialFields": []string{"clusterId"}},
 		Linodedriver:       {"privateCredentialFields": []string{"token"}, "passwordFields": []string{"rootPass"}},
 		NutanixDriver:      {"publicCredentialFields": []string{"endpoint", "username", "port"}, "privateCredentialFields": []string{"password"}},
-		OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
+		OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint", "region"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
 		OTCDriver:          {"privateCredentialFields": []string{"accessKeySecret"}},
 		OpenstackDriver:    {"privateCredentialFields": []string{"password"}},
 		PacketDriver:       {"privateCredentialFields": []string{"apiKey"}},
