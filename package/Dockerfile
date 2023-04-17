@@ -32,7 +32,7 @@ RUN yum update -y && \
 
 ENV KUSTOMIZE_VERSION v4.5.5
 ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz \
-    CATTLE_MACHINE_VERSION=v0.15.0-rancher951
+    CATTLE_MACHINE_VERSION=v0.15.0-rancher95
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     chmod +x /usr/bin/kustomize
@@ -114,7 +114,6 @@ RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     mkdir -p /var/lib/rancher-data/driver-metadata && \
     mkdir -p /var/log/auditlog
 
-
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
     curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
@@ -126,7 +125,6 @@ RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui-dashboard/dashboard && \
     curl -sL ${CATTLE_DASHBOARD_TAR_URL} | tar xvzf - --strip-components=2 && \
     ln -s dashboard/index.html ../index.html
-
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION=${VERSION} \
