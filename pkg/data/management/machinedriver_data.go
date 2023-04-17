@@ -2,7 +2,6 @@ package management
 
 import (
 	"fmt"
-	errs "github.com/pkg/errors"
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/data/management/utils"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
@@ -107,7 +106,6 @@ func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 	credLock.Lock()
 	defer credLock.Unlock()
 
-	err := errs.New("cloud credential creation failed")
 	annotations := map[string]string{}
 	for key, fields := range DriverData[name] {
 		annotations[key] = strings.Join(fields, ",")
