@@ -18,13 +18,12 @@ var (
 		"settings": true,
 	}
 	disallowGet = map[string]bool{
-		"preferences":               true,
-		"sourcecodeproviderconfigs": true,
-		"sourcecoderepositories":    true,
-		"templatecontents":          true,
-		"templates":                 true,
-		"templateversions":          true,
-		"tokens":                    true,
+		"preferences":            true,
+		"sourcecoderepositories": true,
+		"templatecontents":       true,
+		"templates":              true,
+		"templateversions":       true,
+		"tokens":                 true,
 	}
 )
 
