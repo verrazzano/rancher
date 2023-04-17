@@ -114,7 +114,6 @@ RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     mkdir -p /var/lib/rancher-data/driver-metadata && \
     mkdir -p /var/log/auditlog
 
-
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
     curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
@@ -126,7 +125,6 @@ RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui-dashboard/dashboard && \
     curl -sL ${CATTLE_DASHBOARD_TAR_URL} | tar xvzf - --strip-components=2 && \
     ln -s dashboard/index.html ../index.html
-
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION=${VERSION} \
