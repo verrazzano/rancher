@@ -8,7 +8,7 @@ To fix this problem, we have modified the [Dockerfile](package/Dockerfile#L95-L1
 
 For example, to find the relevant chart git commits for v2.7.2:
 
-The rancher charts below commit must be updated from the latest commit on the Verrazzano fork of the rancher charts BFS oracle/release/2.7.2 branch.
+The rancher charts commit below must be updated from the latest commit on the Verrazzano fork of the rancher charts BFS oracle/release/2.7.2 branch.
 ```
 $ docker run --privileged -it --entrypoint=bash rancher/rancher:v2.7.2
 
