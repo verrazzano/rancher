@@ -47,7 +47,6 @@ var (
 		Init(globalDNSTypes).
 		Init(kontainerTypes).
 		Init(etcdBackupTypes).
-		Init(clusterScanTypes).
 		Init(monitorTypes).
 		Init(credTypes).
 		Init(mgmtSecretTypes).
@@ -945,13 +944,6 @@ func clusterTemplateTypes(schemas *types.Schemas) *types.Schemas {
 			}
 		})
 
-}
-
-func clusterScanTypes(schemas *types.Schemas) *types.Schemas {
-	return schemas.MustImportAndCustomize(&Version, v3.ClusterScan{}, func(schema *types.Schema) {
-		schema.CollectionMethods = []string{http.MethodGet}
-		schema.ResourceMethods = []string{http.MethodGet, http.MethodDelete}
-	})
 }
 
 func encryptionTypes(schemas *types.Schemas) *types.Schemas {

@@ -29,7 +29,6 @@ type ActionHandler struct {
 	ClusterManager                *clustermanager.Manager
 	CatalogTemplateVersionLister  v3.CatalogTemplateVersionLister
 	BackupClient                  v3.EtcdBackupInterface
-	ClusterScanClient             v3.ClusterScanInterface
 	ClusterTemplateClient         v3.ClusterTemplateInterface
 	ClusterTemplateRevisionClient v3.ClusterTemplateRevisionInterface
 	SubjectAccessReviewClient     v1.SubjectAccessReviewInterface

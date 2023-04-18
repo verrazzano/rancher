@@ -14,7 +14,6 @@ import (
 	"github.com/rancher/rancher/pkg/api/norman/customization/authn"
 	"github.com/rancher/rancher/pkg/api/norman/customization/catalog"
 	ccluster "github.com/rancher/rancher/pkg/api/norman/customization/cluster"
-	"github.com/rancher/rancher/pkg/api/norman/customization/clusterscan"
 	"github.com/rancher/rancher/pkg/api/norman/customization/clustertemplate"
 	"github.com/rancher/rancher/pkg/api/norman/customization/cred"
 	"github.com/rancher/rancher/pkg/api/norman/customization/etcdbackup"
@@ -124,7 +123,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.ClusterCatalogType,
 		client.ClusterAlertRuleType,
 		client.ClusterMonitorGraphType,
-		client.ClusterScanType,
 		client.ComposeConfigType,
 		client.MultiClusterAppType,
 		client.MultiClusterAppRevisionType,
@@ -189,7 +187,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 	MultiClusterApps(schemas, apiContext)
 	GlobalDNSs(schemas, apiContext, localClusterEnabled)
 	GlobalDNSProviders(schemas, apiContext, localClusterEnabled)
-	ClusterScans(schemas, apiContext, clusterManager)
 
 	if err := NodeTypes(schemas, apiContext); err != nil {
 		return err
@@ -273,7 +270,6 @@ func Clusters(ctx context.Context, schemas *types.Schemas, managementContext *co
 		GrLister:                      managementContext.Management.GlobalRoles("").Controller().Lister(),
 	}
 
-	handler.ClusterScanClient = managementContext.Management.ClusterScans("")
 	handler.CatalogTemplateVersionLister = managementContext.Management.CatalogTemplateVersions("").Controller().Lister()
 	handler.CisConfigClient = managementContext.Management.CisConfigs("")
 	handler.CisConfigLister = managementContext.Management.CisConfigs("").Controller().Lister()
@@ -798,15 +794,6 @@ func ClusterTemplates(schemas *types.Schemas, management *config.ScaledContext) 
 	revisionSchema.Formatter = wrapper.RevisionFormatter
 	revisionSchema.CollectionFormatter = wrapper.CollectionFormatter
 	revisionSchema.ActionHandler = wrapper.ClusterTemplateRevisionsActionHandler
-}
-
-func ClusterScans(schemas *types.Schemas, management *config.ScaledContext, clusterManager *clustermanager.Manager) {
-	clusterScanHandler := clusterscan.Handler{
-		ClusterManager: clusterManager,
-	}
-	schema := schemas.Schema(&managementschema.Version, client.ClusterScanType)
-	schema.Formatter = clusterscan.Formatter
-	schema.LinkHandler = clusterScanHandler.LinkHandler
 }
 
 func SystemImages(schemas *types.Schemas, management *config.ScaledContext) {

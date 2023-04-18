@@ -35,19 +35,6 @@ const (
 	DefaultScanOutputFileName string = "output.json"
 )
 
-type CisScanConfig struct {
-	// IDs of the checks that need to be skipped in the final report
-	OverrideSkip []string `json:"overrideSkip"`
-	// Override the CIS benchmark version to use for the scan (instead of latest)
-	OverrideBenchmarkVersion string `json:"overrideBenchmarkVersion,omitempty"`
-	// scan profile to use
-	Profile CisScanProfileType `json:"profile,omitempty" norman:"required,options=permissive|hardened,default=permissive"`
-	// Internal flag for debugging master component of the scan
-	DebugMaster bool `json:"debugMaster"`
-	// Internal flag for debugging worker component of the scan
-	DebugWorker bool `json:"debugWorker"`
-}
-
 type CisScanStatus struct {
 	Total         int `json:"total"`
 	Pass          int `json:"pass"`
@@ -73,34 +60,6 @@ type ClusterScanCondition struct {
 	Reason string `json:"reason,omitempty"`
 	// Human-readable message indicating details about last transition
 	Message string `json:"message,omitempty"`
-}
-
-type ClusterScanSpec struct {
-	ScanType string `json:"scanType"`
-	// cluster ID
-	ClusterID string `json:"clusterId,omitempty" norman:"required,type=reference[cluster]"`
-	// Run type
-	RunType ClusterScanRunType `json:"runType,omitempty"`
-	// scanConfig
-	ScanConfig ClusterScanConfig `yaml:",omitempty" json:"scanConfig,omitempty"`
-}
-
-type ClusterScanStatus struct {
-	Conditions    []ClusterScanCondition `json:"conditions"`
-	CisScanStatus *CisScanStatus         `json:"cisScanStatus"`
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type ClusterScan struct {
-	types.Namespaced
-
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   ClusterScanSpec   `json:"spec"`
-	Status ClusterScanStatus `yaml:"status" json:"status,omitempty"`
 }
 
 // +genclient
