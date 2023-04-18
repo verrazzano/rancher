@@ -22,7 +22,6 @@ import (
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	pv3 "github.com/rancher/rancher/pkg/generated/norman/project.cattle.io/v3"
 	monitorutil "github.com/rancher/rancher/pkg/monitoring"
-	"github.com/rancher/rancher/pkg/project"
 	"github.com/rancher/rancher/pkg/ref"
 	"github.com/rancher/rancher/pkg/types/config/dialer"
 	"github.com/sirupsen/logrus"
@@ -83,21 +82,8 @@ func (h *ProjectGraphHandler) QuerySeriesAction(actionName string, action *types
 		return err
 	}
 
-	if inputParser.Input.Filters["resourceType"] == "istioproject" {
-		if inputParser.Input.MetricParams["namespace"] == "" {
-			return fmt.Errorf("no namespace found")
-		}
-		project, err := project.GetSystemProject(clusterName, h.projectLister)
-		if err != nil {
-			return err
-		}
-		app, err := h.appLister.Get(project.Name, monitorutil.IstioAppName)
-		if err != nil {
-			return err
-		}
-		svcName, svcNamespace, svcPort = monitorutil.IstioPrometheusEndpoint(app.Spec.Answers)
-
-	} else {
+	if inputParser.Input.Filters["resourceType"] != "istioproject" {
+		
 		svcName, svcNamespace, svcPort = monitorutil.ClusterPrometheusEndpoint()
 
 		var graphs []mgmtclientv3.ProjectMonitorGraph
