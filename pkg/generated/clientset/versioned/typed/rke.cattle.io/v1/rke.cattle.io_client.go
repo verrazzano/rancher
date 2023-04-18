@@ -28,7 +28,6 @@ import (
 
 type RkeV1Interface interface {
 	RESTClient() rest.Interface
-	CustomMachinesGetter
 	ETCDSnapshotsGetter
 	RKEBootstrapsGetter
 	RKEBootstrapTemplatesGetter
@@ -39,10 +38,6 @@ type RkeV1Interface interface {
 // RkeV1Client is used to interact with features provided by the rke.cattle.io group.
 type RkeV1Client struct {
 	restClient rest.Interface
-}
-
-func (c *RkeV1Client) CustomMachines(namespace string) CustomMachineInterface {
-	return newCustomMachines(c, namespace)
 }
 
 func (c *RkeV1Client) ETCDSnapshots(namespace string) ETCDSnapshotInterface {
