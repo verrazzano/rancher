@@ -2,6 +2,7 @@ package systemcharts
 
 import (
 	"context"
+	"os"
 
 	catalog "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/controllers/dashboard/chart"
@@ -99,6 +100,10 @@ func (h *handler) onRepo(key string, repo *catalog.ClusterRepo) (*catalog.Cluste
 				values[k] = v
 			}
 		}
+
+		if chartDef.ChartName == webhookChartName {
+			overrideRancherWebhookImage(values)
+		}
 		// webhook needs to be able to adopt the MutatingWebhookConfiguration which originally wasn't a part of the
 		// chart definition, but is now part of the chart definition
 		if err := h.manager.Ensure(chartDef.ReleaseNamespace, chartDef.ChartName, chartDef.MinVersionSetting.Get(), values, chartDef.ChartName == webhookChartName, installImageOverride); err != nil {
@@ -134,7 +139,9 @@ func (h *handler) getChartsToInstall() []*chart.Definition {
 				}
 				return values
 			},
-			Enabled: func() bool { return true },
+			Enabled: func() bool {
+				return features.MCM.Enabled() || features.EmbeddedClusterAPI.Enabled()
+			},
 		},
 		{
 			ReleaseNamespace: "rancher-operator-system",
@@ -142,5 +149,21 @@ func (h *handler) getChartsToInstall() []*chart.Definition {
 			Uninstall:        true,
 			RemoveNamespace:  true,
 		},
+	}
+}
+
+// overrideRancherWebhookImage sets Helm chart values to override the Rancher Webhook image name and/or tag based on environment variables.
+func overrideRancherWebhookImage(rancherWebhookChartValues map[string]interface{}) {
+	chartValues := make(map[string]interface{})
+
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE"); ok {
+		chartValues["repository"] = envVal
+	}
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE_TAG"); ok {
+		chartValues["tag"] = envVal
+	}
+
+	if len(chartValues) > 0 {
+		rancherWebhookChartValues["image"] = chartValues
 	}
 }
