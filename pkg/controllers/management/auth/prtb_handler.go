@@ -27,7 +27,6 @@ var projectManagmentPlaneResources = map[string]string{
 	"apprevisions":                "project.cattle.io",
 	"catalogtemplates":            "management.cattle.io",
 	"catalogtemplateversions":     "management.cattle.io",
-	"sourcecodeproviderconfigs":   "project.cattle.io",
 	"projectloggings":             "management.cattle.io",
 	"projectalertrules":           "management.cattle.io",
 	"projectalertgroups":          "management.cattle.io",
