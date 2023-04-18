@@ -271,6 +271,7 @@ func Clusters(ctx context.Context, schemas *types.Schemas, managementContext *co
 		Users:                         managementContext.Management.Users(""),
 		GrbLister:                     managementContext.Management.GlobalRoleBindings("").Controller().Lister(),
 		GrLister:                      managementContext.Management.GlobalRoles("").Controller().Lister(),
+		SecretLister:                  managementContext.Core.Secrets("").Controller().Lister(),
 	}
 
 	handler.ClusterScanClient = managementContext.Management.ClusterScans("")
