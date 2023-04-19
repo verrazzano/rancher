@@ -298,23 +298,6 @@ func NewClusterAlertRule(namespace, name string, obj ClusterAlertRule) *ClusterA
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// ClusterMonitorGraphList is a list of ClusterMonitorGraph resources
-type ClusterMonitorGraphList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []ClusterMonitorGraph `json:"items"`
-}
-
-func NewClusterMonitorGraph(namespace, name string, obj ClusterMonitorGraph) *ClusterMonitorGraph {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ClusterMonitorGraph").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 // ClusterRegistrationTokenList is a list of ClusterRegistrationToken resources
 type ClusterRegistrationTokenList struct {
 	metav1.TypeMeta `json:",inline"`

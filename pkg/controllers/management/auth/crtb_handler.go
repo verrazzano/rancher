@@ -43,7 +43,6 @@ var clusterManagmentPlaneResources = map[string]string{
 	"clusteralertrules":           "management.cattle.io",
 	"clusteralertgroups":          "management.cattle.io",
 	"clustercatalogs":             "management.cattle.io",
-	"clustermonitorgraphs":        "management.cattle.io",
 	"clusterregistrationtokens":   "management.cattle.io",
 	"clusterroletemplatebindings": "management.cattle.io",
 	"etcdbackups":                 "management.cattle.io",
