@@ -37,5 +37,9 @@ func Add(ctx context.Context, wrangler *wrangler.Context, management *config.Man
 		return err
 	}
 
-	return addCattleGlobalNamespaces(management)
+	if err := addCattleGlobalNamespaces(management); err != nil {
+		return err
+	}
+
+	return addCloudCredentials(management)
 }
