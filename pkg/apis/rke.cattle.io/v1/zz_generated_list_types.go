@@ -26,23 +26,6 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// CustomMachineList is a list of CustomMachine resources
-type CustomMachineList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []CustomMachine `json:"items"`
-}
-
-func NewCustomMachine(namespace, name string, obj CustomMachine) *CustomMachine {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("CustomMachine").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 // ETCDSnapshotList is a list of ETCDSnapshot resources
 type ETCDSnapshotList struct {
 	metav1.TypeMeta `json:",inline"`

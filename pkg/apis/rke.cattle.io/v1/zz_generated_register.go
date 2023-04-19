@@ -28,7 +28,6 @@ import (
 )
 
 var (
-	CustomMachineResourceName        = "custommachines"
 	ETCDSnapshotResourceName         = "etcdsnapshots"
 	RKEBootstrapResourceName         = "rkebootstraps"
 	RKEBootstrapTemplateResourceName = "rkebootstraptemplates"
@@ -57,8 +56,6 @@ var (
 // Adds the list of known types to Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&CustomMachine{},
-		&CustomMachineList{},
 		&ETCDSnapshot{},
 		&ETCDSnapshotList{},
 		&RKEBootstrap{},

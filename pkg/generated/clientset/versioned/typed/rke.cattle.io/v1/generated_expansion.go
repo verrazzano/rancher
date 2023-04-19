@@ -18,8 +18,6 @@ limitations under the License.
 
 package v1
 
-type CustomMachineExpansion interface{}
-
 type ETCDSnapshotExpansion interface{}
 
 type RKEBootstrapExpansion interface{}

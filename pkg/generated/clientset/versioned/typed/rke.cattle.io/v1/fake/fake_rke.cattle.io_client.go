@@ -28,10 +28,6 @@ type FakeRkeV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeRkeV1) CustomMachines(namespace string) v1.CustomMachineInterface {
-	return &FakeCustomMachines{c, namespace}
-}
-
 func (c *FakeRkeV1) ETCDSnapshots(namespace string) v1.ETCDSnapshotInterface {
 	return &FakeETCDSnapshots{c, namespace}
 }
