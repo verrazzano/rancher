@@ -138,17 +138,6 @@ PROMETHEUS_PROJECT_MONITORING = "prometheus-project-monitoring"
 LONGHORN_APP_VERSION = os.environ.get('RANCHER_LONGHORN_VERSION', "1.0.2")
 
 
-def test_monitoring_cluster_graph():
-    rancher_client, cluster = get_user_client_and_cluster()
-    cluster_monitoring_obj = rancher_client.list_clusterMonitorGraph()
-    # generate the request payload
-    query1 = copy.deepcopy(cluster_query_template)
-    query1["obj"] = cluster_monitoring_obj
-    query1["filters"]["clusterId"] = cluster.id
-    query1["filters"]["resourceType"] = "cluster"
-    validate_cluster_graph(query1, "cluster")
-
-
 def test_monitoring_etcd_graph():
     rancher_client, cluster = get_user_client_and_cluster()
     cluster_monitoring_obj = rancher_client.list_clusterMonitorGraph()

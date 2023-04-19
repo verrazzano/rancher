@@ -58,7 +58,6 @@ type Client struct {
 	EtcdBackup                              EtcdBackupOperations
 	ClusterScan                             ClusterScanOperations
 	MonitorMetric                           MonitorMetricOperations
-	ClusterMonitorGraph                     ClusterMonitorGraphOperations
 	ProjectMonitorGraph                     ProjectMonitorGraphOperations
 	CloudCredential                         CloudCredentialOperations
 	ManagementSecret                        ManagementSecretOperations
@@ -134,7 +133,6 @@ func NewClient(opts *clientbase.ClientOpts) (*Client, error) {
 	client.EtcdBackup = newEtcdBackupClient(client)
 	client.ClusterScan = newClusterScanClient(client)
 	client.MonitorMetric = newMonitorMetricClient(client)
-	client.ClusterMonitorGraph = newClusterMonitorGraphClient(client)
 	client.ProjectMonitorGraph = newProjectMonitorGraphClient(client)
 	client.CloudCredential = newCloudCredentialClient(client)
 	client.ManagementSecret = newManagementSecretClient(client)

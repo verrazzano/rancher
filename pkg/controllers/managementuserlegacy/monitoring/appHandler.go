@@ -13,7 +13,6 @@ type appHandler struct {
 	cattleAppClient           projectv3.AppInterface
 	cattleSecretClient        corev1.SecretInterface
 	cattleProjectClient       mgmtv3.ProjectInterface
-	cattleClusterGraphClient  mgmtv3.ClusterMonitorGraphInterface
 	cattleProjectGraphClient  mgmtv3.ProjectMonitorGraphInterface
 	cattleMonitorMetricClient mgmtv3.MonitorMetricInterface
 	agentDeploymentClient     appsv1.DeploymentInterface

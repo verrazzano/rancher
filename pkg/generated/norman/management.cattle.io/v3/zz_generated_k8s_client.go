@@ -63,7 +63,6 @@ type Interface interface {
 	EtcdBackupsGetter
 	ClusterScansGetter
 	MonitorMetricsGetter
-	ClusterMonitorGraphsGetter
 	ProjectMonitorGraphsGetter
 	CloudCredentialsGetter
 	ClusterTemplatesGetter
@@ -826,20 +825,6 @@ func (c *Client) MonitorMetrics(namespace string) MonitorMetricInterface {
 	sharedClient := c.clientFactory.ForResourceKind(MonitorMetricGroupVersionResource, MonitorMetricGroupVersionKind.Kind, true)
 	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &MonitorMetricResource, MonitorMetricGroupVersionKind, monitorMetricFactory{})
 	return &monitorMetricClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
-type ClusterMonitorGraphsGetter interface {
-	ClusterMonitorGraphs(namespace string) ClusterMonitorGraphInterface
-}
-
-func (c *Client) ClusterMonitorGraphs(namespace string) ClusterMonitorGraphInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterMonitorGraphGroupVersionResource, ClusterMonitorGraphGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterMonitorGraphResource, ClusterMonitorGraphGroupVersionKind, clusterMonitorGraphFactory{})
-	return &clusterMonitorGraphClient{
 		ns:           namespace,
 		client:       c,
 		objectClient: objectClient,
