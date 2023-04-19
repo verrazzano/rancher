@@ -61,7 +61,6 @@ type Interface interface {
 	GlobalDnsProvidersGetter
 	KontainerDriversGetter
 	EtcdBackupsGetter
-	ClusterScansGetter
 	MonitorMetricsGetter
 	ProjectMonitorGraphsGetter
 	CloudCredentialsGetter
@@ -70,8 +69,6 @@ type Interface interface {
 	RkeK8sSystemImagesGetter
 	RkeK8sServiceOptionsGetter
 	RkeAddonsGetter
-	CisConfigsGetter
-	CisBenchmarkVersionsGetter
 	FleetWorkspacesGetter
 	RancherUserNotificationsGetter
 }
@@ -803,20 +800,6 @@ func (c *Client) EtcdBackups(namespace string) EtcdBackupInterface {
 	}
 }
 
-type ClusterScansGetter interface {
-	ClusterScans(namespace string) ClusterScanInterface
-}
-
-func (c *Client) ClusterScans(namespace string) ClusterScanInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterScanGroupVersionResource, ClusterScanGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterScanResource, ClusterScanGroupVersionKind, clusterScanFactory{})
-	return &clusterScanClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
 type MonitorMetricsGetter interface {
 	MonitorMetrics(namespace string) MonitorMetricInterface
 }
@@ -923,34 +906,6 @@ func (c *Client) RkeAddons(namespace string) RkeAddonInterface {
 	sharedClient := c.clientFactory.ForResourceKind(RkeAddonGroupVersionResource, RkeAddonGroupVersionKind.Kind, true)
 	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &RkeAddonResource, RkeAddonGroupVersionKind, rkeAddonFactory{})
 	return &rkeAddonClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
-type CisConfigsGetter interface {
-	CisConfigs(namespace string) CisConfigInterface
-}
-
-func (c *Client) CisConfigs(namespace string) CisConfigInterface {
-	sharedClient := c.clientFactory.ForResourceKind(CisConfigGroupVersionResource, CisConfigGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &CisConfigResource, CisConfigGroupVersionKind, cisConfigFactory{})
-	return &cisConfigClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
-type CisBenchmarkVersionsGetter interface {
-	CisBenchmarkVersions(namespace string) CisBenchmarkVersionInterface
-}
-
-func (c *Client) CisBenchmarkVersions(namespace string) CisBenchmarkVersionInterface {
-	sharedClient := c.clientFactory.ForResourceKind(CisBenchmarkVersionGroupVersionResource, CisBenchmarkVersionGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &CisBenchmarkVersionResource, CisBenchmarkVersionGroupVersionKind, cisBenchmarkVersionFactory{})
-	return &cisBenchmarkVersionClient{
 		ns:           namespace,
 		client:       c,
 		objectClient: objectClient,
