@@ -132,8 +132,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.ProjectCatalogType,
 		client.ProjectAlertRuleType,
 		client.ProjectMonitorGraphType,
-		client.CisConfigType,
-		client.CisBenchmarkVersionType,
 		client.TemplateType,
 		client.TemplateVersionType,
 		client.TemplateContentType,
@@ -270,10 +268,6 @@ func Clusters(ctx context.Context, schemas *types.Schemas, managementContext *co
 	}
 
 	handler.CatalogTemplateVersionLister = managementContext.Management.CatalogTemplateVersions("").Controller().Lister()
-	handler.CisConfigClient = managementContext.Management.CisConfigs("")
-	handler.CisConfigLister = managementContext.Management.CisConfigs("").Controller().Lister()
-	handler.CisBenchmarkVersionClient = managementContext.Management.CisBenchmarkVersions("")
-	handler.CisBenchmarkVersionLister = managementContext.Management.CisBenchmarkVersions("").Controller().Lister()
 
 	schema.ActionHandler = handler.ClusterActionHandler
 	schema.Validator = clusterValidator.Validator
@@ -672,11 +666,6 @@ func KontainerDriver(schemas *types.Schemas, management *config.ScaledContext) {
 		SettingLister:        management.Management.Settings("").Controller().Lister(),
 		Settings:             management.Management.Settings(""),
 	}
-
-	metadataHandler.CisConfigLister = management.Management.CisConfigs("").Controller().Lister()
-	metadataHandler.CisConfig = management.Management.CisConfigs("")
-	metadataHandler.CisBenchmarkVersionLister = management.Management.CisBenchmarkVersions("").Controller().Lister()
-	metadataHandler.CisBenchmarkVersion = management.Management.CisBenchmarkVersions("")
 
 	handler := kontainerdriver.ActionHandler{
 		KontainerDrivers:      management.Management.KontainerDrivers(""),

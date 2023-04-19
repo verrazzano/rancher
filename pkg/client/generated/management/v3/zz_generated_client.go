@@ -56,7 +56,6 @@ type Client struct {
 	GlobalDnsProvider                       GlobalDnsProviderOperations
 	KontainerDriver                         KontainerDriverOperations
 	EtcdBackup                              EtcdBackupOperations
-	ClusterScan                             ClusterScanOperations
 	MonitorMetric                           MonitorMetricOperations
 	ProjectMonitorGraph                     ProjectMonitorGraphOperations
 	CloudCredential                         CloudCredentialOperations
@@ -66,8 +65,6 @@ type Client struct {
 	RkeK8sSystemImage                       RkeK8sSystemImageOperations
 	RkeK8sServiceOption                     RkeK8sServiceOptionOperations
 	RkeAddon                                RkeAddonOperations
-	CisConfig                               CisConfigOperations
-	CisBenchmarkVersion                     CisBenchmarkVersionOperations
 	FleetWorkspace                          FleetWorkspaceOperations
 	RancherUserNotification                 RancherUserNotificationOperations
 }
@@ -131,7 +128,6 @@ func NewClient(opts *clientbase.ClientOpts) (*Client, error) {
 	client.GlobalDnsProvider = newGlobalDnsProviderClient(client)
 	client.KontainerDriver = newKontainerDriverClient(client)
 	client.EtcdBackup = newEtcdBackupClient(client)
-	client.ClusterScan = newClusterScanClient(client)
 	client.MonitorMetric = newMonitorMetricClient(client)
 	client.ProjectMonitorGraph = newProjectMonitorGraphClient(client)
 	client.CloudCredential = newCloudCredentialClient(client)
@@ -141,8 +137,6 @@ func NewClient(opts *clientbase.ClientOpts) (*Client, error) {
 	client.RkeK8sSystemImage = newRkeK8sSystemImageClient(client)
 	client.RkeK8sServiceOption = newRkeK8sServiceOptionClient(client)
 	client.RkeAddon = newRkeAddonClient(client)
-	client.CisConfig = newCisConfigClient(client)
-	client.CisBenchmarkVersion = newCisBenchmarkVersionClient(client)
 	client.FleetWorkspace = newFleetWorkspaceClient(client)
 	client.RancherUserNotification = newRancherUserNotificationClient(client)
 

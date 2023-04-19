@@ -35,7 +35,6 @@ const (
 	ClusterFieldConditions                           = "conditions"
 	ClusterFieldCreated                              = "created"
 	ClusterFieldCreatorID                            = "creatorId"
-	ClusterFieldCurrentCisRunName                    = "currentCisRunName"
 	ClusterFieldDefaultClusterRoleForProjectMembers  = "defaultClusterRoleForProjectMembers"
 	ClusterFieldDefaultPodSecurityPolicyTemplateID   = "defaultPodSecurityPolicyTemplateId"
 	ClusterFieldDescription                          = "description"
@@ -72,8 +71,6 @@ const (
 	ClusterFieldRequested                            = "requested"
 	ClusterFieldRke2Config                           = "rke2Config"
 	ClusterFieldS3CredentialSecret                   = "s3CredentialSecret"
-	ClusterFieldScheduledClusterScan                 = "scheduledClusterScan"
-	ClusterFieldScheduledClusterScanStatus           = "scheduledClusterScanStatus"
 	ClusterFieldServiceAccountTokenSecret            = "serviceAccountTokenSecret"
 	ClusterFieldState                                = "state"
 	ClusterFieldTransitioning                        = "transitioning"
@@ -118,7 +115,6 @@ type Cluster struct {
 	Conditions                           []ClusterCondition             `json:"conditions,omitempty" yaml:"conditions,omitempty"`
 	Created                              string                         `json:"created,omitempty" yaml:"created,omitempty"`
 	CreatorID                            string                         `json:"creatorId,omitempty" yaml:"creatorId,omitempty"`
-	CurrentCisRunName                    string                         `json:"currentCisRunName,omitempty" yaml:"currentCisRunName,omitempty"`
 	DefaultClusterRoleForProjectMembers  string                         `json:"defaultClusterRoleForProjectMembers,omitempty" yaml:"defaultClusterRoleForProjectMembers,omitempty"`
 	DefaultPodSecurityPolicyTemplateID   string                         `json:"defaultPodSecurityPolicyTemplateId,omitempty" yaml:"defaultPodSecurityPolicyTemplateId,omitempty"`
 	Description                          string                         `json:"description,omitempty" yaml:"description,omitempty"`
@@ -155,8 +151,6 @@ type Cluster struct {
 	Requested                            map[string]string              `json:"requested,omitempty" yaml:"requested,omitempty"`
 	Rke2Config                           *Rke2Config                    `json:"rke2Config,omitempty" yaml:"rke2Config,omitempty"`
 	S3CredentialSecret                   string                         `json:"s3CredentialSecret,omitempty" yaml:"s3CredentialSecret,omitempty"`
-	ScheduledClusterScan                 *ScheduledClusterScan          `json:"scheduledClusterScan,omitempty" yaml:"scheduledClusterScan,omitempty"`
-	ScheduledClusterScanStatus           *ScheduledClusterScanStatus    `json:"scheduledClusterScanStatus,omitempty" yaml:"scheduledClusterScanStatus,omitempty"`
 	ServiceAccountTokenSecret            string                         `json:"serviceAccountTokenSecret,omitempty" yaml:"serviceAccountTokenSecret,omitempty"`
 	State                                string                         `json:"state,omitempty" yaml:"state,omitempty"`
 	Transitioning                        string                         `json:"transitioning,omitempty" yaml:"transitioning,omitempty"`

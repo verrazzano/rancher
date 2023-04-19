@@ -32,7 +32,6 @@ const (
 	ClusterSpecFieldLocalClusterAuthEndpoint            = "localClusterAuthEndpoint"
 	ClusterSpecFieldRancherKubernetesEngineConfig       = "rancherKubernetesEngineConfig"
 	ClusterSpecFieldRke2Config                          = "rke2Config"
-	ClusterSpecFieldScheduledClusterScan                = "scheduledClusterScan"
 	ClusterSpecFieldWindowsPreferedCluster              = "windowsPreferedCluster"
 )
 
@@ -67,6 +66,5 @@ type ClusterSpec struct {
 	LocalClusterAuthEndpoint            *LocalClusterAuthEndpoint      `json:"localClusterAuthEndpoint,omitempty" yaml:"localClusterAuthEndpoint,omitempty"`
 	RancherKubernetesEngineConfig       *RancherKubernetesEngineConfig `json:"rancherKubernetesEngineConfig,omitempty" yaml:"rancherKubernetesEngineConfig,omitempty"`
 	Rke2Config                          *Rke2Config                    `json:"rke2Config,omitempty" yaml:"rke2Config,omitempty"`
-	ScheduledClusterScan                *ScheduledClusterScan          `json:"scheduledClusterScan,omitempty" yaml:"scheduledClusterScan,omitempty"`
 	WindowsPreferedCluster              bool                           `json:"windowsPreferedCluster,omitempty" yaml:"windowsPreferedCluster,omitempty"`
 }

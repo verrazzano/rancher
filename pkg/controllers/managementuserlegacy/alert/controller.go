@@ -131,7 +131,6 @@ func registerDeferred(ctx context.Context, mgmt *config.ScaledContext, cluster *
 	watcher.StartPodWatcher(ctx, cluster, alertmanager)
 	watcher.StartWorkloadWatcher(ctx, cluster, alertmanager)
 	watcher.StartNodeWatcher(ctx, cluster, alertmanager)
-	watcher.StartClusterScanWatcher(ctx, cluster, alertmanager)
 
 }
 

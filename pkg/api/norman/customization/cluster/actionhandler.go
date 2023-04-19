@@ -32,10 +32,6 @@ type ActionHandler struct {
 	ClusterTemplateClient         v3.ClusterTemplateInterface
 	ClusterTemplateRevisionClient v3.ClusterTemplateRevisionInterface
 	SubjectAccessReviewClient     v1.SubjectAccessReviewInterface
-	CisBenchmarkVersionClient     v3.CisBenchmarkVersionInterface
-	CisBenchmarkVersionLister     v3.CisBenchmarkVersionLister
-	CisConfigClient               v3.CisConfigInterface
-	CisConfigLister               v3.CisConfigLister
 	TokenClient                   v3.TokenInterface
 	Auth                          requests.Authenticator
 }
