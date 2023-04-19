@@ -31,8 +31,8 @@ RUN yum update -y && \
     rm -rf /var/cache/yum
 
 ENV KUSTOMIZE_VERSION v4.5.5
-ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz \
-    CATTLE_MACHINE_VERSION=v0.15.0-rancher95
+
+ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     chmod +x /usr/bin/kustomize
@@ -47,49 +47,37 @@ ARG RKE2_CHART_DEFAULT_BRANCH=main
 ARG CATTLE_KDM_BRANCH=release-v2.7
 ARG CATTLE_DASHBOARD_TAR_URL=https://github.com/verrazzano/rancher-dashboard/releases/download/v2.6.5-vz/rancher-dashboard-v2.6.5.tar.gz
 
-ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH \
-    CATTLE_CHART_DEFAULT_BRANCH=oracle/release/2.7.1 \
-    CATTLE_PARTNER_CHART_DEFAULT_BRANCH=$PARTNER_CHART_DEFAULT_BRANCH \
-    CATTLE_RKE2_CHART_DEFAULT_BRANCH=$RKE2_CHART_DEFAULT_BRANCH \
-    CATTLE_HELM_VERSION=v2.16.8-rancher2 \
-    CATTLE_K3S_VERSION=v1.24.4+k3s1 \
-    CATTLE_MACHINE_PROVISION_IMAGE=rancher/machine:${CATTLE_MACHINE_VERSION} \
-    CATTLE_ETCD_VERSION=v3.5.1 \
-    LOGLEVEL_VERSION=v0.1.5 \
-    TINI_VERSION=v0.19.0 \
-    TELEMETRY_VERSION=v0.5.20 \
-    DOCKER_MACHINE_LINODE_VERSION=v0.1.8 \
-    LINODE_UI_DRIVER_VERSION=v0.4.0 \
-    # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
-    CATTLE_KDM_BRANCH=${CATTLE_KDM_BRANCH} \
-    HELM_VERSION=3.9.0-rancher1 \
-    # System charts minimal version
-    CATTLE_FLEET_MIN_VERSION=101.0.1+up0.5.1 \
-    CATTLE_RANCHER_WEBHOOK_MIN_VERSION=2.0.0+up0.3.0 \
-    CATTLE_CSP_ADAPTER_MIN_VERSION=2.0.0 \
-    # Chart git repo directories
-    RANCHER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721 \
-    # System chart commits
-    RANCHER_CHARTS_COMMIT=a452743564b144167ef0ec3c383c9886c350578f \
-    RANCHER_PARTNER_CHARTS_COMMIT=d3ad2ded37158ac75e44db651fc5ad223e3587d6 \
-    RANCHER_RKE2_CHARTS_COMMIT=de3522e27b72f7a99077fa0584f0902861da0453 \
-    # Versions for UI, DASHBOARD and CLI will be the same as 2.6 until new releases are made to these
-    CATTLE_UI_VERSION=2.7.1 \
-    CATTLE_DASHBOARD_UI_VERSION=v2.6.8 \
-    CATTLE_CLI_VERSION=v2.7.0 \
-    # Base UI brand used as a fallback env setting (not user facing) to indicate this is a non-prime install
-    CATTLE_BASE_UI_BRAND="" \
-    # Please update the api-ui-version in pkg/settings/settings.go when updating the version here.
-    CATTLE_API_UI_VERSION=1.1.9 \
-    AUDIT_LOG_PATH=/var/log/auditlog/rancher-api-audit.log \
-    AUDIT_LOG_MAXAGE=10 \
-    AUDIT_LOG_MAXBACKUP=10 \
-    AUDIT_LOG_MAXSIZE=100 \
-    AUDIT_LEVEL=0
+ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
+ENV CATTLE_CHART_DEFAULT_BRANCH=oracle/release/2.7.1
+ENV CATTLE_PARTNER_CHART_DEFAULT_BRANCH=$PARTNER_CHART_DEFAULT_BRANCH
+ENV CATTLE_RKE2_CHART_DEFAULT_BRANCH=$RKE2_CHART_DEFAULT_BRANCH
+ENV CATTLE_HELM_VERSION v2.16.8-rancher2
+ENV CATTLE_MACHINE_VERSION v0.15.0-rancher95
+ENV CATTLE_K3S_VERSION v1.24.4+k3s1
+ENV CATTLE_MACHINE_PROVISION_IMAGE rancher/machine:${CATTLE_MACHINE_VERSION}
+ENV CATTLE_ETCD_VERSION v3.5.1
+ENV LOGLEVEL_VERSION v0.1.5
+ENV TINI_VERSION v0.19.0
+ENV TELEMETRY_VERSION v0.5.20
+ENV DOCKER_MACHINE_LINODE_VERSION v0.1.8
+ENV LINODE_UI_DRIVER_VERSION v0.4.0
+# make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
+ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
+ENV HELM_VERSION 3.9.0-rancher1
 
-ENV CATTLE_CLI_URL_DARWIN=https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-darwin-amd64-${CATTLE_CLI_VERSION}.tar.gz \
-    CATTLE_CLI_URL_LINUX=https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-linux-amd64-${CATTLE_CLI_VERSION}.tar.gz \
-    CATTLE_CLI_URL_WINDOWS=https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-windows-386-${CATTLE_CLI_VERSION}.zip
+
+# System charts minimal version
+ENV CATTLE_FLEET_MIN_VERSION=101.0.1+up0.5.1
+ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=2.0.0+up0.3.0
+ENV CATTLE_CSP_ADAPTER_MIN_VERSION=2.0.0
+
+# Chart git repo directories
+ENV RANCHER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721
+
+# System chart commits
+ENV RANCHER_CHARTS_COMMIT=a452743564b144167ef0ec3c383c9886c350578f
+ENV RANCHER_PARTNER_CHARTS_COMMIT=d3ad2ded37158ac75e44db651fc5ad223e3587d6
+ENV RANCHER_RKE2_CHARTS_COMMIT=de3522e27b72f7a99077fa0584f0902861da0453
 
 RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
@@ -111,8 +99,26 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
 RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
     chmod +x /usr/bin/tini /usr/bin/telemetry && \
-    mkdir -p /var/lib/rancher-data/driver-metadata && \
-    mkdir -p /var/log/auditlog
+    mkdir -p /var/lib/rancher-data/driver-metadata
+
+
+# Versions for UI, DASHBOARD and CLI will be the same as 2.6 until new releases are made to these
+ENV CATTLE_UI_VERSION 2.7.1
+ENV CATTLE_DASHBOARD_UI_VERSION v2.6.8
+ENV CATTLE_CLI_VERSION v2.7.0
+
+# Base UI brand used as a fallback env setting (not user facing) to indicate this is a non-prime install
+ENV CATTLE_BASE_UI_BRAND=
+
+# Please update the api-ui-version in pkg/settings/settings.go when updating the version here.
+ENV CATTLE_API_UI_VERSION 1.1.9
+
+RUN mkdir -p /var/log/auditlog
+ENV AUDIT_LOG_PATH /var/log/auditlog/rancher-api-audit.log
+ENV AUDIT_LOG_MAXAGE 10
+ENV AUDIT_LOG_MAXBACKUP 10
+ENV AUDIT_LOG_MAXSIZE 100
+ENV AUDIT_LEVEL 0
 
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
@@ -126,24 +132,29 @@ RUN mkdir -p /usr/share/rancher/ui && \
     curl -sL ${CATTLE_DASHBOARD_TAR_URL} | tar xvzf - --strip-components=2 && \
     ln -s dashboard/index.html ../index.html
 
-ARG VERSION=dev
-ENV CATTLE_SERVER_VERSION=${VERSION} \
-    # Force use of rancher-agent image built from source for Verrazzano.
-    CATTLE_AGENT_IMAGE=ghcr.io/verrazzano/rancher-agent:${VERSION} \
-    CATTLE_SERVER_IMAGE=${IMAGE_REPO}/rancher \
-    ETCDCTL_API=3 \
-    SSL_CERT_DIR=/etc/rancher/ssl
 
+ENV CATTLE_CLI_URL_DARWIN  https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-darwin-amd64-${CATTLE_CLI_VERSION}.tar.gz
+ENV CATTLE_CLI_URL_LINUX   https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-linux-amd64-${CATTLE_CLI_VERSION}.tar.gz
+ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-windows-386-${CATTLE_CLI_VERSION}.zip
+
+ARG VERSION=dev
+ENV CATTLE_SERVER_VERSION ${VERSION}
 COPY entrypoint.sh rancher /usr/bin/
 COPY kustomize.sh /usr/bin/
 COPY jailer.sh /usr/bin/
 RUN mkdir /license
 COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
-RUN chmod +x /usr/bin/entrypoint.sh && \
-    chmod +x /usr/bin/kustomize.sh
+RUN chmod +x /usr/bin/entrypoint.sh
+RUN chmod +x /usr/bin/kustomize.sh
 
 COPY data.json /var/lib/rancher-data/driver-metadata/
 
+# Force use of rancher-agent image built from source for Verrazzano.
+ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
+ENV CATTLE_SERVER_IMAGE ${IMAGE_REPO}/rancher
+ENV ETCDCTL_API=3
+
+ENV SSL_CERT_DIR /etc/rancher/ssl
 VOLUME /var/lib/rancher
 VOLUME /var/lib/kubelet
 VOLUME /var/lib/cni
