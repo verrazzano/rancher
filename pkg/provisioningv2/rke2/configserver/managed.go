@@ -24,9 +24,5 @@ func (r *RKE2ConfigServer) findMachineByProvisioningSA(req *http.Request) (strin
 		return "", "", err
 	}
 
-	if foundParent, err := rke2.IsOwnedByMachine(r.bootstrapCache, sa.Labels[rke2.MachineNameLabel], sa); err != nil || !foundParent {
-		return "", "", err
-	}
-
 	return sa.Namespace, sa.Labels[rke2.MachineNameLabel], nil
 }

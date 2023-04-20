@@ -14,7 +14,6 @@ import (
 	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	mgmtcontroller "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	provisioningcontrollers "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
-	rkecontroller "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
 	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
 	"github.com/rancher/rancher/pkg/provisioningv2/rke2/planner"
 	"github.com/rancher/rancher/pkg/serviceaccounttoken"
@@ -54,7 +53,6 @@ type RKE2ConfigServer struct {
 	settings                 mgmtcontroller.SettingCache
 	machineCache             capicontrollers.MachineCache
 	machines                 capicontrollers.MachineClient
-	bootstrapCache           rkecontroller.RKEBootstrapCache
 	provisioningClusterCache provisioningcontrollers.ClusterCache
 	k8s                      kubernetes.Interface
 }
@@ -82,7 +80,6 @@ func New(clients *wrangler.Context) *RKE2ConfigServer {
 		clusterTokens:            clients.Mgmt.ClusterRegistrationToken(),
 		machineCache:             clients.CAPI.Machine().Cache(),
 		machines:                 clients.CAPI.Machine(),
-		bootstrapCache:           clients.RKE.RKEBootstrap().Cache(),
 		provisioningClusterCache: clients.Provisioning.Cluster().Cache(),
 		k8s:                      clients.K8s,
 	}
@@ -330,10 +327,6 @@ func (r *RKE2ConfigServer) findSA(req *http.Request) (string, *corev1.Secret, er
 	logrus.Debugf("[rke2configserver] %s/%s listed %d planSAs", machineNamespace, machineName, len(planSAs))
 
 	for _, planSA := range planSAs {
-		if err := rke2.PlanSACheck(r.bootstrapCache, machineName, planSA); err != nil {
-			logrus.Errorf("[rke2configserver] error encountered when searching for checking planSA %s/%s against machine %s: %v", planSA.Namespace, planSA.Name, machineName, err)
-			continue
-		}
 		planSecret, err := rke2.GetPlanSecretName(planSA)
 		if err != nil {
 			logrus.Errorf("[rke2configserver] error encountered when searching for plan secret name for planSA %s/%s: %v", planSA.Namespace, planSA.Name, err)
@@ -379,10 +372,6 @@ func (r *RKE2ConfigServer) findSA(req *http.Request) (string, *corev1.Secret, er
 	for event := range respSA.ResultChan() {
 		var ok bool
 		if planSA, ok = event.Object.(*corev1.ServiceAccount); ok {
-			if err := rke2.PlanSACheck(r.bootstrapCache, machineName, planSA); err != nil {
-				logrus.Errorf("[rke2configserver] error encountered when searching for checking planSA %s/%s against machine %s: %v", planSA.Namespace, planSA.Name, machineName, err)
-				continue
-			}
 			planSecret, err = rke2.GetPlanSecretName(planSA)
 			if err != nil {
 				logrus.Errorf("[rke2configserver] error encountered when searching for plan secret name for planSA %s/%s: %v", planSA.Namespace, planSA.Name, err)
