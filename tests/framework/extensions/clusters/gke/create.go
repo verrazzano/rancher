@@ -12,7 +12,6 @@ func CreateGKEHostedCluster(client *rancher.Client, displayName, cloudCredential
 		DockerRootDir:           "/var/lib/docker",
 		GKEConfig:               gkeHostCluster,
 		Name:                    displayName,
-		EnableClusterAlerting:   enableClusterAlerting,
 		EnableClusterMonitoring: enableClusterMonitoring,
 		EnableNetworkPolicy:     &enableNetworkPolicy,
 		Labels:                  labels,

@@ -39,9 +39,6 @@ var (
 	CatalogTemplateVersionResourceName                  = "catalogtemplateversions"
 	CloudCredentialResourceName                         = "cloudcredentials"
 	ClusterResourceName                                 = "clusters"
-	ClusterAlertResourceName                            = "clusteralerts"
-	ClusterAlertGroupResourceName                       = "clusteralertgroups"
-	ClusterAlertRuleResourceName                        = "clusteralertrules"
 	ClusterCatalogResourceName                          = "clustercatalogs"
 	ClusterRegistrationTokenResourceName                = "clusterregistrationtokens"
 	ClusterRoleTemplateBindingResourceName              = "clusterroletemplatebindings"
@@ -146,12 +143,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&CloudCredentialList{},
 		&Cluster{},
 		&ClusterList{},
-		&ClusterAlert{},
-		&ClusterAlertList{},
-		&ClusterAlertGroup{},
-		&ClusterAlertGroupList{},
-		&ClusterAlertRule{},
-		&ClusterAlertRuleList{},
 		&ClusterCatalog{},
 		&ClusterCatalogList{},
 		&ClusterRegistrationToken{},

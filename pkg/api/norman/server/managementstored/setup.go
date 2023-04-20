@@ -118,10 +118,7 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.CatalogType,
 		client.CatalogTemplateType,
 		client.CatalogTemplateVersionType,
-		client.ClusterAlertType,
-		client.ClusterAlertGroupType,
 		client.ClusterCatalogType,
-		client.ClusterAlertRuleType,
 		client.ComposeConfigType,
 		client.MultiClusterAppType,
 		client.MultiClusterAppRevisionType,
@@ -548,7 +545,6 @@ func Feature(schemas *types.Schemas, management *config.ScaledContext) {
 
 func Alert(schemas *types.Schemas, management *config.ScaledContext) {
 	handler := &alert.Handler{
-		ClusterAlertRule: management.Management.ClusterAlertRules(""),
 		ProjectAlertRule: management.Management.ProjectAlertRules(""),
 		Notifiers:        management.Management.Notifiers(""),
 		DialerFactory:    management.Dialer,
@@ -560,18 +556,12 @@ func Alert(schemas *types.Schemas, management *config.ScaledContext) {
 	schema.ActionHandler = handler.NotifierActionHandler
 	schema.Store = alertStore.NewNotifier(management, schema.Store)
 
-	schema = schemas.Schema(&managementschema.Version, client.ClusterAlertRuleType)
-	schema.Formatter = alert.RuleFormatter
-	schema.Validator = alert.ClusterAlertRuleValidator
-	schema.ActionHandler = handler.ClusterAlertRuleActionHandler
-
 	schema = schemas.Schema(&managementschema.Version, client.ProjectAlertRuleType)
 	schema.Formatter = alert.RuleFormatter
 	schema.Validator = alert.ProjectAlertRuleValidator
 	schema.ActionHandler = handler.ProjectAlertRuleActionHandler
 
 	//old schema just for migrate
-	schema = schemas.Schema(&managementschema.Version, client.ClusterAlertType)
 	schema = schemas.Schema(&managementschema.Version, client.ProjectAlertType)
 }
 

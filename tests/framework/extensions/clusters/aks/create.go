@@ -12,7 +12,6 @@ func CreateAKSHostedCluster(client *rancher.Client, displayName, cloudCredential
 		DockerRootDir:           "/var/lib/docker",
 		AKSConfig:               aksHostCluster,
 		Name:                    displayName,
-		EnableClusterAlerting:   enableClusterAlerting,
 		EnableClusterMonitoring: enableClusterMonitoring,
 		EnableNetworkPolicy:     &enableNetworkPolicy,
 		Labels:                  labels,

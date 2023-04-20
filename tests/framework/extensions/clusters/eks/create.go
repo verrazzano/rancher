@@ -12,7 +12,6 @@ func CreateEKSHostedCluster(client *rancher.Client, displayName, cloudCredential
 		DockerRootDir:           "/var/lib/docker",
 		EKSConfig:               eksHostCluster,
 		Name:                    displayName,
-		EnableClusterAlerting:   enableClusterAlerting,
 		EnableClusterMonitoring: enableClusterMonitoring,
 		EnableNetworkPolicy:     &enableNetworkPolicy,
 		Labels:                  labels,

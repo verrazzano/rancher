@@ -14,63 +14,6 @@ import (
 )
 
 var (
-	clusterAlertTests = []struct {
-		caseName     string
-		in           map[string][]*v3.ClusterAlertRule
-		outGroupBy   []model.LabelName
-		outTimeField v32.TimingField
-	}{
-		{"event alert", eventRulesMap, eventGroupBy, eventTimingField},
-		{"node alert", nodeRulesMap, nodeGroupBy, defaultTimingField},
-		{"system service alert", systemServiceRulesMap, systemServiceGroupBy, defaultTimingField},
-		{"metric alert", metricRulesMap, metricGroupBy, defaultTimingField},
-	}
-)
-
-func TestAddClusterAlert2Config(t *testing.T) {
-
-	for _, tt := range clusterAlertTests {
-		keys := []string{groupID}
-		config := manager.GetAlertManagerDefaultConfig()
-
-		configSyncer := ConfigSyncer{
-			clusterName: clusterName,
-		}
-
-		if err := configSyncer.addClusterAlert2Config(config, tt.in, keys, clusterGroupMap, notifiers); err != nil {
-			t.Error(err)
-			return
-		}
-
-		if len(config.Route.Routes) == 0 {
-			t.Errorf("test %s failed, routes is empty", tt.caseName)
-		}
-
-		if len(config.Route.Routes[0].Routes) == 0 {
-			t.Errorf("test %s failed, sub routes is empty", tt.caseName)
-		}
-
-		subRoute := config.Route.Routes[0].Routes[0]
-		if !reflect.DeepEqual(subRoute.GroupBy, tt.outGroupBy) {
-			t.Errorf("test %s failed, expect group by %v, actual %v", tt.caseName, tt.outGroupBy, subRoute.GroupBy)
-		}
-
-		if *subRoute.GroupWait != model.Duration(time.Duration(tt.outTimeField.GroupWaitSeconds)*time.Second) {
-			t.Errorf("test %s failed, expect group wait %v, actual %v", tt.caseName, tt.outTimeField.GroupWaitSeconds, subRoute.GroupWait)
-		}
-
-		if *subRoute.GroupInterval != model.Duration(time.Duration(tt.outTimeField.GroupIntervalSeconds)*time.Second) {
-			t.Errorf("test %s failed, expect group interval %v, actual %v", tt.caseName, tt.outTimeField.GroupIntervalSeconds, subRoute.GroupInterval)
-		}
-
-		if *subRoute.RepeatInterval != model.Duration(time.Duration(tt.outTimeField.RepeatIntervalSeconds)*time.Second) {
-			t.Errorf("test %s failed, expect repeat interval %v, actual %v", tt.caseName, tt.outTimeField.RepeatIntervalSeconds, subRoute.RepeatInterval)
-		}
-	}
-
-}
-
-var (
 	projectAlertTests = []struct {
 		caseName     string
 		in           map[string]map[string][]*v3.ProjectAlertRule
@@ -161,17 +104,6 @@ var (
 		TimingField: defaultTimingField,
 	}
 
-	clusterGroupMap = map[string]*v3.ClusterAlertGroup{
-		groupID: &v3.ClusterAlertGroup{
-			Spec: v32.ClusterGroupSpec{
-				ClusterName:      clusterName,
-				CommonGroupField: commonGroupField,
-				Recipients:       recipients,
-			},
-			Status: alertStatus,
-		},
-	}
-
 	projectGroupMap = map[string]*v3.ProjectAlertGroup{
 		groupID: &v3.ProjectAlertGroup{
 			Spec: v32.ProjectGroupSpec{
@@ -235,119 +167,6 @@ var (
 		Inherited:   &inherited,
 		TimingField: eventTimingField,
 	}
-
-	eventAlert = v3.ClusterAlertRule{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Spec: v32.ClusterAlertRuleSpec{
-			ClusterName:     clusterName,
-			GroupName:       groupID,
-			CommonRuleField: eventCommonRuleField,
-			EventRule:       &podEventRule,
-		},
-		Status: alertStatus,
-	}
-
-	eventRulesMap = map[string][]*v3.ClusterAlertRule{
-		groupID: {
-			&eventAlert,
-		},
-	}
-
-	eventGroupBy = getClusterAlertGroupBy(eventAlert.Spec)
-)
-
-// node
-var (
-	nodeRule = v32.NodeRule{
-		NodeName:  "node1",
-		Condition: "notready",
-	}
-
-	nodeAlert = v3.ClusterAlertRule{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "nodeRule",
-			Namespace: namespace,
-		},
-		Spec: v32.ClusterAlertRuleSpec{
-			ClusterName:     clusterName,
-			GroupName:       groupID,
-			CommonRuleField: commonRuleField,
-			NodeRule:        &nodeRule,
-		},
-		Status: alertStatus,
-	}
-
-	nodeRulesMap = map[string][]*v3.ClusterAlertRule{
-		groupID: {
-			&nodeAlert,
-		},
-	}
-
-	nodeGroupBy = getClusterAlertGroupBy(nodeAlert.Spec)
-)
-
-// system service
-var (
-	systemServiceRule = v32.SystemServiceRule{
-		Condition: "etcd",
-	}
-
-	systemServiceAlert = v3.ClusterAlertRule{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "systemServiceRule",
-			Namespace: namespace,
-		},
-		Spec: v32.ClusterAlertRuleSpec{
-			ClusterName:       clusterName,
-			GroupName:         groupID,
-			CommonRuleField:   commonRuleField,
-			SystemServiceRule: &systemServiceRule,
-		},
-		Status: alertStatus,
-	}
-
-	systemServiceRulesMap = map[string][]*v3.ClusterAlertRule{
-		groupID: {
-			&systemServiceAlert,
-		},
-	}
-
-	systemServiceGroupBy = getClusterAlertGroupBy(systemServiceAlert.Spec)
-)
-
-// metric
-var (
-	metricRule = v32.MetricRule{
-		Expression:     `sum(node_load5) by (instance) / count(node_cpu_seconds_total{mode="system"})`,
-		Duration:       "1m",
-		Comparison:     "equal",
-		ThresholdValue: 1,
-	}
-
-	metricAlert = v3.ClusterAlertRule{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "metricRule",
-			Namespace: namespace,
-		},
-		Spec: v32.ClusterAlertRuleSpec{
-			ClusterName:     clusterName,
-			GroupName:       groupID,
-			CommonRuleField: commonRuleField,
-			MetricRule:      &metricRule,
-		},
-		Status: alertStatus,
-	}
-
-	metricRulesMap = map[string][]*v3.ClusterAlertRule{
-		groupID: {
-			&metricAlert,
-		},
-	}
-
-	metricGroupBy = getClusterAlertGroupBy(metricAlert.Spec)
 )
 
 // pod
