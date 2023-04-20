@@ -240,26 +240,6 @@ func machineDeployments(cluster *rancherv1.Cluster, capiCluster *capi.Cluster, d
 		return nil, nil
 	}
 
-	if len(cluster.Spec.RKEConfig.MachinePools) > 0 {
-		result = append(result, &rkev1.RKEBootstrapTemplate{
-			ObjectMeta: metav1.ObjectMeta{
-				Namespace: cluster.Namespace,
-				Name:      bootstrapName,
-				Labels: map[string]string{
-					rke2.ClusterNameLabel: cluster.Name,
-				},
-			},
-			Spec: rkev1.RKEBootstrapTemplateSpec{
-				ClusterName: cluster.Name,
-				Template: rkev1.RKEBootstrap{
-					Spec: rkev1.RKEBootstrapSpec{
-						ClusterName: cluster.Name,
-					},
-				},
-			},
-		})
-	}
-
 	machinePoolNames := map[string]bool{}
 	for _, machinePool := range cluster.Spec.RKEConfig.MachinePools {
 		if machinePool.Quantity != nil && *machinePool.Quantity == 0 {

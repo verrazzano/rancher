@@ -28,11 +28,9 @@ import (
 )
 
 var (
-	ETCDSnapshotResourceName         = "etcdsnapshots"
-	RKEBootstrapResourceName         = "rkebootstraps"
-	RKEBootstrapTemplateResourceName = "rkebootstraptemplates"
-	RKEClusterResourceName           = "rkeclusters"
-	RKEControlPlaneResourceName      = "rkecontrolplanes"
+	ETCDSnapshotResourceName    = "etcdsnapshots"
+	RKEClusterResourceName      = "rkeclusters"
+	RKEControlPlaneResourceName = "rkecontrolplanes"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -58,10 +56,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&ETCDSnapshot{},
 		&ETCDSnapshotList{},
-		&RKEBootstrap{},
-		&RKEBootstrapList{},
-		&RKEBootstrapTemplate{},
-		&RKEBootstrapTemplateList{},
 		&RKECluster{},
 		&RKEClusterList{},
 		&RKEControlPlane{},

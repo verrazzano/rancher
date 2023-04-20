@@ -20,10 +20,6 @@ package v1
 
 type ETCDSnapshotExpansion interface{}
 
-type RKEBootstrapExpansion interface{}
-
-type RKEBootstrapTemplateExpansion interface{}
-
 type RKEClusterExpansion interface{}
 
 type RKEControlPlaneExpansion interface{}

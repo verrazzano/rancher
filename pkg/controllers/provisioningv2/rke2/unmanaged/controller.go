@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/controllers/dashboard/clusterindex"
 	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
@@ -40,8 +39,7 @@ func Register(ctx context.Context, clients *wrangler.Context) {
 			WithCacheTypes(
 				clients.Mgmt.Cluster(),
 				clients.Provisioning.Cluster(),
-				clients.CAPI.Machine(),
-				clients.RKE.RKEBootstrap()),
+				clients.CAPI.Machine()),
 	}
 	clients.Core.Secret().OnChange(ctx, "unmanaged-machine-secret", h.onSecretChange)
 }
@@ -193,17 +191,6 @@ func (h *handler) createMachineObjects(capiCluster *capi.Cluster, machineName st
 	}
 
 	return []runtime.Object{
-		&rkev1.RKEBootstrap{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:        machineName,
-				Namespace:   capiCluster.Namespace,
-				Labels:      labels,
-				Annotations: annotations,
-			},
-			Spec: rkev1.RKEBootstrapSpec{
-				ClusterName: capiCluster.Name,
-			},
-		},
 		&capi.Machine{
 			TypeMeta: metav1.TypeMeta{},
 			ObjectMeta: metav1.ObjectMeta{

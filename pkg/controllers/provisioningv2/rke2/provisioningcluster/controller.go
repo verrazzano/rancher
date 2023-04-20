@@ -87,7 +87,6 @@ func Register(ctx context.Context, clients *wrangler.Context) {
 				clients.CAPI.MachineDeployment(),
 				clients.RKE.RKEControlPlane(),
 				clients.RKE.RKECluster(),
-				clients.RKE.RKEBootstrapTemplate(),
 			),
 		"RKECluster",
 		"rke-cluster",

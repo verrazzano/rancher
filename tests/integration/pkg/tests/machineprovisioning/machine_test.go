@@ -3,27 +3,19 @@ package machineprovisioning
 import (
 	"os"
 	"strings"
-	"sync/atomic"
 	"testing"
 
 	provisioningv1api "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	"github.com/rancher/rancher/tests/integration/pkg/clients"
 	"github.com/rancher/rancher/tests/integration/pkg/cluster"
 	"github.com/rancher/rancher/tests/integration/pkg/defaults"
 	"github.com/rancher/rancher/tests/integration/pkg/nodeconfig"
-	"github.com/rancher/rancher/tests/integration/pkg/wait"
 	"github.com/rancher/wrangler/pkg/data"
 	"github.com/stretchr/testify/assert"
-	errgroup2 "golang.org/x/sync/errgroup"
-	corev1 "k8s.io/api/core/v1"
-	apierror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/client-go/util/retry"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
@@ -379,143 +371,6 @@ func TestFourNodesServerAndWorkerRolesWithDelete(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-}
-
-func TestDrain(t *testing.T) {
-	clients, err := clients.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer clients.Close()
-
-	drainOpt := rkev1.DrainOptions{
-		IgnoreDaemonSets:   &[]bool{true}[0],
-		DeleteEmptyDirData: true,
-		Enabled:            true,
-		PreDrainHooks: []rkev1.DrainHook{
-			{
-				Annotation: "test.io/pre-hook1",
-			},
-			{
-				Annotation: "test.io/pre-hook2",
-			},
-		},
-		PostDrainHooks: []rkev1.DrainHook{
-			{
-				Annotation: "test.io/post-hook1",
-			},
-			{
-				Annotation: "test.io/post-hook2",
-			},
-		},
-	}
-
-	c, err := cluster.New(clients, &provisioningv1api.Cluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "test-drain",
-		},
-		Spec: provisioningv1api.ClusterSpec{
-			KubernetesVersion: defaults.SomeK8sVersion,
-			RKEConfig: &provisioningv1api.RKEConfig{
-				RKEClusterSpecCommon: rkev1.RKEClusterSpecCommon{
-					UpgradeStrategy: rkev1.ClusterUpgradeStrategy{
-						ControlPlaneDrainOptions: drainOpt,
-						WorkerDrainOptions:       drainOpt,
-					},
-				},
-				MachinePools: []provisioningv1api.RKEMachinePool{
-					{
-						EtcdRole:         true,
-						ControlPlaneRole: true,
-					},
-					{
-						WorkerRole: true,
-					},
-				},
-			},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	c, err = cluster.WaitForCreate(clients, c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	machines, err := cluster.Machines(clients, c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, len(machines.Items), 2)
-
-	for {
-		c.Spec.RKEConfig.ProvisionGeneration = 1
-		newC, err := clients.Provisioning.Cluster().Update(c)
-		if apierror.IsConflict(err) {
-			c, _ = clients.Provisioning.Cluster().Get(c.Namespace, c.Name, metav1.GetOptions{})
-		} else if err != nil {
-			t.Fatal(err)
-		} else {
-			c = newC
-			break
-		}
-	}
-
-	var doneHooks int32
-	runHooks := func(machine *capi.Machine) error {
-		var secret *corev1.Secret
-		err = retry.OnError(retry.DefaultBackoff, func(err error) bool { return !apierror.IsNotFound(err) }, func() error {
-			bootstrap, err := clients.RKE.RKEBootstrap().Get(machine.Spec.Bootstrap.ConfigRef.Namespace, machine.Spec.Bootstrap.ConfigRef.Name, metav1.GetOptions{})
-			if err != nil {
-				return err
-			}
-			secret, err = clients.Core.Secret().Get(bootstrap.Namespace, rke2.PlanSecretFromBootstrapName(bootstrap.Name), metav1.GetOptions{})
-			return err
-		})
-		return wait.Object(clients.Ctx, clients.Core.Secret().Watch, secret, func(obj runtime.Object) (bool, error) {
-			secret := obj.(*corev1.Secret)
-			if secret.Annotations[rke2.PreDrainAnnotation] != "" &&
-				secret.Annotations[rke2.PreDrainAnnotation] != secret.Annotations["test.io/pre-hook1"] {
-				secret.Annotations["test.io/pre-hook1"] = secret.Annotations[rke2.PreDrainAnnotation]
-				secret.Annotations["test.io/pre-hook2"] = secret.Annotations[rke2.PreDrainAnnotation]
-				_, err := clients.Core.Secret().Update(secret)
-				return false, err
-			}
-			if secret.Annotations[rke2.PostDrainAnnotation] != "" &&
-				secret.Annotations[rke2.PostDrainAnnotation] != secret.Annotations["test.io/post-hook1"] {
-				secret.Annotations["test.io/post-hook1"] = secret.Annotations[rke2.PostDrainAnnotation]
-				secret.Annotations["test.io/post-hook2"] = secret.Annotations[rke2.PostDrainAnnotation]
-				_, err := clients.Core.Secret().Update(secret)
-				if err != nil {
-					return false, err
-				}
-				atomic.AddInt32(&doneHooks, 1)
-				return true, nil
-			}
-			return false, nil
-		})
-	}
-
-	errgroup, _ := errgroup2.WithContext(clients.Ctx)
-	errgroup.Go(func() error {
-		return runHooks(&machines.Items[0])
-	})
-	errgroup.Go(func() error {
-		return runHooks(&machines.Items[1])
-	})
-	if err := errgroup.Wait(); err != nil {
-		t.Fatal(err)
-	}
-
-	c, err = cluster.WaitForCreate(clients, c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, int32(2), atomic.LoadInt32(&doneHooks))
 }
 
 func TestDrainNoDelete(t *testing.T) {
