@@ -43,40 +43,6 @@ func NewETCDSnapshot(namespace, name string, obj ETCDSnapshot) *ETCDSnapshot {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// RKEBootstrapList is a list of RKEBootstrap resources
-type RKEBootstrapList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []RKEBootstrap `json:"items"`
-}
-
-func NewRKEBootstrap(namespace, name string, obj RKEBootstrap) *RKEBootstrap {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("RKEBootstrap").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// RKEBootstrapTemplateList is a list of RKEBootstrapTemplate resources
-type RKEBootstrapTemplateList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []RKEBootstrapTemplate `json:"items"`
-}
-
-func NewRKEBootstrapTemplate(namespace, name string, obj RKEBootstrapTemplate) *RKEBootstrapTemplate {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("RKEBootstrapTemplate").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 // RKEClusterList is a list of RKECluster resources
 type RKEClusterList struct {
 	metav1.TypeMeta `json:",inline"`
