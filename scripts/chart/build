@@ -15,6 +15,7 @@ cp -rf ${1} build/chart/rancher
 sed -i -e "s/%VERSION%/${CHART_VERSION}/g" build/chart/rancher/Chart.yaml
 sed -i -e "s/%APP_VERSION%/${APP_VERSION}/g" build/chart/rancher/Chart.yaml
 
+CATTLE_SHELL_IMAGE=${CATTLE_SHELL_IMAGE:-"ghcr.io/verrazzano/rancher-shell:v0.1.18-20230403204343-4124528"}
 # get the value of shell-image, from env variable set at build time CATTLE_SHELL_IMAGE
 post_delete_base=$(echo ${CATTLE_SHELL_IMAGE} | cut -d "," -f 2 | sed -e 's/"//g' | sed -e 's/)//g' | sed -e 's/ //g') || ""
 post_delete_image_name=$(echo "${post_delete_base}" | cut -d ":" -f 1) || ""
