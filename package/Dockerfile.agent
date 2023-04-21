@@ -17,7 +17,7 @@ RUN yum-config-manager --enable ol7_optional_latest && \
 
 RUN yum update -y && \
     rm -f /bin/sh && ln -s /bin/bash /bin/sh && \
-    yum install -y rh-git227 curl ca-certificates jq iproute vim less bash-completion unzip sysstat acl tar hostname openssl docker-engine-19.03.11.ol-13.el7.x86_64 ubectl-1.23.11-1.el7.x86_64 && \
+    yum install -y rh-git227 curl ca-certificates jq iproute vim less bash-completion unzip sysstat acl tar hostname openssl docker-engine-19.03.11.ol-13.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 && \
     yum clean all && \
     rm -rf /var/cache/yum && \
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
