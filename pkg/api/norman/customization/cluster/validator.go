@@ -7,6 +7,7 @@ package cluster
 
 import (
 	"fmt"
+	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"reflect"
@@ -38,6 +39,7 @@ type Validator struct {
 	Users                         v3.UserInterface
 	GrbLister                     v3.GlobalRoleBindingLister
 	GrLister                      v3.GlobalRoleLister
+	SecretLister                  v1.SecretLister
 }
 
 func (v *Validator) Validator(request *types.APIContext, schema *types.Schema, data map[string]interface{}) error {
@@ -239,7 +241,7 @@ func (v *Validator) validateOCIOCNEEngineConfig(request *types.APIContext, clust
 		}
 	}
 
-	return nil
+	return v.ValidateOCNE(ociocneConfig)
 }
 
 func (v *Validator) validateAKSConfig(request *types.APIContext, cluster map[string]interface{}, clusterSpec *v32.ClusterSpec) error {

@@ -31,6 +31,7 @@ RUN yum update -y && \
     rm -rf /var/cache/yum
 
 ENV KUSTOMIZE_VERSION v4.5.5
+
 ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
@@ -95,6 +96,7 @@ RUN curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY
     chmod +x /usr/bin/tini /usr/bin/telemetry && \
     mkdir -p /var/lib/rancher-data/driver-metadata
 
+
 # Versions for UI, DASHBOARD and CLI will be the same as 2.6 until new releases are made to these
 ENV CATTLE_UI_VERSION 2.7.1
 ENV CATTLE_DASHBOARD_UI_VERSION v2.6.8
@@ -123,6 +125,7 @@ RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui-dashboard/dashboard && \
     curl -sL ${CATTLE_DASHBOARD_TAR_URL} | tar xvzf - --strip-components=2 && \
     ln -s dashboard/index.html ../index.html
+
 
 ENV CATTLE_CLI_URL_DARWIN  https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-darwin-amd64-${CATTLE_CLI_VERSION}.tar.gz
 ENV CATTLE_CLI_URL_LINUX   https://releases.rancher.com/cli2/${CATTLE_CLI_VERSION}/rancher-linux-amd64-${CATTLE_CLI_VERSION}.tar.gz
