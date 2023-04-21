@@ -32,14 +32,6 @@ func (c *FakeRkeV1) ETCDSnapshots(namespace string) v1.ETCDSnapshotInterface {
 	return &FakeETCDSnapshots{c, namespace}
 }
 
-func (c *FakeRkeV1) RKEBootstraps(namespace string) v1.RKEBootstrapInterface {
-	return &FakeRKEBootstraps{c, namespace}
-}
-
-func (c *FakeRkeV1) RKEBootstrapTemplates(namespace string) v1.RKEBootstrapTemplateInterface {
-	return &FakeRKEBootstrapTemplates{c, namespace}
-}
-
 func (c *FakeRkeV1) RKEClusters(namespace string) v1.RKEClusterInterface {
 	return &FakeRKEClusters{c, namespace}
 }

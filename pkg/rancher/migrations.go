@@ -288,20 +288,6 @@ func migrateCAPIMachineLabelsAndAnnotationsToPlanSecret(w *wrangler.Context) err
 		return err
 	}
 
-	bootstrapLabelExcludes := map[string]struct{}{
-		rke2.InitNodeMachineIDLabel: {},
-		rke2.InitNodeLabel:          {},
-	}
-
-	boostrapAnnotationExcludes := map[string]struct{}{
-		rke2.DrainAnnotation:     {},
-		rke2.DrainDoneAnnotation: {},
-		rke2.JoinURLAnnotation:   {},
-		rke2.PostDrainAnnotation: {},
-		rke2.PreDrainAnnotation:  {},
-		rke2.UnCordonAnnotation:  {},
-	}
-
 	for _, mgmtCluster := range mgmtClusters.Items {
 		provClusters, err := w.Provisioning.Cluster().List(mgmtCluster.Spec.FleetWorkspaceName, metav1.ListOptions{})
 		if k8serror.IsNotFound(err) || len(provClusters.Items) == 0 {
@@ -351,27 +337,6 @@ func migrateCAPIMachineLabelsAndAnnotationsToPlanSecret(w *wrangler.Context) err
 					}); err != nil {
 						return err
 					}
-				}
-
-				if err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-					bootstrap, err := w.RKE.RKEBootstrap().Get(machine.Spec.Bootstrap.ConfigRef.Namespace, machine.Spec.Bootstrap.ConfigRef.Name, metav1.GetOptions{})
-					if err != nil {
-						return err
-					}
-					bootstrap = bootstrap.DeepCopy()
-					rke2.CopyMapWithExcludes(bootstrap.Labels, machine.Labels, bootstrapLabelExcludes)
-					rke2.CopyMapWithExcludes(bootstrap.Annotations, machine.Annotations, boostrapAnnotationExcludes)
-					if bootstrap.Spec.ClusterName == "" {
-						// If the bootstrap spec cluster name is blank, we need to update the bootstrap spec to the correct value
-						// This is to handle old rkebootstrap objects for unmanaged clusters that did not have the spec properly set
-						if v, ok := bootstrap.Labels[capi.ClusterLabelName]; ok && v != "" {
-							bootstrap.Spec.ClusterName = v
-						}
-					}
-					_, err = w.RKE.RKEBootstrap().Update(bootstrap)
-					return err
-				}); err != nil {
-					return err
 				}
 
 				if machine.Spec.InfrastructureRef.APIVersion == rke2.RKEAPIVersion || machine.Spec.InfrastructureRef.APIVersion == rke2.RKEMachineAPIVersion {

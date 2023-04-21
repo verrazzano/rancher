@@ -15,7 +15,6 @@ import (
 	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
 	"github.com/rancher/rancher/pkg/channelserver"
 	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
-	rkecontroller "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/serviceaccounttoken"
 	"github.com/rancher/wrangler/pkg/condition"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
@@ -170,45 +169,6 @@ func GetRuntimeSupervisorPort(kubernetesVersion string) int {
 		return 9345
 	}
 	return 6443
-}
-
-func IsOwnedByMachine(bootstrapCache rkecontroller.RKEBootstrapCache, machineName string, sa *corev1.ServiceAccount) (bool, error) {
-	for _, owner := range sa.OwnerReferences {
-		if owner.Kind == "RKEBootstrap" {
-			bootstrap, err := bootstrapCache.Get(sa.Namespace, owner.Name)
-			if err != nil {
-				return false, err
-			}
-			for _, owner := range bootstrap.OwnerReferences {
-				if owner.Kind == "Machine" && owner.Name == machineName {
-					return true, nil
-				}
-			}
-		}
-	}
-	return false, nil
-}
-
-// PlanSACheck checks the given plan service account to ensure that it matches the machine that is passed,
-// and makes sure that the plan service account is owned by the machine in question.
-func PlanSACheck(bootstrapCache rkecontroller.RKEBootstrapCache, machineName string, planSA *corev1.ServiceAccount) error {
-	if planSA == nil {
-		return fmt.Errorf("planSA was nil during planSA check for machineName %s", machineName)
-	}
-	if machineName == "" {
-		return fmt.Errorf("planSA %s/%s compared machine name was blank", planSA.Namespace, planSA.Name)
-	}
-	if planSA.Labels[MachineNameLabel] != machineName ||
-		planSA.Labels[RoleLabel] != RolePlan ||
-		planSA.Labels[PlanSecret] == "" {
-		return fmt.Errorf("planSA %s/%s does not have correct labels", planSA.Namespace, planSA.Name)
-	}
-	if foundParent, err := IsOwnedByMachine(bootstrapCache, machineName, planSA); err != nil {
-		return err
-	} else if !foundParent {
-		return fmt.Errorf("planSA %s/%s no parent found for planSA, was not owned by machine %s", planSA.Namespace, planSA.Name, machineName)
-	}
-	return nil
 }
 
 // GetPlanSecretName will return the plan secret name that is assigned to the plan service account
