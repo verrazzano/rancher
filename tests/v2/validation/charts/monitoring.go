@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/rancher/rancher/pkg/settings"
 	"net/url"
 	"time"
 
@@ -358,7 +359,7 @@ func createAlertWebhookReceiverDeployment(client *rancher.Client, clusterID, nam
 			Containers: []corev1.Container{
 				{
 					Name:    "kubectl",
-					Image:   "rancher/shell:v0.1.18",
+					Image:   settings.GetEnvWithDefault("CATTLE_SHELL_IMAGE", "rancher/shell:v0.1.18"),
 					Command: []string{"/bin/sh", "-c"},
 					Args: []string{
 						fmt.Sprintf(
