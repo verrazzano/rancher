@@ -30,7 +30,6 @@ func (e ErrWaiting) Error() string {
 type Planner struct {
 	ctx                           context.Context
 	store                         *PlanStore
-	rkeControlPlanes              rkecontrollers.RKEControlPlaneController
 	etcdSnapshotCache             rkecontrollers.ETCDSnapshotCache
 	secretClient                  corecontrollers.SecretClient
 	secretCache                   corecontrollers.SecretCache
@@ -42,7 +41,6 @@ type Planner struct {
 	managementClusters            mgmtcontrollers.ClusterCache
 	rancherClusterCache           ranchercontrollers.ClusterCache
 	locker                        locker.Locker
-	certificateRotation           *certificateRotation
 }
 
 func (p *Planner) setMachineConditionStatus(clusterPlan *plan.Plan, machineNames []string, messagePrefix string, messages map[string][]string) error {
