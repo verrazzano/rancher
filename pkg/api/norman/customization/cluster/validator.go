@@ -1,7 +1,14 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+// Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+// This file has been modified by Oracle
+
 package cluster
 
 import (
 	"fmt"
+	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"reflect"
 	"strings"
@@ -33,6 +40,7 @@ type Validator struct {
 	Users                         v3.UserInterface
 	GrbLister                     v3.GlobalRoleBindingLister
 	GrLister                      v3.GlobalRoleLister
+	SecretLister                  v1.SecretLister
 }
 
 func (v *Validator) Validator(request *types.APIContext, schema *types.Schema, data map[string]interface{}) error {
@@ -59,6 +67,10 @@ func (v *Validator) Validator(request *types.APIContext, schema *types.Schema, d
 	}
 
 	if err := v.validateGenericEngineConfig(request, &clusterSpec); err != nil {
+		return err
+	}
+
+	if err := v.validateOCIOCNEEngineConfig(request, data, &clusterSpec); err != nil {
 		return err
 	}
 
@@ -263,7 +275,43 @@ func (v *Validator) validateGenericEngineConfig(request *types.APIContext, spec 
 	}
 
 	return nil
+}
 
+func (v *Validator) validateOCIOCNEEngineConfig(request *types.APIContext, cluster map[string]interface{}, clusterSpec *v32.ClusterSpec) error {
+	ociocneConfig, ok := cluster["ociocneEngineConfig"].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	var prevCluster *v3.Cluster
+
+	if request.Method == http.MethodPut {
+		var err error
+		prevCluster, err = v.ClusterLister.Get("", request.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	driverName, ok := ociocneConfig["driverName"].(string)
+	if !ok {
+		return fmt.Errorf("no driver name found in engine config")
+	}
+	if driverName != "ociocneengine" {
+		return fmt.Errorf("wrong driver name found in engine config: %s", driverName)
+	}
+
+	logrus.Debug("Validating OCI OCNE Cloud Credential can be accessed by user")
+
+	// check user's access to cloud credential
+	if ociocneCredential, ok := ociocneConfig["cloudCredentialId"].(string); ok && (prevCluster == nil || ociocneCredential != (*prevCluster.Spec.GenericEngineConfig)["cloudCredentialId"].(string)) {
+		if err := validateCredentialAuth(request, ociocneCredential); err != nil {
+			logrus.Errorf("Failed to validate OCI OCNE credential %s: %v", ociocneCredential, err)
+			return err
+		}
+	}
+
+	return v.ValidateOCNE(ociocneConfig)
 }
 
 func (v *Validator) validateAKSConfig(request *types.APIContext, cluster map[string]interface{}, clusterSpec *v32.ClusterSpec) error {

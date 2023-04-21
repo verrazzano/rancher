@@ -66,7 +66,6 @@ func ResolveWithCluster(image string, cluster *v3.Cluster) string {
 		//Concatenating only the image name with the private registry url.
 		return path.Join(reg, imageSplit[1])
 	}
-
 	return image
 }
 
