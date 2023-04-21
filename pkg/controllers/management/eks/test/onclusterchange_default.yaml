@@ -66,7 +66,6 @@ spec:
     serviceRole: ""
     subnets: []
     tags: {}
-  enableClusterAlerting: false
   enableClusterMonitoring: false
   enableNetworkPolicy: false
   fleetWorkspaceName: fleet-default

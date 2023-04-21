@@ -160,23 +160,6 @@ def test_monitoring_kube_component_graph():
     validate_cluster_graph(query1, "kube-component")
 
 
-# rancher component graphs are from the fluent app for cluster logging
-def test_monitoring_rancher_component_graph():
-    rancher_client, cluster = get_user_client_and_cluster()
-    # check if the cluster logging is enabled, assuming fluent is used
-    if cluster.enableClusterAlerting is False:
-        print("cluster logging is not enabled, skip the test")
-        return
-    else:
-        cluster_monitoring_obj = rancher_client.list_clusterMonitorGraph()
-        # generate the request payload
-        query1 = copy.deepcopy(cluster_query_template)
-        query1["obj"] = cluster_monitoring_obj
-        query1["filters"]["clusterId"] = cluster.id
-        query1["filters"]["displayResourceType"] = "rancher-component"
-        validate_cluster_graph(query1, "rancher-component")
-
-
 def test_monitoring_node_graph():
     rancher_client, cluster = get_user_client_and_cluster()
     node_list_raw = rancher_client.list_node(clusterId=cluster.id).data
