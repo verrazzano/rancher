@@ -207,16 +207,16 @@ func (v *Validator) validateNodePools(o *OCNEConfig) error {
 			return httperror.NewAPIError(BadRequest, fmt.Sprintf("missing required \"name\" field for node pool"))
 		}
 		if np.Replicas < 0 {
-			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool replicas must be greater than 0"))
+			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool replicas must be gte 0"))
 		}
 		if np.Memory < 0 {
-			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool memory must be greater than 0"))
+			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool memory must be gte 0"))
 		}
 		if np.Ocpus < 0 {
-			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool OCPUs must be greater than 0"))
+			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool OCPUs must be gte 0"))
 		}
 		if np.VolumeSize < 0 {
-			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool volume size must be greater than 0"))
+			return httperror.NewAPIError(BadRequest, fmt.Sprintf("node pool volume size must be gte 0"))
 		}
 		if nodePoolNames[np.Name] {
 			return httperror.NewAPIError(BadRequest, fmt.Sprintf("duplicated node pool name \"%s\"", np.Name))
