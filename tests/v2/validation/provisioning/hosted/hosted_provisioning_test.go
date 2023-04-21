@@ -86,7 +86,7 @@ func (h *HostedClusterProvisioningTestSuite) TestProvisioningHostedGKECluster() 
 			require.NoError(h.T(), err)
 
 			clusterName := provisioning.AppendRandomString("gkehostcluster")
-			clusterResp, err := gke.CreateGKEHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, false, map[string]string{})
+			clusterResp, err := gke.CreateGKEHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, map[string]string{})
 			require.NoError(h.T(), err)
 
 			opts := metav1.ListOptions{
@@ -130,7 +130,7 @@ func (h *HostedClusterProvisioningTestSuite) TestProvisioningHostedAKSCluster() 
 			require.NoError(h.T(), err)
 
 			clusterName := provisioning.AppendRandomString("ekshostcluster")
-			clusterResp, err := aks.CreateAKSHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, false, map[string]string{})
+			clusterResp, err := aks.CreateAKSHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, map[string]string{})
 			require.NoError(h.T(), err)
 
 			opts := metav1.ListOptions{
@@ -174,7 +174,7 @@ func (h *HostedClusterProvisioningTestSuite) TestProvisioningHostedEKSCluster() 
 			require.NoError(h.T(), err)
 
 			clusterName := provisioning.AppendRandomString("ekshostcluster")
-			clusterResp, err := eks.CreateEKSHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, false, map[string]string{})
+			clusterResp, err := eks.CreateEKSHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, map[string]string{})
 			require.NoError(h.T(), err)
 
 			opts := metav1.ListOptions{

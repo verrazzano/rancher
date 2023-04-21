@@ -213,57 +213,6 @@ func NewCluster(namespace, name string, obj Cluster) *Cluster {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// ClusterAlertList is a list of ClusterAlert resources
-type ClusterAlertList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []ClusterAlert `json:"items"`
-}
-
-func NewClusterAlert(namespace, name string, obj ClusterAlert) *ClusterAlert {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ClusterAlert").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// ClusterAlertGroupList is a list of ClusterAlertGroup resources
-type ClusterAlertGroupList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []ClusterAlertGroup `json:"items"`
-}
-
-func NewClusterAlertGroup(namespace, name string, obj ClusterAlertGroup) *ClusterAlertGroup {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ClusterAlertGroup").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// ClusterAlertRuleList is a list of ClusterAlertRule resources
-type ClusterAlertRuleList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []ClusterAlertRule `json:"items"`
-}
-
-func NewClusterAlertRule(namespace, name string, obj ClusterAlertRule) *ClusterAlertRule {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ClusterAlertRule").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 // ClusterRegistrationTokenList is a list of ClusterRegistrationToken resources
 type ClusterRegistrationTokenList struct {
 	metav1.TypeMeta `json:",inline"`

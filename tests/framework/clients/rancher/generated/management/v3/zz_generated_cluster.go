@@ -44,7 +44,6 @@ const (
 	ClusterFieldDriver                               = "driver"
 	ClusterFieldEKSConfig                            = "eksConfig"
 	ClusterFieldEKSStatus                            = "eksStatus"
-	ClusterFieldEnableClusterAlerting                = "enableClusterAlerting"
 	ClusterFieldEnableClusterMonitoring              = "enableClusterMonitoring"
 	ClusterFieldEnableNetworkPolicy                  = "enableNetworkPolicy"
 	ClusterFieldFailedSpec                           = "failedSpec"
@@ -124,7 +123,6 @@ type Cluster struct {
 	Driver                               string                         `json:"driver,omitempty" yaml:"driver,omitempty"`
 	EKSConfig                            *EKSClusterConfigSpec          `json:"eksConfig,omitempty" yaml:"eksConfig,omitempty"`
 	EKSStatus                            *EKSStatus                     `json:"eksStatus,omitempty" yaml:"eksStatus,omitempty"`
-	EnableClusterAlerting                bool                           `json:"enableClusterAlerting,omitempty" yaml:"enableClusterAlerting,omitempty"`
 	EnableClusterMonitoring              bool                           `json:"enableClusterMonitoring,omitempty" yaml:"enableClusterMonitoring,omitempty"`
 	EnableNetworkPolicy                  *bool                          `json:"enableNetworkPolicy,omitempty" yaml:"enableNetworkPolicy,omitempty"`
 	FailedSpec                           *ClusterSpec                   `json:"failedSpec,omitempty" yaml:"failedSpec,omitempty"`

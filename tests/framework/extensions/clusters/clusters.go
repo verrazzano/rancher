@@ -117,7 +117,6 @@ func CheckServiceAccountTokenSecret(client *rancher.Client, clusterName string) 
 func NewRKE1ClusterConfig(clusterName, cni, kubernetesVersion string, client *rancher.Client) *management.Cluster {
 	clusterConfig := &management.Cluster{
 		DockerRootDir:           "/var/lib/docker",
-		EnableClusterAlerting:   false,
 		EnableClusterMonitoring: false,
 		LocalClusterAuthEndpoint: &management.LocalClusterAuthEndpoint{
 			Enabled: true,

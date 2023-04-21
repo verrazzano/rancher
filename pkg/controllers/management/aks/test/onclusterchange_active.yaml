@@ -52,7 +52,6 @@ spec:
   desiredAuthImage: ""
   displayName: aks-test
   dockerRootDir: /var/lib/docker
-  enableClusterAlerting: false
   enableClusterMonitoring: false
   enableNetworkPolicy: false
   fleetWorkspaceName: fleet-default
@@ -115,7 +114,6 @@ status:
     desiredAgentImage: ""
     desiredAuthImage: ""
     displayName: ""
-    enableClusterAlerting: false
     enableClusterMonitoring: false
     enableNetworkPolicy: null
     internal: false

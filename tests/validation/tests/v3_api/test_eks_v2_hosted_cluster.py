@@ -76,7 +76,6 @@ def test_eks_v2_hosted_cluster_create_basic():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     create_and_validate_eks_cluster(cluster_config)
@@ -102,7 +101,6 @@ def test_eks_v2_hosted_cluster_create_all():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     create_and_validate_eks_cluster(cluster_config)
@@ -130,7 +128,6 @@ def test_eks_v2_hosted_cluster_edit():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     client, cluster = create_and_validate_eks_cluster(cluster_config)
@@ -158,7 +155,6 @@ def test_eks_v2_hosted_cluster_delete():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     client, cluster = create_and_validate_eks_cluster(cluster_config)
@@ -184,7 +180,6 @@ def test_eks_v2_create_import_cluster():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     create_and_validate_eks_cluster(cluster_config,
