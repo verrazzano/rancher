@@ -5,15 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
-	"github.com/rancher/channelserver/pkg/model"
 	provv1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/channelserver"
 	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	"github.com/rancher/rancher/pkg/serviceaccounttoken"
 	"github.com/rancher/wrangler/pkg/condition"
@@ -25,7 +21,6 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
-	capierrors "sigs.k8s.io/cluster-api/errors"
 )
 
 const (
@@ -121,54 +116,8 @@ func GetRuntimeCommand(kubernetesVersion string) string {
 	return strings.ToLower(GetRuntime(kubernetesVersion))
 }
 
-func GetRuntimeServerUnit(kubernetesVersion string) string {
-	return RuntimeRKE2 + "-server"
-}
-
-func GetRuntimeAgentUnit(kubernetesVersion string) string {
-	return GetRuntimeCommand(kubernetesVersion) + "-agent"
-}
-
-func GetRuntimeEnv(kubernetesVersion string) string {
-	return strings.ToUpper(GetRuntime(kubernetesVersion))
-}
-
 func GetRuntime(kubernetesVersion string) string {
 	return RuntimeRKE2
-}
-
-func GetKDMReleaseData(ctx context.Context, controlPlane *rkev1.RKEControlPlane) *model.Release {
-	if controlPlane == nil || controlPlane.Spec.KubernetesVersion == "" {
-		return nil
-	}
-	release := channelserver.GetReleaseConfigByRuntimeAndVersion(ctx, GetRuntime(controlPlane.Spec.KubernetesVersion), controlPlane.Spec.KubernetesVersion)
-	return &release
-}
-
-// GetFeatureVersion retrieves a feature version (string) for a given controlPlane based on the version/runtime of the project. It will return 0.0.0 (semver) if the KDM data is valid, but the featureVersion isn't defined.
-func GetFeatureVersion(ctx context.Context, controlPlane *rkev1.RKEControlPlane, featureKey string) (string, error) {
-	if controlPlane == nil {
-		return "", fmt.Errorf("error retrieving feature version as controlPlane was nil")
-	}
-
-	release := GetKDMReleaseData(ctx, controlPlane)
-	if release == nil {
-		return "", fmt.Errorf("KDM release data was nil for controlplane %s/%s", controlPlane.Namespace, controlPlane.Name)
-	}
-
-	version := release.FeatureVersions[featureKey]
-	if version == "" {
-		version = "0.0.0"
-	}
-
-	return version, nil
-}
-
-func GetRuntimeSupervisorPort(kubernetesVersion string) int {
-	if GetRuntime(kubernetesVersion) == RuntimeRKE2 {
-		return 9345
-	}
-	return 6443
 }
 
 // GetPlanSecretName will return the plan secret name that is assigned to the plan service account
@@ -229,20 +178,6 @@ func DoRemoveAndUpdateStatus(obj metav1.Object, doRemove func() (string, error),
 	}
 
 	return err
-}
-
-func GetMachineDeletionStatus(machines []*capi.Machine) (string, error) {
-	sort.Slice(machines, func(i, j int) bool {
-		return machines[i].Name < machines[j].Name
-	})
-	for _, machine := range machines {
-		if machine.Status.FailureReason != nil && *machine.Status.FailureReason == capierrors.DeleteMachineError {
-			return "", fmt.Errorf("error deleting machine [%s], machine must be deleted manually", machine.Name)
-		}
-		return fmt.Sprintf("waiting for machine [%s] to delete", machine.Name), nil
-	}
-
-	return "", nil
 }
 
 // GetMachineFromNode attempts to find the corresponding machine for an etcd snapshot that is found in the configmap. If the machine list is successful, it will return true on the boolean, otherwise, it can be assumed that a false, nil, and defined error indicate the machine does not exist.
@@ -311,13 +246,4 @@ func CopyMapWithExcludes(destination map[string]string, source map[string]string
 			destination[k] = v
 		}
 	}
-}
-
-func SortedKeys(m map[string]interface{}) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
 }

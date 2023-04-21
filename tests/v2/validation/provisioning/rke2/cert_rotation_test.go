@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	apiv1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
-	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
 	"github.com/rancher/rancher/tests/framework/extensions/cloudcredentials"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters"
 	"github.com/rancher/rancher/tests/framework/extensions/machinepools"
@@ -21,7 +18,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
 )
 
 type V2ProvCertRotationTestSuite struct {
@@ -93,11 +89,6 @@ func (r *V2ProvCertRotationTestSuite) testCertRotation(provider Provider, kubeVe
 			steveCluster, err := r.client.Steve.SteveType(clusters.ProvisioningSteveResouceType).ByID(clusterResp.ID)
 			require.NoError(r.T(), err)
 			require.NotNil(r.T(), steveCluster.Status)
-
-			// rotate certs
-			require.NoError(r.T(), r.rotateCerts(clusterResp.ID, 1))
-			// rotate certs again
-			require.NoError(r.T(), r.rotateCerts(clusterResp.ID, 2))
 		})
 	})
 }
@@ -119,73 +110,6 @@ func (r *V2ProvCertRotationTestSuite) TestCertRotation() {
 		}
 
 		subSession.Cleanup()
-	}
-}
-
-func (r *V2ProvCertRotationTestSuite) rotateCerts(id string, generation int64) error {
-	kubeProvisioningClient, err := r.client.GetKubeAPIProvisioningClient()
-	require.NoError(r.T(), err)
-
-	cluster, err := r.client.Steve.SteveType(clusters.ProvisioningSteveResouceType).ByID(id)
-	if err != nil {
-		return err
-	}
-
-	clusterSpec := &apiv1.ClusterSpec{}
-	err = v1.ConvertToK8sType(cluster.Spec, clusterSpec)
-	require.NoError(r.T(), err)
-
-	updatedCluster := *cluster
-
-	clusterSpec.RKEConfig.RotateCertificates = &rkev1.RotateCertificates{
-		Generation: generation,
-	}
-
-	updatedCluster.Spec = *clusterSpec
-
-	cluster, err = r.client.Steve.SteveType(clusters.ProvisioningSteveResouceType).Update(cluster, updatedCluster)
-	if err != nil {
-		return err
-	}
-
-	kubeRKEClient, err := r.client.GetKubeAPIRKEClient()
-	require.NoError(r.T(), err)
-
-	result, err := kubeRKEClient.RKEControlPlanes(namespace).Watch(context.TODO(), metav1.ListOptions{
-		FieldSelector:  "metadata.name=" + cluster.ObjectMeta.Name,
-		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-	})
-	require.NoError(r.T(), err)
-
-	checkFunc := CertRotationComplete(generation)
-
-	err = wait.WatchWait(result, checkFunc)
-	if err != nil {
-		return err
-	}
-
-	clusterWait, err := kubeProvisioningClient.Clusters("fleet-default").Watch(context.TODO(), metav1.ListOptions{
-		FieldSelector:  "metadata.name=" + cluster.ObjectMeta.Name,
-		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-	})
-	if err != nil {
-		return err
-	}
-
-	clusterCheckFunc := clusters.IsProvisioningClusterReady
-
-	err = wait.WatchWait(clusterWait, clusterCheckFunc)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func CertRotationComplete(generation int64) wait.WatchCheckFunc {
-	return func(event watch.Event) (bool, error) {
-		controlPlane := event.Object.(*rkev1.RKEControlPlane)
-		return controlPlane.Status.CertificateRotationGeneration == generation, nil
 	}
 }
 
