@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the etcdsnapshots.rke.cattle.io CRDs and APIs have been removed
+
 package rancher
 
 import (
@@ -17,7 +22,6 @@ import (
 	v1 "github.com/rancher/rancher/tests/framework/clients/rancher/v1"
 
 	kubeProvisioning "github.com/rancher/rancher/tests/framework/clients/provisioning"
-	kubeRKE "github.com/rancher/rancher/tests/framework/clients/rke"
 	"github.com/rancher/rancher/tests/framework/pkg/clientbase"
 	"github.com/rancher/rancher/tests/framework/pkg/config"
 	"github.com/rancher/rancher/tests/framework/pkg/environmentflag"
@@ -218,16 +222,6 @@ func (c *Client) GetKubeAPIProvisioningClient() (*kubeProvisioning.Client, error
 	}
 
 	return provClient, nil
-}
-
-// GetKubeAPIRKEClient is a function that instantiates a rke client that communicates with the Kube API of a cluster
-func (c *Client) GetKubeAPIRKEClient() (*kubeRKE.Client, error) {
-	rkeClient, err := kubeRKE.NewForConfig(c.restConfig, c.Session)
-	if err != nil {
-		return nil, err
-	}
-
-	return rkeClient, nil
 }
 
 // GetDownStreamClusterClient is a helper function that instantiates a dynamic client to communicate with a specific cluster.
