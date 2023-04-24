@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster catalog CRDs and APIs have been removed
+
 package main
 
 import (
@@ -44,7 +49,6 @@ func main() {
 					// All structs with an embedded ObjectMeta field will be picked up
 					"./pkg/apis/management.cattle.io/v3",
 					v3.ProjectCatalog{},
-					v3.ClusterCatalog{},
 				},
 				GenerateTypes: true,
 			},

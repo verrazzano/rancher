@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster catalog CRDs and APIs have been removed
+
 package secretmigrator
 
 import (
@@ -112,13 +117,6 @@ func newTestHandler() *handler {
 		},
 	}
 
-	clusterCatalogLister := &v3fakes.ClusterCatalogListerMock{
-		ListFunc: func(namespace string, selector labels.Selector) ([]*apimgmtv3.ClusterCatalog, error) {
-			var list []*apimgmtv3.ClusterCatalog
-			return list, nil
-		},
-	}
-
 	projectLister := &v3fakes.ProjectListerMock{
 		ListFunc: func(namespace string, selector labels.Selector) ([]*apimgmtv3.Project, error) {
 			var list []*apimgmtv3.Project
@@ -154,10 +152,9 @@ func newTestHandler() *handler {
 				return cluster.DeepCopy(), nil
 			},
 		},
-		migrator:             NewMigrator(&secretLister, &secrets),
-		notifierLister:       notifierLister,
-		clusterCatalogLister: clusterCatalogLister,
-		projectLister:        projectLister,
+		migrator:       NewMigrator(&secretLister, &secrets),
+		notifierLister: notifierLister,
+		projectLister:  projectLister,
 	}
 }
 

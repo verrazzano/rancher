@@ -1213,20 +1213,3 @@ func NewProjectCatalog(namespace, name string, obj ProjectCatalog) *ProjectCatal
 	obj.Namespace = namespace
 	return &obj
 }
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// ClusterCatalogList is a list of ClusterCatalog resources
-type ClusterCatalogList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []ClusterCatalog `json:"items"`
-}
-
-func NewClusterCatalog(namespace, name string, obj ClusterCatalog) *ClusterCatalog {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("ClusterCatalog").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
