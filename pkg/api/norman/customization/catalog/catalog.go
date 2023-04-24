@@ -51,7 +51,6 @@ func CollectionFormatter(apiContext *types.APIContext, collection *types.Generic
 type ActionHandler struct {
 	CatalogClient        v3.CatalogInterface
 	ProjectCatalogClient v3.ProjectCatalogInterface
-	ClusterCatalogClient v3.ClusterCatalogInterface
 }
 
 func (a ActionHandler) refreshCatalog(catalog *v3.Catalog) (err error) {
@@ -190,54 +189,11 @@ func (a ActionHandler) RefreshProjectCatalogActionHandler(actionName string, act
 	return nil
 }
 
-func (a ActionHandler) RefreshClusterCatalogActionHandler(actionName string, action *types.Action, apiContext *types.APIContext) error {
-	if actionName != "refresh" {
-		return httperror.NewAPIError(httperror.NotFound, "not found")
-	}
-	if !canUpdateCatalog(apiContext, nil) {
-		return httperror.NewAPIError(httperror.NotFound, "not found")
-	}
-
-	clCatalogs := []v3.ClusterCatalog{}
-	if apiContext.ID != "" {
-		ns, name := ref.Parse(apiContext.ID)
-		catalog, err := a.ClusterCatalogClient.GetNamespaced(ns, name, metav1.GetOptions{})
-		if err != nil {
-			return err
-		}
-		clCatalogs = append(clCatalogs, *catalog)
-	} else {
-		catalogList, err := a.ClusterCatalogClient.List(metav1.ListOptions{})
-		if err != nil {
-			return err
-		}
-		for _, catalog := range catalogList.Items {
-			clCatalogs = append(clCatalogs, catalog)
-		}
-	}
-	var catalogNames []string
-	for _, catalog := range clCatalogs {
-		catalog.Status.LastRefreshTimestamp = time.Now().Format(time.RFC3339)
-		v32.CatalogConditionRefreshed.Unknown(&catalog)
-		if _, err := a.ClusterCatalogClient.Update(&catalog); err != nil {
-			return err
-		}
-	}
-	data := map[string]interface{}{
-		"catalogs": catalogNames,
-		"type":     "catalogRefresh",
-	}
-	apiContext.WriteResponse(http.StatusOK, data)
-	return nil
-}
-
 func canUpdateCatalog(apiContext *types.APIContext, resource *types.RawResource) bool {
 	var groupName, resourceName string
 	switch rbac.TypeFromContext(apiContext, resource) {
 	case client.CatalogType:
 		groupName, resourceName = v3.CatalogGroupVersionKind.Group, v3.CatalogResource.Name
-	case client.ClusterCatalogType:
-		groupName, resourceName = v3.ClusterCatalogGroupVersionKind.Group, v3.ClusterCatalogResource.Name
 	case client.ProjectCatalogType:
 		groupName, resourceName = v3.ProjectCatalogGroupVersionKind.Group, v3.ProjectCatalogResource.Name
 	default:

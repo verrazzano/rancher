@@ -107,7 +107,7 @@ func (l *Lifecycle) generateTemplates(obj *v3.App) (string, *common.HelmPath, er
 		if err != nil {
 			return "", nil, err
 		}
-		catalog, err := helmlib.GetCatalog(catalogType, namespace, catalogName, l.CatalogLister, l.ClusterCatalogLister, l.ProjectCatalogLister)
+		catalog, err := helmlib.GetCatalog(catalogType, namespace, catalogName, l.CatalogLister, l.ProjectCatalogLister)
 		if err != nil {
 			return "", nil, err
 		}

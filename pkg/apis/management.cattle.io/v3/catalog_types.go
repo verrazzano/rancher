@@ -109,7 +109,6 @@ type TemplateSpec struct {
 	DisplayName              string `json:"displayName"`
 	CatalogID                string `json:"catalogId,omitempty" norman:"type=reference[catalog]"`
 	ProjectCatalogID         string `json:"projectCatalogId,omitempty" norman:"type=reference[projectCatalog]"`
-	ClusterCatalogID         string `json:"clusterCatalogId,omitempty" norman:"type=reference[clusterCatalog]"`
 	DefaultTemplateVersionID string `json:"defaultTemplateVersionId,omitempty" norman:"type=reference[templateVersion]"`
 	ProjectID                string `json:"projectId,omitempty" norman:"required,type=reference[project]"`
 	ClusterID                string `json:"clusterId,omitempty" norman:"required,type=reference[cluster]"`
@@ -274,16 +273,6 @@ func (p *ProjectCatalog) ObjClusterName() string {
 		return parts[0]
 	}
 	return ""
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type ClusterCatalog struct {
-	types.Namespaced
-
-	Catalog     `json:",inline" mapstructure:",squash"`
-	ClusterName string `json:"clusterName,omitempty" norman:"required,type=reference[cluster]"`
 }
 
 type CatalogRefresh struct {

@@ -618,21 +618,13 @@ func SplitNamespaceAndName(id string) (string, string) {
 	return parts[0], parts[1]
 }
 
-func GetCatalog(
-	catalogType, namespace, catalogName string,
-	catalogLister v3.CatalogLister,
-	clusterCatalogLister v3.ClusterCatalogLister,
-	projectCatalogLister v3.ProjectCatalogLister,
-) (*v3.Catalog, error) {
+func GetCatalog(catalogType, namespace, catalogName string, catalogLister v3.CatalogLister, projectCatalogLister v3.ProjectCatalogLister) (*v3.Catalog, error) {
 	if catalogType == "" {
 		if namespace == "" || namespace == nsutil.GlobalNamespace {
 			catalogType = mgmtv3.CatalogType
 		} else if strings.HasPrefix(namespace, "p-") {
 			logrus.Warnf("Defaulting catalog type to project for [%s/%s]", namespace, catalogName)
 			catalogType = mgmtv3.ProjectCatalogType
-		} else {
-			logrus.Warnf("Defaulting catalog type to cluster for [%s/%s]", namespace, catalogName)
-			catalogType = mgmtv3.ClusterCatalogType
 		}
 	}
 	switch catalogType {
@@ -642,12 +634,6 @@ func GetCatalog(
 			return nil, err
 		}
 		return catalog, nil
-	case mgmtv3.ClusterCatalogType:
-		clusterCatalog, err := clusterCatalogLister.Get(namespace, catalogName)
-		if err != nil {
-			return nil, err
-		}
-		return &clusterCatalog.Catalog, nil
 	case mgmtv3.ProjectCatalogType:
 		projectCatalog, err := projectCatalogLister.Get(namespace, catalogName)
 		if err != nil {
