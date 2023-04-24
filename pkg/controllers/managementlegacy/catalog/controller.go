@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster catalog CRDs and APIs have been removed
+
 package catalog
 
 import (
@@ -52,19 +57,6 @@ func runRefreshProjectCatalog(ctx context.Context, interval int, controller v3.P
 	}
 }
 
-func runRefreshClusterCatalog(ctx context.Context, interval int, controller v3.ClusterCatalogController, m *manager.Manager) {
-	for range ticker.Context(ctx, time.Duration(interval)*time.Second) {
-		clusterCatalogs, err := m.ClusterCatalogLister.List("", labels.NewSelector())
-		if err != nil {
-			logrus.Error(err)
-			continue
-		}
-		for _, cc := range clusterCatalogs {
-			controller.Enqueue(cc.Namespace, cc.Name)
-		}
-	}
-}
-
 func doUntilSucceeds(ctx context.Context, retryPeriod time.Duration, f func() bool) {
 	for {
 		if f() {
@@ -89,17 +81,12 @@ func Run(ctx context.Context, refreshInterval int, management *config.Management
 	projectCatalogController := management.Management.ProjectCatalogs("").Controller()
 	projectCatalogController.AddHandler(ctx, "projectCatalog", m.ProjectCatalogSync)
 
-	logrus.Infof("Starting cluster-level catalog controller")
-	clusterCatalogController := management.Management.ClusterCatalogs("").Controller()
-	clusterCatalogController.AddHandler(ctx, "clusterCatalog", m.ClusterCatalogSync)
-
 	var failureRetryPeriod = 15 * time.Minute
 	go doUntilSucceeds(ctx, failureRetryPeriod, m.DeleteOldTemplateContent)
 	go doUntilSucceeds(ctx, failureRetryPeriod, m.DeleteBadCatalogTemplates)
 
 	go runRefreshCatalog(ctx, refreshInterval, controller, m)
 	go runRefreshProjectCatalog(ctx, refreshInterval, projectCatalogController, m)
-	go runRefreshClusterCatalog(ctx, refreshInterval, clusterCatalogController, m)
 
 	return nil
 }

@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster catalog CRDs and APIs have been removed
+
 package manager
 
 import (
@@ -83,12 +88,10 @@ func (m *Manager) deleteTemplates(key string, namespace string) error {
 }
 
 func getCatalogType(cmt *CatalogInfo) string {
-	if cmt.projectCatalog == nil && cmt.clusterCatalog == nil {
+	if cmt.projectCatalog == nil {
 		return client.CatalogType
-	} else if cmt.projectCatalog != nil {
-		return client.ProjectCatalogType
 	} else {
-		return client.ClusterCatalogType
+		return client.ProjectCatalogType
 	}
 }
 
@@ -100,8 +103,6 @@ func (m *Manager) updateCatalogInfo(cmt *CatalogInfo, catalogType string, templa
 			obj = runtime.Object(cmt.catalog)
 		case client.ProjectCatalogType:
 			obj = runtime.Object(cmt.projectCatalog)
-		case client.ClusterCatalogType:
-			obj = runtime.Object(cmt.clusterCatalog)
 		default:
 			return cmt, fmt.Errorf("incorrect catalog type")
 		}
@@ -121,10 +122,6 @@ func (m *Manager) updateCatalogInfo(cmt *CatalogInfo, catalogType string, templa
 			}
 		case client.ProjectCatalogType:
 			if _, err := m.projectCatalogClient.Update(cmt.projectCatalog); err != nil {
-				return nil, err
-			}
-		case client.ClusterCatalogType:
-			if _, err := m.clusterCatalogClient.Update(cmt.clusterCatalog); err != nil {
 				return nil, err
 			}
 		default:
@@ -151,15 +148,6 @@ func (m *Manager) updateCatalogInfo(cmt *CatalogInfo, catalogType string, templa
 		}
 		cmt.catalog = &projectCatalog.Catalog
 		cmt.projectCatalog = projectCatalog
-	case client.ClusterCatalogType:
-		clusterCatalog := cmt.clusterCatalog
-		if newCatalog, err := m.clusterCatalogClient.Update(clusterCatalog); err == nil {
-			clusterCatalog = newCatalog
-		} else {
-			clusterCatalog, _ = m.clusterCatalogClient.Get(clusterCatalog.Name, metav1.GetOptions{})
-		}
-		cmt.catalog = &clusterCatalog.Catalog
-		cmt.clusterCatalog = clusterCatalog
 	default:
 		return cmt, fmt.Errorf("incorrect catalog type")
 	}
@@ -167,16 +155,15 @@ func (m *Manager) updateCatalogInfo(cmt *CatalogInfo, catalogType string, templa
 	return cmt, nil
 }
 
-func setCatalogErrorState(cmt *CatalogInfo, catalog *v3.Catalog, projectCatalog *v3.ProjectCatalog, clusterCatalog *v3.ClusterCatalog) {
+func setCatalogErrorState(cmt *CatalogInfo, catalog *v3.Catalog, projectCatalog *v3.ProjectCatalog) {
 	v32.CatalogConditionRefreshed.False(catalog)
 	v32.CatalogConditionRefreshed.Message(catalog, fmt.Sprintf("Error syncing catalog %v", catalog.Name))
 	v32.CatalogConditionProcessed.True(catalog)
 	cmt.catalog = catalog
 	cmt.projectCatalog = projectCatalog
-	cmt.clusterCatalog = clusterCatalog
 }
 
-func setCatalogIgnoreErrorState(commit string, cmt *CatalogInfo, catalog *v3.Catalog, projectCatalog *v3.ProjectCatalog, clusterCatalog *v3.ClusterCatalog, message string) {
+func setCatalogIgnoreErrorState(commit string, cmt *CatalogInfo, catalog *v3.Catalog, projectCatalog *v3.ProjectCatalog, message string) {
 	v32.CatalogConditionProcessed.False(catalog)
 	v32.CatalogConditionProcessed.Message(catalog, message)
 	v32.CatalogConditionRefreshed.Message(catalog, "")
@@ -185,12 +172,9 @@ func setCatalogIgnoreErrorState(commit string, cmt *CatalogInfo, catalog *v3.Cat
 	catalog.Status.Commit = commit
 	if projectCatalog != nil {
 		projectCatalog.Catalog = *catalog
-	} else if clusterCatalog != nil {
-		clusterCatalog.Catalog = *catalog
 	}
 	cmt.catalog = catalog
 	cmt.projectCatalog = projectCatalog
-	cmt.clusterCatalog = clusterCatalog
 }
 
 func setTraverseCompleted(catalog *v3.Catalog) {

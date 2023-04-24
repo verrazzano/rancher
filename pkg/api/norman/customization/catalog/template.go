@@ -1,3 +1,8 @@
+// Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster catalog CRDs and APIs have been removed
+
 package catalog
 
 import (
@@ -18,14 +23,13 @@ import (
 
 type TemplateWrapper struct {
 	CatalogLister                v3.CatalogLister
-	ClusterCatalogLister         v3.ClusterCatalogLister
 	ProjectCatalogLister         v3.ProjectCatalogLister
 	CatalogTemplateVersionLister v3.CatalogTemplateVersionLister
 	SecretLister                 v1.SecretLister
 }
 
 func (t TemplateWrapper) TemplateFormatter(apiContext *types.APIContext, resource *types.RawResource) {
-	var prjCatalogName, clusterCatalogName string
+	var prjCatalogName string
 
 	//icon
 	ic, ok := resource.Values["icon"]
@@ -61,16 +65,6 @@ func (t TemplateWrapper) TemplateFormatter(apiContext *types.APIContext, resourc
 		resource.Links["projectCatalog"] = apiContext.URLBuilder.ResourceLinkByID(prjCatalogSchema, prjCatalogName)
 	}
 
-	if val[client.CatalogTemplateFieldClusterCatalogID] != nil {
-		clusterCatID, ok := val[client.CatalogTemplateFieldClusterCatalogID].(string)
-		if ok {
-			clusterCatalogName = clusterCatID
-		}
-		//cluster catalog link
-		clCatalogSchema := apiContext.Schemas.Schema(&managementschema.Version, client.ClusterCatalogType)
-		resource.Links["clusterCatalog"] = apiContext.URLBuilder.ResourceLinkByID(clCatalogSchema, clusterCatalogName)
-	}
-
 	// delete category
 	delete(resource.Values, "category")
 
@@ -100,16 +94,13 @@ func (t TemplateWrapper) TemplateIconHandler(apiContext *types.APIContext, next 
 		if template.CatalogID != "" {
 			catalogType = client.CatalogType
 			catalogName = template.CatalogID
-		} else if template.ClusterCatalogID != "" {
-			catalogType = client.ClusterCatalogType
-			catalogName = template.ClusterCatalogID
 		} else if template.ProjectCatalogID != "" {
 			catalogType = client.ProjectCatalogType
 			catalogName = template.ProjectCatalogID
 		}
 
 		namespace, name := helmlib.SplitNamespaceAndName(catalogName)
-		catalog, err := helmlib.GetCatalog(catalogType, namespace, name, t.CatalogLister, t.ClusterCatalogLister, t.ProjectCatalogLister)
+		catalog, err := helmlib.GetCatalog(catalogType, namespace, name, t.CatalogLister, t.ProjectCatalogLister)
 		if err != nil {
 			return err
 		}

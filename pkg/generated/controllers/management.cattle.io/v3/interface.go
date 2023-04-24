@@ -41,7 +41,6 @@ type Interface interface {
 	CatalogTemplateVersion() CatalogTemplateVersionController
 	CloudCredential() CloudCredentialController
 	Cluster() ClusterController
-	ClusterCatalog() ClusterCatalogController
 	ClusterRegistrationToken() ClusterRegistrationTokenController
 	ClusterRoleTemplateBinding() ClusterRoleTemplateBindingController
 	ClusterTemplate() ClusterTemplateController
@@ -144,9 +143,6 @@ func (c *version) CloudCredential() CloudCredentialController {
 }
 func (c *version) Cluster() ClusterController {
 	return NewClusterController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "Cluster"}, "clusters", false, c.controllerFactory)
-}
-func (c *version) ClusterCatalog() ClusterCatalogController {
-	return NewClusterCatalogController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterCatalog"}, "clustercatalogs", true, c.controllerFactory)
 }
 func (c *version) ClusterRegistrationToken() ClusterRegistrationTokenController {
 	return NewClusterRegistrationTokenController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterRegistrationToken"}, "clusterregistrationtokens", true, c.controllerFactory)
