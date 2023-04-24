@@ -2,7 +2,6 @@ package clusters
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -114,7 +113,6 @@ func (s *shell) createPod(imageOverride string) *v1.Pod {
 	imageName := imageOverride
 	if imageName == "" {
 		imageName = settings.FullShellImage()
-		fmt.Printf("+++ DEBUG: Full SHELl IMAGE FROM API/STEVE/CLUSTERS = %v +++ \n", imageName)
 	}
 	return &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{

@@ -35,7 +35,6 @@ RUN curl -sLf https://github.com/rancher/loglevel/releases/download/${LOGLEVEL_V
 ARG VERSION=dev
 LABEL io.cattle.agent true
 ENV AGENT_IMAGE rancher/rancher-agent:${VERSION}
-ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
 ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
 
 # Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
