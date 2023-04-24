@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the etcdsnapshots.rke.cattle.io CRDs and APIs have been removed
+
 /*
 Package wrangler contains functions for creating a management context with wrangler controllers.
 */
@@ -20,7 +25,6 @@ import (
 	managementv3api "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	projectv3api "github.com/rancher/rancher/pkg/apis/project.cattle.io/v3"
 	provisioningv1api "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	rkev1api "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/catalogv2/content"
 	"github.com/rancher/rancher/pkg/catalogv2/helmop"
 	"github.com/rancher/rancher/pkg/catalogv2/system"
@@ -37,8 +41,6 @@ import (
 	projectv3 "github.com/rancher/rancher/pkg/generated/controllers/project.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io"
 	provisioningv1 "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
-	"github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io"
-	rkecontrollers "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/peermanager"
 	"github.com/rancher/rancher/pkg/tunnelserver"
 	"github.com/rancher/remotedialer"
@@ -82,7 +84,6 @@ var (
 		managementv3api.AddToScheme,
 		projectv3api.AddToScheme,
 		clusterv3api.AddToScheme,
-		rkev1api.AddToScheme,
 		scheme.AddToScheme,
 		apiextensionsv1.AddToScheme,
 		apiregistrationv12.AddToScheme,
@@ -105,7 +106,6 @@ type Context struct {
 	Apply               apply.Apply
 	Dynamic             *dynamic.Controller
 	CAPI                capicontrollers.Interface
-	RKE                 rkecontrollers.Interface
 	Mgmt                managementv3.Interface
 	Apps                appsv1.Interface
 	Admission           admissionregcontrollers.Interface
@@ -251,11 +251,6 @@ func NewContext(ctx context.Context, clientConfig clientcmd.ClientConfig, restCo
 		return nil, err
 	}
 
-	rke, err := rke.NewFactoryFromConfigWithOptions(restConfig, opts)
-	if err != nil {
-		return nil, err
-	}
-
 	fleet, err := fleet.NewFactoryFromConfigWithOptions(restConfig, opts)
 	if err != nil {
 		return nil, err
@@ -329,7 +324,6 @@ func NewContext(ctx context.Context, clientConfig clientcmd.ClientConfig, restCo
 		SharedControllerFactory: controllerFactory,
 		Dynamic:                 dynamic.New(steveControllers.K8s.Discovery()),
 		CAPI:                    capi.Cluster().V1beta1(),
-		RKE:                     rke.Rke().V1(),
 		Mgmt:                    mgmt.Management().V3(),
 		Apps:                    apps.Apps().V1(),
 		Admission:               adminReg.Admissionregistration().V1(),
