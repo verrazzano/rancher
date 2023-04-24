@@ -1,7 +1,7 @@
 // Copyright (c) 2023, Oracle and/or its affiliates.
 
 // This file from the Rancher repository has been modified by Oracle as follows:
-// - references to the cluster catalog CRDs and APIs have been removed
+// - references to the cluster cataloging CRDs and APIs have been removed
 
 package v3
 

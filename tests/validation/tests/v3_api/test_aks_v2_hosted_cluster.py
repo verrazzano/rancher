@@ -1,3 +1,8 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to the cluster alerting CRDs and APIs have been removed
+
 import os
 from .common import get_user_client
 from .common import random_test_name

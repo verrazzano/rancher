@@ -1,3 +1,8 @@
+# Copyright (C) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to k3s have been removed
+
 FROM ghcr.io/oracle/oraclelinux:7-slim
 
 ARG ARCH=amd64
