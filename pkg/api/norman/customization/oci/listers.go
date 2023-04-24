@@ -14,6 +14,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func responseError(response *http.Response) int {
+	httpErr := httperror.ErrorCode{}
+	if response != nil {
+		httpErr.Status = response.StatusCode
+	} else {
+		httpErr.Status = httperror.ServerError.Status
+	}
+	return httpErr.Status
+}
+
 func processVcns(provider common.ConfigurationProvider, compartment string) ([]byte, int, error) {
 	logrus.Debugf("[oci-handler] listing VCNs in compartment: %s", compartment)
 	virtualNetworkClient, err := core.NewVirtualNetworkClientWithConfigurationProvider(provider)
@@ -26,14 +36,7 @@ func processVcns(provider common.ConfigurationProvider, compartment string) ([]b
 	}
 	vcnResponse, err := virtualNetworkClient.ListVcns(context.Background(), vcnRequest)
 	if err != nil {
-		httpErr := httperror.ErrorCode{}
-		if vcnResponse.RawResponse != nil {
-			httpErr.Status = vcnResponse.RawResponse.StatusCode
-		} else {
-			httpErr.Status = httperror.ServerError.Status
-		}
-		logrus.Debugf("[oci-handler] error listing VCNs with Virtual Network client: %v", err)
-		return nil, httpErr.Status, err
+		return nil, responseError(vcnResponse.RawResponse), err
 	}
 
 	var vcnDisplayNames []string
@@ -46,6 +49,61 @@ func processVcns(provider common.ConfigurationProvider, compartment string) ([]b
 		return data, httperror.ServerError.Status, err
 	}
 
+	return data, http.StatusOK, err
+}
+
+func processVcnsWithIds(provider common.ConfigurationProvider, compartment string) ([]byte, int, error) {
+	logrus.Debugf("[oci-handler] listing VCNs Ids in compartment: %s", compartment)
+	virtualNetworkClient, err := core.NewVirtualNetworkClientWithConfigurationProvider(provider)
+	if err != nil {
+		logrus.Debugf("[oci-handler] error creating Virtual Network client: %v", err)
+		return nil, httperror.ServerError.Status, err
+	}
+	vcnRequest := core.ListVcnsRequest{
+		CompartmentId: &compartment,
+	}
+	vcnResponse, err := virtualNetworkClient.ListVcns(context.Background(), vcnRequest)
+	if err != nil {
+		return nil, responseError(vcnResponse.RawResponse), err
+	}
+
+	response := map[string]string{}
+	for _, vcn := range vcnResponse.Items {
+		response[*vcn.DisplayName] = *vcn.Id
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return data, httperror.ServerError.Status, err
+	}
+	return data, http.StatusOK, err
+}
+
+func processSubnets(provider common.ConfigurationProvider, compartment, vcn string) ([]byte, int, error) {
+	logrus.Debug("[oci-handler] listing subnetResponse")
+	virtualNetworkClient, err := core.NewVirtualNetworkClientWithConfigurationProvider(provider)
+	if err != nil {
+		logrus.Debugf("[oci-handler] error creating Virtual Network client: %v", err)
+		return nil, httperror.ServerError.Status, err
+	}
+	subnetRequest := core.ListSubnetsRequest{
+		CompartmentId: &compartment,
+		VcnId:         &vcn,
+	}
+	subnetResponse, err := virtualNetworkClient.ListSubnets(context.Background(), subnetRequest)
+	if err != nil {
+		return nil, responseError(subnetResponse.RawResponse), err
+	}
+
+	response := map[string]string{}
+	for _, subnet := range subnetResponse.Items {
+		response[*subnet.DisplayName] = *subnet.Id
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return data, httperror.ServerError.Status, err
+	}
 	return data, http.StatusOK, err
 }
 
