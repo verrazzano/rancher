@@ -13,12 +13,6 @@ type Client struct {
 	ts *session.Session
 }
 
-// RKEControlPlane is a struct that embeds RKEControlPlaneInterface and has session.Session as an attribute to keep track of the resources created by RKEControlPlaneInterface
-type RKEControlPlane struct {
-	rkeClientV1.RKEControlPlaneInterface
-	ts *session.Session
-}
-
 // NewForConfig creates a new RkeV1Client for the given config. It also takes session.Session as parameter to track the resources
 // the ProvisioningV1Client creates
 func NewForConfig(c *rest.Config, ts *session.Session) (*Client, error) {
@@ -28,9 +22,4 @@ func NewForConfig(c *rest.Config, ts *session.Session) (*Client, error) {
 	}
 
 	return &Client{rkeClient, ts}, nil
-}
-
-// RKEControlPlanes takes a namespace and returns an RKEControlPlane object that is used for the CRUD of a pkg/apis/rke.cattle.io/v1 RKEControlPlane
-func (p *Client) RKEControlPlanes(namespace string) *RKEControlPlane {
-	return &RKEControlPlane{p.RkeV1Interface.RKEControlPlanes(namespace), p.ts}
 }

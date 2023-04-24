@@ -19,7 +19,3 @@ limitations under the License.
 package v1
 
 type ETCDSnapshotExpansion interface{}
-
-type RKEClusterExpansion interface{}
-
-type RKEControlPlaneExpansion interface{}

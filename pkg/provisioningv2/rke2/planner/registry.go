@@ -7,24 +7,8 @@ import (
 
 	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	corev1 "k8s.io/api/core/v1"
 )
-
-func (p *Planner) addRegistryConfig(config map[string]interface{}, controlPlane *rkev1.RKEControlPlane) ([]plan.File, error) {
-	registry := controlPlane.Spec.Registries
-	if registry == nil {
-		return nil, nil
-	}
-
-	registryConfig, files, err := p.toRegistryConfig(rke2.GetRuntime(controlPlane.Spec.KubernetesVersion), controlPlane.Namespace, registry)
-	if err != nil {
-		return nil, err
-	}
-
-	config["private-registry"] = string(registryConfig)
-	return files, nil
-}
 
 func (p *Planner) toRegistryConfig(runtime, namespace string, registry *rkev1.Registry) ([]byte, []plan.File, error) {
 	var (

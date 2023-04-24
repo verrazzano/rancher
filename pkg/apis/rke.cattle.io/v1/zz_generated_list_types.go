@@ -40,37 +40,3 @@ func NewETCDSnapshot(namespace, name string, obj ETCDSnapshot) *ETCDSnapshot {
 	obj.Namespace = namespace
 	return &obj
 }
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// RKEClusterList is a list of RKECluster resources
-type RKEClusterList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []RKECluster `json:"items"`
-}
-
-func NewRKECluster(namespace, name string, obj RKECluster) *RKECluster {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("RKECluster").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// RKEControlPlaneList is a list of RKEControlPlane resources
-type RKEControlPlaneList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
-
-	Items []RKEControlPlane `json:"items"`
-}
-
-func NewRKEControlPlane(namespace, name string, obj RKEControlPlane) *RKEControlPlane {
-	obj.APIVersion, obj.Kind = SchemeGroupVersion.WithKind("RKEControlPlane").ToAPIVersionAndKind()
-	obj.Name = name
-	obj.Namespace = namespace
-	return &obj
-}

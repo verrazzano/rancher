@@ -1,25 +1,8 @@
 package v1
 
 import (
-	"github.com/rancher/wrangler/pkg/genericcondition"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type RKECluster struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              RKEClusterSpec   `json:"spec"`
-	Status            RKEClusterStatus `json:"status,omitempty"`
-}
-
-type RKEClusterStatus struct {
-	Conditions         []genericcondition.GenericCondition `json:"conditions,omitempty"`
-	Ready              bool                                `json:"ready,omitempty"`
-	ObservedGeneration int64                               `json:"observedGeneration"`
-}
 
 type RKEClusterSpecCommon struct {
 	UpgradeStrategy       ClusterUpgradeStrategy `json:"upgradeStrategy,omitempty"`
@@ -42,11 +25,6 @@ type LocalClusterAuthEndpoint struct {
 type RKESystemConfig struct {
 	MachineLabelSelector *metav1.LabelSelector `json:"machineLabelSelector,omitempty"`
 	Config               GenericMap            `json:"config,omitempty" wrangler:"nullable"`
-}
-
-type RKEClusterSpec struct {
-	// Not used in anyway, just here to make cluster-api happy
-	ControlPlaneEndpoint *Endpoint `json:"controlPlaneEndpoint,omitempty"`
 }
 
 type ClusterUpgradeStrategy struct {
