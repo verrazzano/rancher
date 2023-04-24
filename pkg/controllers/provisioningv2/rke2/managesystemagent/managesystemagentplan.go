@@ -3,7 +3,8 @@ package managesystemagent
 import (
 	"fmt"
 
-	"github.com/Masterminds/semver/v3"
+	"github.com/coreos/go-semver/semver"
+
 	"github.com/rancher/fleet/pkg/apis/fleet.cattle.io/v1alpha1"
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	rancherv1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
@@ -42,7 +43,7 @@ func (h *handler) OnChangeInstallSUC(cluster *rancherv1.Cluster, status rancherv
 	mcc := &v3.ManagedChart{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: cluster.Namespace,
-			Name:      rke2.SafeConcatName(48, cluster.Name, "managed", "system-upgrade-controller"),
+			Name:      name.SafeConcatName(cluster.Name, "managed", "system-upgrade-controller"),
 		},
 		Spec: v3.ManagedChartSpec{
 			DefaultNamespace: namespaces.System,
