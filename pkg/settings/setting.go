@@ -238,6 +238,7 @@ var (
 
 // FullShellImage returns the full private registry name of the rancher shell image.
 func FullShellImage() string {
+	fmt.Printf("+++ DEBUG: Full SHELl IMAGE = %v +++ \n", ShellImage.Get())
 	return PrefixPrivateRegistry(ShellImage.Get())
 }
 

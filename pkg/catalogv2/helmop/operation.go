@@ -905,6 +905,7 @@ func (s *Operations) createPod(secretData map[string][]byte, kustomize bool, ima
 	image := imageOverride
 	if image == "" {
 		image = settings.FullShellImage()
+		fmt.Printf("+++ DEBUG: Full SHELl IMAGE FROM PKG/CATALOGV2/HELMOP = %v +++ \n", image)
 	}
 	secret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
