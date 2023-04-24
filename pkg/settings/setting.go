@@ -118,7 +118,7 @@ var (
 	PartnerChartDefaultBranch           = NewSetting("partner-chart-default-branch", "main")
 	RKE2ChartDefaultBranch              = NewSetting("rke2-chart-default-branch", "main")
 	FleetDefaultWorkspaceName           = NewSetting("fleet-default-workspace-name", fleetconst.ClustersDefaultNamespace) // fleetWorkspaceName to assign to clusters with none
-	ShellImage                          = NewSetting("shell-image", GetEnvWithDefault("CATTLE_SHELL_IMAGE", "rancher/shell:v0.1.18"))
+	ShellImage                          = NewSetting("shell-image", "rancher/shell:v0.1.19")
 	IgnoreNodeName                      = NewSetting("ignore-node-name", "") // nodes to ignore when syncing v1.node to v3.node
 	NoDefaultAdmin                      = NewSetting("no-default-admin", "")
 	RestrictedDefaultAdmin              = NewSetting("restricted-default-admin", "false") // When bootstrapping the admin for the first time, give them the global role restricted-admin
@@ -436,13 +436,4 @@ func IterateWhitelistedEnvVars(handler func(name, value string)) {
 			handler(wlVar, val)
 		}
 	}
-}
-
-// GetEnvWithDefault returns if a value is set in env, else the default value
-func GetEnvWithDefault(key, defaultValue string) string {
-	value, ok := os.LookupEnv(key)
-	if !ok {
-		return defaultValue
-	}
-	return value
 }
