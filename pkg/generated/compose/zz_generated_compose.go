@@ -41,12 +41,9 @@ type Config struct {
 	Preferences                                map[string]managementClient.Preference                                `json:"preferences,omitempty" yaml:"preferences,omitempty"`
 	Settings                                   map[string]managementClient.Setting                                   `json:"settings,omitempty" yaml:"settings,omitempty"`
 	Features                                   map[string]managementClient.Feature                                   `json:"features,omitempty" yaml:"features,omitempty"`
-	ClusterAlerts                              map[string]managementClient.ClusterAlert                              `json:"clusterAlerts,omitempty" yaml:"clusterAlerts,omitempty"`
 	ProjectAlerts                              map[string]managementClient.ProjectAlert                              `json:"projectAlerts,omitempty" yaml:"projectAlerts,omitempty"`
 	Notifiers                                  map[string]managementClient.Notifier                                  `json:"notifiers,omitempty" yaml:"notifiers,omitempty"`
-	ClusterAlertGroups                         map[string]managementClient.ClusterAlertGroup                         `json:"clusterAlertGroups,omitempty" yaml:"clusterAlertGroups,omitempty"`
 	ProjectAlertGroups                         map[string]managementClient.ProjectAlertGroup                         `json:"projectAlertGroups,omitempty" yaml:"projectAlertGroups,omitempty"`
-	ClusterAlertRules                          map[string]managementClient.ClusterAlertRule                          `json:"clusterAlertRules,omitempty" yaml:"clusterAlertRules,omitempty"`
 	ProjectAlertRules                          map[string]managementClient.ProjectAlertRule                          `json:"projectAlertRules,omitempty" yaml:"projectAlertRules,omitempty"`
 	ComposeConfigs                             map[string]managementClient.ComposeConfig                             `json:"composeConfigs,omitempty" yaml:"composeConfigs,omitempty"`
 	ProjectCatalogs                            map[string]managementClient.ProjectCatalog                            `json:"projectCatalogs,omitempty" yaml:"projectCatalogs,omitempty"`
@@ -58,7 +55,6 @@ type Config struct {
 	KontainerDrivers                           map[string]managementClient.KontainerDriver                           `json:"kontainerDrivers,omitempty" yaml:"kontainerDrivers,omitempty"`
 	EtcdBackups                                map[string]managementClient.EtcdBackup                                `json:"etcdBackups,omitempty" yaml:"etcdBackups,omitempty"`
 	MonitorMetrics                             map[string]managementClient.MonitorMetric                             `json:"monitorMetrics,omitempty" yaml:"monitorMetrics,omitempty"`
-	ClusterMonitorGraphs                       map[string]managementClient.ClusterMonitorGraph                       `json:"clusterMonitorGraphs,omitempty" yaml:"clusterMonitorGraphs,omitempty"`
 	ProjectMonitorGraphs                       map[string]managementClient.ProjectMonitorGraph                       `json:"projectMonitorGraphs,omitempty" yaml:"projectMonitorGraphs,omitempty"`
 	CloudCredentials                           map[string]managementClient.CloudCredential                           `json:"cloudCredentials,omitempty" yaml:"cloudCredentials,omitempty"`
 	ManagementSecrets                          map[string]managementClient.ManagementSecret                          `json:"managementSecrets,omitempty" yaml:"managementSecrets,omitempty"`
