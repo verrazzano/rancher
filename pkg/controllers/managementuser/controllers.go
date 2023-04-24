@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the etcdsnapshots.rke.cattle.io CRDs and APIs have been removed
+
 package managementuser
 
 import (
@@ -16,7 +21,6 @@ import (
 	"github.com/rancher/rancher/pkg/controllers/managementuser/rbac/podsecuritypolicy"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/resourcequota"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/secret"
-	"github.com/rancher/rancher/pkg/controllers/managementuser/snapshotbackpopulate"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/windows"
 	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy"
 	"github.com/rancher/rancher/pkg/features"
@@ -38,7 +42,6 @@ func Register(ctx context.Context, mgmt *config.ScaledContext, cluster *config.U
 	windows.Register(ctx, clusterRec, cluster)
 	nsserviceaccount.Register(ctx, cluster)
 	if features.RKE2.Enabled() {
-		snapshotbackpopulate.Register(ctx, cluster)
 		pspdelete.Register(ctx, cluster)
 		machinerole.Register(ctx, cluster)
 	}

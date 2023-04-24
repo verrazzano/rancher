@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the etcdsnapshots.rke.cattle.io CRDs and APIs have been removed
+
 package auth
 
 import (
@@ -48,8 +53,7 @@ var clusterManagmentPlaneResources = map[string]string{
 	"nodepools":                   "management.cattle.io",
 	"notifiers":                   "management.cattle.io",
 	"podsecuritypolicytemplateprojectbindings": "management.cattle.io",
-	"projects":      "management.cattle.io",
-	"etcdsnapshots": "rke.cattle.io",
+	"projects": "management.cattle.io",
 }
 
 type crtbLifecycle struct {

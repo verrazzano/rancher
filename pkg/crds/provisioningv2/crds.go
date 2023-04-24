@@ -1,10 +1,14 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the etcdsnapshots.rke.cattle.io CRDs and APIs have been removed
+
 package provisioningv2
 
 import (
 	"embed"
 
 	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
-	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/features"
 	"github.com/rancher/wrangler/pkg/crd"
 	"github.com/rancher/wrangler/pkg/data"
@@ -67,12 +71,6 @@ func rke2() []crd.CRD {
 			return clusterIndexed(c).
 				WithColumn("Ready", ".status.ready").
 				WithColumn("Kubeconfig", ".status.clientSecretName")
-		}),
-		newRKECRD(&rkev1.ETCDSnapshot{}, func(c crd.CRD) crd.CRD {
-			c.Labels = map[string]string{
-				"cluster.x-k8s.io/v1beta1": "v1",
-			}
-			return clusterIndexed(c)
 		}),
 	}
 }
