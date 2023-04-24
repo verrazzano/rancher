@@ -1,3 +1,7 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the etcdsnapshots.rke.cattle.io CRDs and APIs have been removed
 package planner
 
 import (
@@ -9,7 +13,6 @@ import (
 	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	mgmtcontrollers "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	ranchercontrollers "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
-	rkecontrollers "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
@@ -30,7 +33,6 @@ func (e ErrWaiting) Error() string {
 type Planner struct {
 	ctx                           context.Context
 	store                         *PlanStore
-	etcdSnapshotCache             rkecontrollers.ETCDSnapshotCache
 	secretClient                  corecontrollers.SecretClient
 	secretCache                   corecontrollers.SecretCache
 	machines                      capicontrollers.MachineClient
