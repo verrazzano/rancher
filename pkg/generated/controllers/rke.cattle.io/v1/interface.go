@@ -31,8 +31,6 @@ func init() {
 
 type Interface interface {
 	ETCDSnapshot() ETCDSnapshotController
-	RKECluster() RKEClusterController
-	RKEControlPlane() RKEControlPlaneController
 }
 
 func New(controllerFactory controller.SharedControllerFactory) Interface {
@@ -47,10 +45,4 @@ type version struct {
 
 func (c *version) ETCDSnapshot() ETCDSnapshotController {
 	return NewETCDSnapshotController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "ETCDSnapshot"}, "etcdsnapshots", true, c.controllerFactory)
-}
-func (c *version) RKECluster() RKEClusterController {
-	return NewRKEClusterController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "RKECluster"}, "rkeclusters", true, c.controllerFactory)
-}
-func (c *version) RKEControlPlane() RKEControlPlaneController {
-	return NewRKEControlPlaneController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "RKEControlPlane"}, "rkecontrolplanes", true, c.controllerFactory)
 }

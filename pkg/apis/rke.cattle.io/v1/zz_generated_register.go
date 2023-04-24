@@ -28,9 +28,7 @@ import (
 )
 
 var (
-	ETCDSnapshotResourceName    = "etcdsnapshots"
-	RKEClusterResourceName      = "rkeclusters"
-	RKEControlPlaneResourceName = "rkecontrolplanes"
+	ETCDSnapshotResourceName = "etcdsnapshots"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -56,10 +54,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&ETCDSnapshot{},
 		&ETCDSnapshotList{},
-		&RKECluster{},
-		&RKEClusterList{},
-		&RKEControlPlane{},
-		&RKEControlPlaneList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

@@ -32,14 +32,6 @@ func (c *FakeRkeV1) ETCDSnapshots(namespace string) v1.ETCDSnapshotInterface {
 	return &FakeETCDSnapshots{c, namespace}
 }
 
-func (c *FakeRkeV1) RKEClusters(namespace string) v1.RKEClusterInterface {
-	return &FakeRKEClusters{c, namespace}
-}
-
-func (c *FakeRkeV1) RKEControlPlanes(namespace string) v1.RKEControlPlaneInterface {
-	return &FakeRKEControlPlanes{c, namespace}
-}
-
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeRkeV1) RESTClient() rest.Interface {
