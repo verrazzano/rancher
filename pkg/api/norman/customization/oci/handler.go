@@ -32,6 +32,7 @@ type Credentials struct {
 	PrivateKey           string `json:"privateKey"`
 	PrivateKeyPassphrase string `json:"privateKeyPassphrase"`
 	Compartment          string `json:"compartmentOCID"`
+	VCN                  string `json:"vcnOCID"`
 }
 
 // Cloud Credential Secret Fields
@@ -82,6 +83,20 @@ func (handler *handler) ServeHTTP(writer http.ResponseWriter, req *http.Request)
 	var serialized []byte
 
 	switch resourceType {
+	case "vcnIds":
+		if serialized, errCode, err = processVcnsWithIds(provider, creds.Compartment); err != nil {
+			logrus.Debugf("[oci-handler] error processing vcn ids: %v", err)
+			util.ReturnHTTPError(writer, req, errCode, err.Error())
+			return
+		}
+		writer.Write(serialized)
+	case "subnets":
+		if serialized, errCode, err = processSubnets(provider, creds.Compartment, creds.VCN); err != nil {
+			logrus.Debugf("[oci-handler] error processing subnets: %v", err)
+			util.ReturnHTTPError(writer, req, errCode, err.Error())
+			return
+		}
+		writer.Write(serialized)
 	case "vcns":
 		if serialized, errCode, err = processVcns(provider, creds.Compartment); err != nil {
 			logrus.Debugf("[oci-handler] error processing VCNs: %v", err)
@@ -186,6 +201,10 @@ func (handler *handler) extractCreds(req *http.Request, creds *Credentials) (int
 		compartment := req.URL.Query().Get("compartment")
 		if compartment != "" {
 			creds.Compartment = compartment
+		}
+		vcn := req.URL.Query().Get("vcn")
+		if vcn != "" {
+			creds.VCN = vcn
 		}
 	} else if req.Method == http.MethodPost {
 		// Get credentials from body
