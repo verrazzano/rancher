@@ -66,7 +66,6 @@ def test_aks_v2_hosted_cluster_create_basic():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     create_and_validate_aks_cluster(cluster_config)

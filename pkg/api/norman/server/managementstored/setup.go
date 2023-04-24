@@ -119,11 +119,7 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.CatalogType,
 		client.CatalogTemplateType,
 		client.CatalogTemplateVersionType,
-		client.ClusterAlertType,
-		client.ClusterAlertGroupType,
 		client.ClusterCatalogType,
-		client.ClusterAlertRuleType,
-		client.ClusterMonitorGraphType,
 		client.ComposeConfigType,
 		client.MultiClusterAppType,
 		client.MultiClusterAppRevisionType,
@@ -272,6 +268,7 @@ func Clusters(ctx context.Context, schemas *types.Schemas, managementContext *co
 	}
 
 	handler.CatalogTemplateVersionLister = managementContext.Management.CatalogTemplateVersions("").Controller().Lister()
+
 	schema.ActionHandler = handler.ClusterActionHandler
 	schema.Validator = clusterValidator.Validator
 }
@@ -551,7 +548,6 @@ func Feature(schemas *types.Schemas, management *config.ScaledContext) {
 
 func Alert(schemas *types.Schemas, management *config.ScaledContext) {
 	handler := &alert.Handler{
-		ClusterAlertRule: management.Management.ClusterAlertRules(""),
 		ProjectAlertRule: management.Management.ProjectAlertRules(""),
 		Notifiers:        management.Management.Notifiers(""),
 		DialerFactory:    management.Dialer,
@@ -563,31 +559,20 @@ func Alert(schemas *types.Schemas, management *config.ScaledContext) {
 	schema.ActionHandler = handler.NotifierActionHandler
 	schema.Store = alertStore.NewNotifier(management, schema.Store)
 
-	schema = schemas.Schema(&managementschema.Version, client.ClusterAlertRuleType)
-	schema.Formatter = alert.RuleFormatter
-	schema.Validator = alert.ClusterAlertRuleValidator
-	schema.ActionHandler = handler.ClusterAlertRuleActionHandler
-
 	schema = schemas.Schema(&managementschema.Version, client.ProjectAlertRuleType)
 	schema.Formatter = alert.RuleFormatter
 	schema.Validator = alert.ProjectAlertRuleValidator
 	schema.ActionHandler = handler.ProjectAlertRuleActionHandler
 
 	//old schema just for migrate
-	schema = schemas.Schema(&managementschema.Version, client.ClusterAlertType)
 	schema = schemas.Schema(&managementschema.Version, client.ProjectAlertType)
 }
 
 func Monitor(schemas *types.Schemas, management *config.ScaledContext, clusterManager *clustermanager.Manager) {
-	clusterGraphHandler := monitor.NewClusterGraphHandler(management.Dialer, clusterManager)
 	projectGraphHandler := monitor.NewProjectGraphHandler(management.Dialer, clusterManager)
 	metricHandler := monitor.NewMetricHandler(management.Dialer, clusterManager)
 
-	schema := schemas.Schema(&managementschema.Version, client.ClusterMonitorGraphType)
-	schema.CollectionFormatter = monitor.QueryGraphCollectionFormatter
-	schema.ActionHandler = clusterGraphHandler.QuerySeriesAction
-
-	schema = schemas.Schema(&managementschema.Version, client.ProjectMonitorGraphType)
+	schema := schemas.Schema(&managementschema.Version, client.ProjectMonitorGraphType)
 	schema.CollectionFormatter = monitor.QueryGraphCollectionFormatter
 	schema.ActionHandler = projectGraphHandler.QuerySeriesAction
 

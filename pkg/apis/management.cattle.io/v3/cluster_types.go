@@ -80,13 +80,10 @@ const (
 	ClusterDriverImported = "imported"
 	ClusterDriverLocal    = "local"
 	ClusterDriverRKE      = "rancherKubernetesEngine"
-	ClusterDriverK3s      = "k3s"
-	ClusterDriverK3os     = "k3os"
 	ClusterDriverRke2     = "rke2"
 	ClusterDriverAKS      = "AKS"
 	ClusterDriverEKS      = "EKS"
 	ClusterDriverGKE      = "GKE"
-	ClusterDriverRancherD = "rancherd"
 
 	ClusterPrivateRegistrySecret = "PrivateRegistrySecret"
 	ClusterPrivateRegistryURL    = "PrivateRegistryURL"
@@ -120,7 +117,6 @@ type ClusterSpecBase struct {
 	DefaultClusterRoleForProjectMembers                  string                                  `json:"defaultClusterRoleForProjectMembers,omitempty" norman:"type=reference[roleTemplate]"`
 	DockerRootDir                                        string                                  `json:"dockerRootDir,omitempty" norman:"default=/var/lib/docker"`
 	EnableNetworkPolicy                                  *bool                                   `json:"enableNetworkPolicy" norman:"default=false"`
-	EnableClusterAlerting                                bool                                    `json:"enableClusterAlerting" norman:"default=false"`
 	EnableClusterMonitoring                              bool                                    `json:"enableClusterMonitoring" norman:"default=false"`
 	WindowsPreferedCluster                               bool                                    `json:"windowsPreferedCluster" norman:"noupdate"`
 	LocalClusterAuthEndpoint                             LocalClusterAuthEndpoint                `json:"localClusterAuthEndpoint,omitempty"`
@@ -132,7 +128,6 @@ type ClusterSpec struct {
 	DisplayName                         string                      `json:"displayName" norman:"required"`
 	Description                         string                      `json:"description"`
 	Internal                            bool                        `json:"internal" norman:"nocreate,noupdate"`
-	K3sConfig                           *K3sConfig                  `json:"k3sConfig,omitempty"`
 	Rke2Config                          *Rke2Config                 `json:"rke2Config,omitempty"`
 	ImportedConfig                      *ImportedConfig             `json:"importedConfig,omitempty" norman:"nocreate,noupdate"`
 	GoogleKubernetesEngineConfig        *MapStringInterface         `json:"googleKubernetesEngineConfig,omitempty"`
@@ -187,7 +182,6 @@ type ClusterStatus struct {
 	WindowsWorkerCount                   int                       `json:"windowsWorkerCount,omitempty" norman:"nocreate,noupdate"`
 	IstioEnabled                         bool                      `json:"istioEnabled,omitempty" norman:"nocreate,noupdate,default=false"`
 	CertificatesExpiration               map[string]CertExpiration `json:"certificatesExpiration,omitempty"`
-	CurrentCisRunName                    string                    `json:"currentCisRunName,omitempty"`
 	AKSStatus                            AKSStatus                 `json:"aksStatus,omitempty" norman:"nocreate,noupdate"`
 	EKSStatus                            EKSStatus                 `json:"eksStatus,omitempty" norman:"nocreate,noupdate"`
 	GKEStatus                            GKEStatus                 `json:"gkeStatus,omitempty" norman:"nocreate,noupdate"`

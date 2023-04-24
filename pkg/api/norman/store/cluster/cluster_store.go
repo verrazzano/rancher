@@ -748,9 +748,6 @@ func (r *Store) Update(apiContext *types.APIContext, schema *types.Schema, data 
 		if !clusterTemplateRevision.Spec.ClusterConfig.EnableClusterMonitoring {
 			data[managementv3.ClusterSpecFieldEnableClusterMonitoring] = existingCluster[managementv3.ClusterSpecFieldEnableClusterMonitoring]
 		}
-		if !clusterTemplateRevision.Spec.ClusterConfig.EnableClusterAlerting {
-			data[managementv3.ClusterSpecFieldEnableClusterAlerting] = existingCluster[managementv3.ClusterSpecFieldEnableClusterAlerting]
-		}
 
 	} else if existingCluster[managementv3.ClusterSpecFieldClusterTemplateRevisionID] != nil {
 		return nil, httperror.NewFieldAPIError(httperror.MissingRequired, "ClusterTemplateRevision", "this cluster is created from a clusterTemplateRevision, please pass the clusterTemplateRevision")
@@ -1258,13 +1255,12 @@ func validateNetworkFlag(data map[string]interface{}, create bool) error {
 		values.PutValue(data, false, "enableNetworkPolicy")
 	} else if value := convert.ToBool(enableNetworkPolicy); value {
 		rke2Config := values.GetValueN(data, "rke2Config")
-		k3sConfig := values.GetValueN(data, "k3sConfig")
-		if rke2Config != nil || k3sConfig != nil {
+		if rke2Config != nil {
 			if create {
 				values.PutValue(data, false, "enableNetworkPolicy")
 				return nil
 			}
-			return fmt.Errorf("enableNetworkPolicy should be false for k3s or rke2 clusters")
+			return fmt.Errorf("enableNetworkPolicy should be false for rke2 clusters")
 		}
 	}
 	return nil

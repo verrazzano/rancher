@@ -61,10 +61,7 @@ func IsCloudDriver(cluster *v3.Cluster) bool {
 		cluster.Status.Driver != "" &&
 		cluster.Status.Driver != v32.ClusterDriverImported &&
 		cluster.Status.Driver != v32.ClusterDriverRKE &&
-		cluster.Status.Driver != v32.ClusterDriverK3s &&
-		cluster.Status.Driver != v32.ClusterDriverK3os &&
-		cluster.Status.Driver != v32.ClusterDriverRke2 &&
-		cluster.Status.Driver != v32.ClusterDriverRancherD
+		cluster.Status.Driver != v32.ClusterDriverRke2
 }
 
 func IsPublicCloudDriver(cluster *v3.Cluster) bool {

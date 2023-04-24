@@ -2,14 +2,15 @@ package management
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
+
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/data/management/utils"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"reflect"
-	"strings"
 )
 
 const (
@@ -18,7 +19,6 @@ const (
 	DigitalOceandriver = "digitalocean"
 	ExoscaleDriver     = "exoscale"
 	HarvesterDriver    = "harvester"
-	Linodedriver       = "linode"
 	NutanixDriver      = "nutanix"
 	OCIDriver          = "oci"
 	OTCDriver          = "otc"
@@ -53,7 +53,6 @@ var (
 		DigitalOceandriver: {"privateCredentialFields": []string{"accessToken"}},
 		ExoscaleDriver:     {"privateCredentialFields": []string{"apiSecretKey"}},
 		HarvesterDriver:    {"publicCredentialFields": []string{"clusterType", "clusterId"}, "privateCredentialFields": []string{"kubeconfigContent"}, "optionalCredentialFields": []string{"clusterId"}},
-		Linodedriver:       {"privateCredentialFields": []string{"token"}, "passwordFields": []string{"rootPass"}},
 		NutanixDriver:      {"publicCredentialFields": []string{"endpoint", "username", "port"}, "privateCredentialFields": []string{"password"}},
 		OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint", "region"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
 		OTCDriver:          {"privateCredentialFields": []string{"accessKeySecret"}},

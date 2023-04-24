@@ -28,10 +28,7 @@ import (
 
 type RkeV1Interface interface {
 	RESTClient() rest.Interface
-	CustomMachinesGetter
 	ETCDSnapshotsGetter
-	RKEBootstrapsGetter
-	RKEBootstrapTemplatesGetter
 	RKEClustersGetter
 	RKEControlPlanesGetter
 }
@@ -41,20 +38,8 @@ type RkeV1Client struct {
 	restClient rest.Interface
 }
 
-func (c *RkeV1Client) CustomMachines(namespace string) CustomMachineInterface {
-	return newCustomMachines(c, namespace)
-}
-
 func (c *RkeV1Client) ETCDSnapshots(namespace string) ETCDSnapshotInterface {
 	return newETCDSnapshots(c, namespace)
-}
-
-func (c *RkeV1Client) RKEBootstraps(namespace string) RKEBootstrapInterface {
-	return newRKEBootstraps(c, namespace)
-}
-
-func (c *RkeV1Client) RKEBootstrapTemplates(namespace string) RKEBootstrapTemplateInterface {
-	return newRKEBootstrapTemplates(c, namespace)
 }
 
 func (c *RkeV1Client) RKEClusters(namespace string) RKEClusterInterface {

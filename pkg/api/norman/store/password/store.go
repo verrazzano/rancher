@@ -59,7 +59,6 @@ func SetPasswordStore(schemas *types.Schemas, secretStore v1.SecretInterface, ns
 
 	//add your parent schema name here
 	pwdTypes := []string{
-		"clusterlogging",
 		"projectlogging",
 		"globaldnsprovider",
 	}

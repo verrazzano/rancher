@@ -47,7 +47,6 @@ var (
 type Deployer struct {
 	clusterName             string
 	alertManager            *manager.AlertManager
-	clusterAlertGroupLister mgmtv3.ClusterAlertGroupLister
 	projectAlertGroupLister mgmtv3.ProjectAlertGroupLister
 	notifierLister          mgmtv3.NotifierLister
 	projectLister           mgmtv3.ProjectLister
@@ -85,7 +84,6 @@ func NewDeployer(cluster *config.UserContext, manager *manager.AlertManager) *De
 	return &Deployer{
 		clusterName:             cluster.ClusterName,
 		alertManager:            manager,
-		clusterAlertGroupLister: cluster.Management.Management.ClusterAlertGroups(cluster.ClusterName).Controller().Lister(),
 		projectAlertGroupLister: cluster.Management.Management.ProjectAlertGroups(metav1.NamespaceAll).Controller().Lister(),
 		notifierLister:          cluster.Management.Management.Notifiers(cluster.ClusterName).Controller().Lister(),
 		projectLister:           cluster.Management.Management.Projects(cluster.ClusterName).Controller().Lister(),
@@ -99,15 +97,7 @@ func (d *Deployer) ProjectGroupSync(key string, alert *mgmtv3.ProjectAlertGroup)
 	return nil, d.sync()
 }
 
-func (d *Deployer) ClusterGroupSync(key string, alert *mgmtv3.ClusterAlertGroup) (runtime.Object, error) {
-	return nil, d.sync()
-}
-
 func (d *Deployer) ProjectRuleSync(key string, alert *mgmtv3.ProjectAlertRule) (runtime.Object, error) {
-	return nil, d.sync()
-}
-
-func (d *Deployer) ClusterRuleSync(key string, alert *mgmtv3.ClusterAlertRule) (runtime.Object, error) {
 	return nil, d.sync()
 }
 
@@ -132,7 +122,6 @@ func (d *Deployer) sync() error {
 		return fmt.Errorf("get cluster %s failed, %v", d.clusterName, err)
 	}
 	newCluster := cluster.DeepCopy()
-	newCluster.Spec.EnableClusterAlerting = needDeploy
 
 	if needDeploy {
 		operatorAppName, operatorAppNamespace := monitorutil.SystemMonitoringInfo()
@@ -192,21 +181,8 @@ func (d *Deployer) needDeploy() (bool, bool, error) {
 		return false, false, err
 	}
 
-	clusterAlerts, err := d.clusterAlertGroupLister.List("", labels.NewSelector())
 	if err != nil {
 		return false, false, err
-	}
-
-	for _, alert := range clusterAlerts {
-		if len(alert.Spec.Recipients) > 0 {
-			needDeploy = true
-			for _, r := range alert.Spec.Recipients {
-				if slice.ContainsString(webhookReceiverTypes, r.NotifierType) {
-					needWebhookReceiver = true
-					return needDeploy, needWebhookReceiver, nil
-				}
-			}
-		}
 	}
 
 	projectAlerts, err := d.projectAlertGroupLister.List("", labels.NewSelector())

@@ -23,7 +23,6 @@ import (
 	gaccess "github.com/rancher/rancher/pkg/api/norman/customization/globalnamespaceaccess"
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	mgmtclient "github.com/rancher/rancher/pkg/client/generated/management/v3"
-	"github.com/rancher/rancher/pkg/controllers/management/k3sbasedupgrade"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/kontainer-engine/service"
 	"github.com/rancher/rancher/pkg/namespace"
@@ -62,11 +61,11 @@ func (v *Validator) Validator(request *types.APIContext, schema *types.Schema, d
 		return err
 	}
 
-	if err := v.validateK3sBasedVersionUpgrade(request, &clusterSpec); err != nil {
+	if err := v.validateGenericEngineConfig(request, &clusterSpec); err != nil {
 		return err
 	}
 
-	if err := v.validateGenericEngineConfig(request, &clusterSpec); err != nil {
+	if err := v.validateOCIOCNEEngineConfig(request, data, &clusterSpec); err != nil {
 		return err
 	}
 
@@ -101,11 +100,10 @@ func (v *Validator) validateLocalClusterAuthEndpoint(request *types.APIContext, 
 		isValidCluster = cluster.Status.Driver == "" ||
 			cluster.Status.Driver == v32.ClusterDriverRKE ||
 			cluster.Status.Driver == v32.ClusterDriverImported ||
-			cluster.Status.Driver == v32.ClusterDriverK3s ||
 			cluster.Status.Driver == v32.ClusterDriverRke2
 	}
 	if !isValidCluster {
-		return httperror.NewFieldAPIError(httperror.InvalidState, "LocalClusterAuthEndpoint.Enabled", "Can only enable LocalClusterAuthEndpoint with RKE, RKE2, or K3s")
+		return httperror.NewFieldAPIError(httperror.InvalidState, "LocalClusterAuthEndpoint.Enabled", "Can only enable LocalClusterAuthEndpoint with RKE or RKE2")
 	}
 
 	if spec.LocalClusterAuthEndpoint.CACerts != "" && spec.LocalClusterAuthEndpoint.FQDN == "" {
@@ -158,70 +156,6 @@ func (v *Validator) validateEnforcement(request *types.APIContext, data map[stri
 			return httperror.NewAPIError(httperror.NotFound, "The clusterTemplateRevision is not found")
 		}
 		return err
-	}
-
-	return nil
-}
-
-// TODO: test validator
-// prevents downgrades, no-ops, and upgrading before versions have been set
-func (v *Validator) validateK3sBasedVersionUpgrade(request *types.APIContext, spec *v32.ClusterSpec) error {
-	upgradeNotReadyErr := httperror.NewAPIError(httperror.Conflict, "k3s version upgrade is not ready, try again later")
-
-	if request.Method == http.MethodPost {
-		return nil
-	}
-	isK3s := spec.K3sConfig != nil
-	isrke2 := spec.Rke2Config != nil
-	if !isK3s && !isrke2 {
-		// only applies to k3s clusters
-		return nil
-	}
-
-	// must wait for original spec version to be set
-	if (isK3s && spec.K3sConfig.Version == "") || (isrke2 && spec.Rke2Config.Version == "") {
-		return upgradeNotReadyErr
-	}
-
-	cluster, err := v.ClusterLister.Get("", request.ID)
-	if err != nil {
-		return err
-	}
-
-	if isK3s && cluster.Spec.K3sConfig == nil {
-		// prevents embedded cluster from have k3sConfig set. Embedded cluster cannot be upgraded. Non-embedded
-		// clusters' config will be set my controller.
-		return httperror.NewAPIError(httperror.InvalidBodyContent, "k3sConfig cannot be changed from nil")
-	}
-
-	// must wait for original status version to be set
-	if cluster.Status.Version == nil {
-		return upgradeNotReadyErr
-	}
-
-	var updateVersion string
-	if cluster.Status.Driver == v32.ClusterDriverRke2 {
-		updateVersion = spec.Rke2Config.Version
-	} else {
-		updateVersion = spec.K3sConfig.Version
-	}
-
-	prevVersion := cluster.Status.Version.GitVersion
-	if prevVersion == updateVersion {
-		// no op
-		return nil
-	}
-
-	isNewer, err := k3sbasedupgrade.IsNewerVersion(prevVersion, updateVersion)
-	if err != nil {
-		errMsg := fmt.Sprintf("unable to compare cluster version [%s]", updateVersion)
-		return httperror.NewAPIError(httperror.InvalidBodyContent, errMsg)
-	}
-
-	if !isNewer {
-		// update version must be higher than previous version, downgrades are not supported
-		errMsg := fmt.Sprintf("cannot upgrade cluster version from [%s] to [%s]. New version must be higher.", prevVersion, updateVersion)
-		return httperror.NewAPIError(httperror.InvalidBodyContent, errMsg)
 	}
 
 	return nil

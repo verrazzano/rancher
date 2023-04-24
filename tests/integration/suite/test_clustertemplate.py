@@ -123,7 +123,6 @@ def test_cron_schedule(admin_mc, list_remove_resource):
     client = admin_mc.client
     cconfig = {
         "dockerRootDir": "/var/lib/docker",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": "false",
         "enableNetworkPolicy": "false",
         "labels": {},
@@ -962,7 +961,6 @@ def create_cluster_template_revision(client, clusterTemplateId):
 
     cluster_config = {
         "dockerRootDir": "/var/lib/docker",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": "false",
         "enableNetworkPolicy": "false",
         "type": "clusterSpecBase",

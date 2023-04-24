@@ -1,10 +1,5 @@
 package v3
 
-// K3sConfig provides desired configuration for k3s clusters
-type K3sConfig struct {
-	Version                string `yaml:"kubernetes_version" json:"kubernetesVersion,omitempty"`
-	ClusterUpgradeStrategy `yaml:"k3s_upgrade_strategy,omitempty" json:"k3supgradeStrategy,omitempty"`
-}
 type Rke2Config struct {
 	Version                string `yaml:"kubernetes_version" json:"kubernetesVersion,omitempty"`
 	ClusterUpgradeStrategy `yaml:"rke2_upgrade_strategy,omitempty" json:"rke2upgradeStrategy,omitempty"`
@@ -25,8 +20,4 @@ type ClusterUpgradeStrategy struct {
 func (r *Rke2Config) SetStrategy(serverConcurrency, workerConcurrency int) {
 	r.ClusterUpgradeStrategy.ServerConcurrency = serverConcurrency
 	r.ClusterUpgradeStrategy.WorkerConcurrency = workerConcurrency
-}
-func (k *K3sConfig) SetStrategy(serverConcurrency, workerConcurrency int) {
-	k.ClusterUpgradeStrategy.ServerConcurrency = serverConcurrency
-	k.ClusterUpgradeStrategy.WorkerConcurrency = workerConcurrency
 }

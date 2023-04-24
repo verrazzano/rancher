@@ -9,7 +9,6 @@ spec:
   desiredAuthImage: ""
   displayName: gke-test
   dockerRootDir: /var/lib/docker
-  enableClusterAlerting: false
   enableClusterMonitoring: false
   enableNetworkPolicy: false
   fleetWorkspaceName: fleet-default

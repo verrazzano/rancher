@@ -30,10 +30,7 @@ func init() {
 }
 
 type Interface interface {
-	CustomMachine() CustomMachineController
 	ETCDSnapshot() ETCDSnapshotController
-	RKEBootstrap() RKEBootstrapController
-	RKEBootstrapTemplate() RKEBootstrapTemplateController
 	RKECluster() RKEClusterController
 	RKEControlPlane() RKEControlPlaneController
 }
@@ -48,17 +45,8 @@ type version struct {
 	controllerFactory controller.SharedControllerFactory
 }
 
-func (c *version) CustomMachine() CustomMachineController {
-	return NewCustomMachineController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "CustomMachine"}, "custommachines", true, c.controllerFactory)
-}
 func (c *version) ETCDSnapshot() ETCDSnapshotController {
 	return NewETCDSnapshotController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "ETCDSnapshot"}, "etcdsnapshots", true, c.controllerFactory)
-}
-func (c *version) RKEBootstrap() RKEBootstrapController {
-	return NewRKEBootstrapController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "RKEBootstrap"}, "rkebootstraps", true, c.controllerFactory)
-}
-func (c *version) RKEBootstrapTemplate() RKEBootstrapTemplateController {
-	return NewRKEBootstrapTemplateController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "RKEBootstrapTemplate"}, "rkebootstraptemplates", true, c.controllerFactory)
 }
 func (c *version) RKECluster() RKEClusterController {
 	return NewRKEClusterController(schema.GroupVersionKind{Group: "rke.cattle.io", Version: "v1", Kind: "RKECluster"}, "rkeclusters", true, c.controllerFactory)

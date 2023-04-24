@@ -20,7 +20,6 @@ const (
 	ClusterSpecFieldDisplayName                         = "displayName"
 	ClusterSpecFieldDockerRootDir                       = "dockerRootDir"
 	ClusterSpecFieldEKSConfig                           = "eksConfig"
-	ClusterSpecFieldEnableClusterAlerting               = "enableClusterAlerting"
 	ClusterSpecFieldEnableClusterMonitoring             = "enableClusterMonitoring"
 	ClusterSpecFieldEnableNetworkPolicy                 = "enableNetworkPolicy"
 	ClusterSpecFieldFleetWorkspaceName                  = "fleetWorkspaceName"
@@ -29,11 +28,9 @@ const (
 	ClusterSpecFieldGoogleKubernetesEngineConfig        = "googleKubernetesEngineConfig"
 	ClusterSpecFieldImportedConfig                      = "importedConfig"
 	ClusterSpecFieldInternal                            = "internal"
-	ClusterSpecFieldK3sConfig                           = "k3sConfig"
 	ClusterSpecFieldLocalClusterAuthEndpoint            = "localClusterAuthEndpoint"
 	ClusterSpecFieldRancherKubernetesEngineConfig       = "rancherKubernetesEngineConfig"
 	ClusterSpecFieldRke2Config                          = "rke2Config"
-	ClusterSpecFieldScheduledClusterScan                = "scheduledClusterScan"
 	ClusterSpecFieldWindowsPreferedCluster              = "windowsPreferedCluster"
 )
 
@@ -56,7 +53,6 @@ type ClusterSpec struct {
 	DisplayName                         string                         `json:"displayName,omitempty" yaml:"displayName,omitempty"`
 	DockerRootDir                       string                         `json:"dockerRootDir,omitempty" yaml:"dockerRootDir,omitempty"`
 	EKSConfig                           *EKSClusterConfigSpec          `json:"eksConfig,omitempty" yaml:"eksConfig,omitempty"`
-	EnableClusterAlerting               bool                           `json:"enableClusterAlerting,omitempty" yaml:"enableClusterAlerting,omitempty"`
 	EnableClusterMonitoring             bool                           `json:"enableClusterMonitoring,omitempty" yaml:"enableClusterMonitoring,omitempty"`
 	EnableNetworkPolicy                 *bool                          `json:"enableNetworkPolicy,omitempty" yaml:"enableNetworkPolicy,omitempty"`
 	FleetWorkspaceName                  string                         `json:"fleetWorkspaceName,omitempty" yaml:"fleetWorkspaceName,omitempty"`
@@ -65,10 +61,8 @@ type ClusterSpec struct {
 	GoogleKubernetesEngineConfig        map[string]interface{}         `json:"googleKubernetesEngineConfig,omitempty" yaml:"googleKubernetesEngineConfig,omitempty"`
 	ImportedConfig                      *ImportedConfig                `json:"importedConfig,omitempty" yaml:"importedConfig,omitempty"`
 	Internal                            bool                           `json:"internal,omitempty" yaml:"internal,omitempty"`
-	K3sConfig                           *K3sConfig                     `json:"k3sConfig,omitempty" yaml:"k3sConfig,omitempty"`
 	LocalClusterAuthEndpoint            *LocalClusterAuthEndpoint      `json:"localClusterAuthEndpoint,omitempty" yaml:"localClusterAuthEndpoint,omitempty"`
 	RancherKubernetesEngineConfig       *RancherKubernetesEngineConfig `json:"rancherKubernetesEngineConfig,omitempty" yaml:"rancherKubernetesEngineConfig,omitempty"`
 	Rke2Config                          *Rke2Config                    `json:"rke2Config,omitempty" yaml:"rke2Config,omitempty"`
-	ScheduledClusterScan                *ScheduledClusterScan          `json:"scheduledClusterScan,omitempty" yaml:"scheduledClusterScan,omitempty"`
 	WindowsPreferedCluster              bool                           `json:"windowsPreferedCluster,omitempty" yaml:"windowsPreferedCluster,omitempty"`
 }

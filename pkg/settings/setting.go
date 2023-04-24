@@ -131,7 +131,6 @@ var (
 	SystemFeatureChartRefreshSeconds    = NewSetting("system-feature-chart-refresh-seconds", "900")
 
 	Rke2DefaultVersion = NewSetting("rke2-default-version", "")
-	K3sDefaultVersion  = NewSetting("k3s-default-version", "")
 
 	// AuthTokenMaxTTLMinutes is the max allowable time to live for tokens. Excluding those created for UI sessions which is controlled by AuthUserSessionTTLMinutes.
 	AuthTokenMaxTTLMinutes = NewSetting("auth-token-max-ttl-minutes", "0") // never expire

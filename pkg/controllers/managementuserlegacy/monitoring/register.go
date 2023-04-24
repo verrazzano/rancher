@@ -54,7 +54,7 @@ func Register(ctx context.Context, agentContext *config.UserContext) {
 		if obj == nil {
 			return nil, nil
 		}
-		if obj.Name == agentContext.ClusterName && (obj.Spec.EnableClusterMonitoring || obj.Spec.EnableClusterAlerting) {
+		if obj.Name == agentContext.ClusterName && obj.Spec.EnableClusterMonitoring {
 			return obj, starterPrometheusOperatorDeferred()
 		}
 		return obj, nil
@@ -75,7 +75,6 @@ func registerDeferred(ctx context.Context, agentContext *config.UserContext) {
 		cattleAppClient:           cattleContext.Project.Apps(metav1.NamespaceAll),
 		cattleProjectClient:       cattleProjectsClient,
 		cattleSecretClient:        cattleContext.Core.Secrets(metav1.NamespaceAll),
-		cattleClusterGraphClient:  mgmtContext.ClusterMonitorGraphs(metav1.NamespaceAll),
 		cattleProjectGraphClient:  mgmtContext.ProjectMonitorGraphs(metav1.NamespaceAll),
 		cattleMonitorMetricClient: mgmtContext.MonitorMetrics(metav1.NamespaceAll),
 		agentDeploymentClient:     agentContext.Apps.Deployments(metav1.NamespaceAll),
@@ -143,7 +142,6 @@ func registerPrometheusOperatorDeferred(ctx context.Context, agentContext *confi
 		cattleAppClient:           cattleContext.Project.Apps(metav1.NamespaceAll),
 		cattleProjectClient:       cattleProjectsClient,
 		cattleSecretClient:        cattleContext.Core.Secrets(metav1.NamespaceAll),
-		cattleClusterGraphClient:  mgmtContext.ClusterMonitorGraphs(metav1.NamespaceAll),
 		cattleProjectGraphClient:  mgmtContext.ProjectMonitorGraphs(metav1.NamespaceAll),
 		cattleMonitorMetricClient: mgmtContext.MonitorMetrics(metav1.NamespaceAll),
 		agentDeploymentClient:     agentContext.Apps.Deployments(metav1.NamespaceAll),

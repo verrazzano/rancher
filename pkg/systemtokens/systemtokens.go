@@ -101,10 +101,6 @@ func (t *systemTokens) createOrUpdateSystemToken(tokenName, description, kind, u
 		token.ObjectMeta.GenerateName = tokenName
 	}
 
-	err = tokens.ConvertTokenKeyToHash(token)
-	if err != nil {
-		return "", err
-	}
 	logrus.Infof("Creating system token for %v, token: %v", userName, tokenName)
 	token, err = t.tokenClient.Create(token)
 	if err != nil {

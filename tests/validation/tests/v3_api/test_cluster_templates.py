@@ -73,7 +73,6 @@ def get_cluster_config(k8sversion, enableMonitoring="false"):
     rke_config = getRKEConfig(k8sversion)
     cluster_config = {
         "dockerRootDir": "/var/lib/docker123",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": enableMonitoring,
         "enableNetworkPolicy": "false",
         "type": "clusterSpecBase",
@@ -91,7 +90,6 @@ def get_cisscan_enabled_clusterconfig(k8sversion):
 
     cluster_config = {
         "dockerRootDir": "/var/lib/docker123",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": "false",
         "enableNetworkPolicy": "false",
         "type": "clusterSpecBase",

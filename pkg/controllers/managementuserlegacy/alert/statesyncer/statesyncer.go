@@ -17,7 +17,6 @@ import (
 
 func StartStateSyncer(ctx context.Context, cluster *config.UserContext, manager *manager.AlertManager) {
 	s := &StateSyncer{
-		clusterAlertRules: cluster.Management.Management.ClusterAlertRules(cluster.ClusterName),
 		projectAlertRules: cluster.Management.Management.ProjectAlertRules(""),
 		alertManager:      manager,
 		clusterName:       cluster.ClusterName,
@@ -32,7 +31,6 @@ func (s *StateSyncer) watch(ctx context.Context, interval time.Duration) {
 }
 
 type StateSyncer struct {
-	clusterAlertRules v3.ClusterAlertRuleInterface
 	projectAlertRules v3.ProjectAlertRuleInterface
 	alertManager      *manager.AlertManager
 	clusterName       string
@@ -47,7 +45,6 @@ func (s *StateSyncer) syncState() error {
 
 	apiAlerts, err := s.alertManager.GetAlertList()
 	if err == nil {
-		clusterAlerts, err := s.clusterAlertRules.Controller().Lister().List("", labels.NewSelector())
 		if err != nil {
 			return err
 		}
@@ -61,25 +58,6 @@ func (s *StateSyncer) syncState() error {
 		for _, alert := range projectAlerts {
 			if controller.ObjectInCluster(s.clusterName, alert) {
 				pAlerts = append(pAlerts, alert)
-			}
-		}
-
-		for _, alert := range clusterAlerts {
-			ruleID := common.GetRuleID(alert.Spec.GroupName, alert.Name)
-			state := s.alertManager.GetState("rule_id", ruleID, apiAlerts)
-			ruleNeedUpdate := s.doSync("rule_id", ruleID, alert.Status.AlertState, state)
-			if ruleNeedUpdate {
-				old, err := s.clusterAlertRules.Get(alert.Name, metav1.GetOptions{})
-				if err != nil {
-					logrus.Errorf("Error occurred while get alert %s:%s, %v", alert.Namespace, alert.Name, err)
-					continue
-				}
-				new := old.DeepCopy()
-				new.Status.AlertState = state
-				_, err = s.clusterAlertRules.Update(new)
-				if err != nil {
-					logrus.Errorf("Error occurred while updating %s:%s, alert state, %v", alert.Namespace, alert.Name, err)
-				}
 			}
 		}
 

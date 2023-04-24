@@ -5,17 +5,16 @@ import (
 	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
 )
 
-// CreateAKSHostedCluster is a helper function that creates an AKS hosted cluster.
-func CreateAKSHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
-	aksHostCluster := AKSHostClusterConfig(displayName, cloudCredentialID)
+// CreateAKSHostedCluster is a helper function that creates an AKS hosted cluster
+func CreateAKSHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
+	aksHostCluster := aksHostClusterConfig(displayName, cloudCredentialID)
 	cluster := &management.Cluster{
-		AKSConfig:               aksHostCluster,
 		DockerRootDir:           "/var/lib/docker",
-		EnableClusterAlerting:   enableClusterAlerting,
+		AKSConfig:               aksHostCluster,
+		Name:                    displayName,
 		EnableClusterMonitoring: enableClusterMonitoring,
 		EnableNetworkPolicy:     &enableNetworkPolicy,
 		Labels:                  labels,
-		Name:                    displayName,
 		WindowsPreferedCluster:  windowsPreferedCluster,
 	}
 
@@ -23,6 +22,5 @@ func CreateAKSHostedCluster(client *rancher.Client, displayName, cloudCredential
 	if err != nil {
 		return nil, err
 	}
-
 	return clusterResp, err
 }

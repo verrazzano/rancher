@@ -10,27 +10,6 @@ import (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type ClusterAlert struct {
-	types.Namespaced
-
-	metav1.TypeMeta `json:",inline"`
-	// Standard object’s metadata. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#metadata
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec ClusterAlertSpec `json:"spec"`
-	// Most recent observed status of the alert. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#spec-and-status
-	Status AlertStatus `json:"status"`
-}
-
-func (c *ClusterAlert) ObjClusterName() string {
-	return c.Spec.ObjClusterName()
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 type ProjectAlert struct {
 	types.Namespaced
 
@@ -56,19 +35,6 @@ type AlertCommonSpec struct {
 	Recipients            []Recipient `json:"recipients,omitempty" norman:"required"`
 	InitialWaitSeconds    int         `json:"initialWaitSeconds,omitempty" norman:"required,default=180,min=0"`
 	RepeatIntervalSeconds int         `json:"repeatIntervalSeconds,omitempty"  norman:"required,default=3600,min=0"`
-}
-
-type ClusterAlertSpec struct {
-	AlertCommonSpec
-
-	ClusterName         string               `json:"clusterName" norman:"type=reference[cluster]"`
-	TargetNode          *TargetNode          `json:"targetNode,omitempty"`
-	TargetSystemService *TargetSystemService `json:"targetSystemService,omitempty"`
-	TargetEvent         *TargetEvent         `json:"targetEvent,omitempty"`
-}
-
-func (c *ClusterAlertSpec) ObjClusterName() string {
-	return c.ClusterName
 }
 
 type ProjectAlertSpec struct {
@@ -129,27 +95,6 @@ type AlertStatus struct {
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type ClusterAlertGroup struct {
-	types.Namespaced
-
-	metav1.TypeMeta `json:",inline"`
-	// Standard object’s metadata. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#metadata
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec ClusterGroupSpec `json:"spec"`
-	// Most recent observed status of the alert. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#spec-and-status
-	Status AlertStatus `json:"status"`
-}
-
-func (c *ClusterAlertGroup) ObjClusterName() string {
-	return c.Spec.ObjClusterName()
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
 type ProjectAlertGroup struct {
 	types.Namespaced
 
@@ -168,16 +113,6 @@ func (p *ProjectAlertGroup) ObjClusterName() string {
 	return p.Spec.ObjClusterName()
 }
 
-type ClusterGroupSpec struct {
-	ClusterName string      `json:"clusterName" norman:"type=reference[cluster]"`
-	Recipients  []Recipient `json:"recipients,omitempty"`
-	CommonGroupField
-}
-
-func (c *ClusterGroupSpec) ObjClusterName() string {
-	return c.ClusterName
-}
-
 type ProjectGroupSpec struct {
 	ProjectName string      `json:"projectName" norman:"type=reference[project]"`
 	Recipients  []Recipient `json:"recipients,omitempty"`
@@ -189,42 +124,6 @@ func (p *ProjectGroupSpec) ObjClusterName() string {
 		return parts[0]
 	}
 	return ""
-}
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type ClusterAlertRule struct {
-	types.Namespaced
-
-	metav1.TypeMeta `json:",inline"`
-	// Standard object’s metadata. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#metadata
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec ClusterAlertRuleSpec `json:"spec"`
-	// Most recent observed status of the alert. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#spec-and-status
-	Status AlertStatus `json:"status"`
-}
-
-func (c *ClusterAlertRule) ObjClusterName() string {
-	return c.Spec.ObjClusterName()
-}
-
-type ClusterAlertRuleSpec struct {
-	CommonRuleField
-	ClusterName       string             `json:"clusterName" norman:"type=reference[cluster]"`
-	GroupName         string             `json:"groupName" norman:"type=reference[clusterAlertGroup]"`
-	NodeRule          *NodeRule          `json:"nodeRule,omitempty"`
-	EventRule         *EventRule         `json:"eventRule,omitempty"`
-	SystemServiceRule *SystemServiceRule `json:"systemServiceRule,omitempty"`
-	MetricRule        *MetricRule        `json:"metricRule,omitempty"`
-	ClusterScanRule   *ClusterScanRule   `json:"clusterScanRule,omitempty"`
-}
-
-func (c *ClusterAlertRuleSpec) ObjClusterName() string {
-	return c.ClusterName
 }
 
 // +genclient
@@ -275,11 +174,6 @@ type CommonRuleField struct {
 	Severity    string `json:"severity,omitempty" norman:"required,options=info|critical|warning,default=critical"`
 	Inherited   *bool  `json:"inherited,omitempty" norman:"default=true"`
 	TimingField
-}
-
-type ClusterScanRule struct {
-	ScanRunType  ClusterScanRunType `json:"scanRunType,omitempty" norman:"required,options=manual|scheduled,default=scheduled"`
-	FailuresOnly bool               `json:"failuresOnly,omitempty"`
 }
 
 type MetricRule struct {
