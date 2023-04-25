@@ -2,85 +2,73 @@ package rkecluster
 
 import (
 	"context"
-	"time"
 
 	v1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
-	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	rkecontroller "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/wrangler"
-	"github.com/rancher/wrangler/pkg/generic"
 	"github.com/rancher/wrangler/pkg/relatedresource"
-	"github.com/sirupsen/logrus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	capi "sigs.k8s.io/cluster-api/api/v1beta1"
-	capiannotations "sigs.k8s.io/cluster-api/util/annotations"
 )
 
 type handler struct {
-	rkeCluster       rkecontroller.RKEClusterController
-	capiClusterCache capicontrollers.ClusterCache
+	clusterClient    rkecontroller.RKEClusterClient
+	rkeControlPlanes rkecontroller.RKEControlPlaneCache
 }
 
 func Register(ctx context.Context, clients *wrangler.Context) {
 	h := handler{
-		rkeCluster:       clients.RKE.RKECluster(),
-		capiClusterCache: clients.CAPI.Cluster().Cache(),
+		clusterClient:    clients.RKE.RKECluster(),
+		rkeControlPlanes: clients.RKE.RKEControlPlane().Cache(),
 	}
 
-	clients.RKE.RKECluster().OnChange(ctx, "rke-cluster", h.OnChange)
+	clients.RKE.RKECluster().OnChange(ctx, "rke-cluster", h.UpdateSpec)
+	rkecontroller.RegisterRKEClusterStatusHandler(ctx,
+		clients.RKE.RKECluster(),
+		"Defined",
+		"rke-cluster-status",
+		h.OnChange)
 	relatedresource.Watch(ctx, "rke-cluster-trigger", func(namespace, name string, obj runtime.Object) ([]relatedresource.Key, error) {
-		if capiCluster, ok := obj.(*capi.Cluster); ok && !capiCluster.Spec.Paused {
-			return []relatedresource.Key{{
-				Namespace: namespace,
-				Name:      name,
-			}}, nil
-		}
-		return nil, nil
-	}, clients.RKE.RKECluster(), clients.CAPI.Cluster())
+		return []relatedresource.Key{{
+			Namespace: namespace,
+			Name:      name,
+		}}, nil
+	}, clients.RKE.RKECluster(), clients.RKE.RKEControlPlane())
 }
 
-func (h *handler) OnChange(_ string, cluster *v1.RKECluster) (*v1.RKECluster, error) {
+func (h *handler) UpdateSpec(_ string, cluster *v1.RKECluster) (*v1.RKECluster, error) {
 	if cluster == nil {
 		return nil, nil
 	}
 
-	capiCluster, err := rke2.GetOwnerCAPICluster(cluster, h.capiClusterCache)
-	if apierrors.IsNotFound(err) {
-		logrus.Debugf("[rkecluster] %s/%s: waiting: CAPI cluster does not exist", cluster.Namespace, cluster.Name)
-		h.rkeCluster.EnqueueAfter(cluster.Namespace, cluster.Name, 10*time.Second)
-		return cluster, generic.ErrSkip
-	}
-	if err != nil {
-		logrus.Errorf("[rkecluster] %s/%s: error getting CAPI cluster %v", cluster.Namespace, cluster.Name, err)
-		return cluster, err
-	}
-
-	if capiannotations.IsPaused(capiCluster, cluster) {
-		logrus.Infof("[rkecluster] %s/%s: waiting: CAPI cluster or RKECluster is paused", cluster.Namespace, cluster.Name)
-		return cluster, generic.ErrSkip
-	}
-
-	if cluster.Spec.ControlPlaneEndpoint == nil || !cluster.Spec.ControlPlaneEndpoint.IsValid() {
+	if cluster.Spec.ControlPlaneEndpoint == nil {
 		cluster := cluster.DeepCopy()
-		cluster.Spec.ControlPlaneEndpoint = &capi.APIEndpoint{
+		cluster.Spec.ControlPlaneEndpoint = &v1.Endpoint{
 			Host: "localhost",
 			Port: 6443,
 		}
-		logrus.Debugf("[rkecluster] %s/%s: setting controlplane endpoint", cluster.Namespace, cluster.Name)
-		return h.rkeCluster.Update(cluster)
-	}
-
-	if len(cluster.Status.Conditions) > 0 || cluster.Status.Ready != true {
-		cluster := cluster.DeepCopy()
-		// the rke2.Ready and rke2.Removed conditions may still be present on the object, remove them if present
-		cluster.Status.Conditions = nil
-		cluster.Status.Ready = true
-		logrus.Tracef("[rkecluster] %s/%s: removing stale conditions", cluster.Namespace, cluster.Name)
-		logrus.Debugf("[rkecluster] %s/%s: marking cluster ready", cluster.Namespace, cluster.Name)
-		return h.rkeCluster.UpdateStatus(cluster)
+		return h.clusterClient.Update(cluster)
 	}
 
 	return cluster, nil
+}
+
+func (h *handler) OnChange(rkeCluster *v1.RKECluster, status v1.RKEClusterStatus) (v1.RKEClusterStatus, error) {
+	conditionToUpdate := rke2.Ready
+	if !rkeCluster.DeletionTimestamp.IsZero() {
+		conditionToUpdate = rke2.Removed
+	}
+	cp, err := h.rkeControlPlanes.Get(rkeCluster.Namespace, rkeCluster.Name)
+	if err == nil {
+		conditionToUpdate.SetStatus(&status, conditionToUpdate.GetStatus(cp))
+		conditionToUpdate.Reason(&status, conditionToUpdate.GetReason(cp))
+		conditionToUpdate.Message(&status, conditionToUpdate.GetMessage(cp))
+	} else if !apierrors.IsNotFound(err) {
+		return status, err
+	}
+
+	status.Ready = rke2.Ready.IsTrue(&status)
+	status.ObservedGeneration = rkeCluster.Generation
+	return status, nil
 }
