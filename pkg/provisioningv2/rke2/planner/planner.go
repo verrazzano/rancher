@@ -38,6 +38,7 @@ import (
 	apierror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util/conditions"
 )
@@ -208,6 +209,27 @@ func (p *Planner) setMachineConditionStatus(clusterPlan *plan.Plan, machineNames
 		return ErrWaiting(messagePrefix + atMostThree(machineNames) + detailedMessage(machineNames, messages))
 	}
 	return nil
+}
+
+func removeConfiguredCondition(machine *capi.Machine) *capi.Machine {
+	if machine == nil || len(machine.Status.Conditions) == 0 {
+		return machine
+	}
+
+	conds := make([]capi.Condition, 0, len(machine.Status.Conditions))
+	for _, c := range machine.Status.Conditions {
+		if string(c.Type) != string(rke2.Reconciled) {
+			conds = append(conds, c)
+		}
+	}
+
+	if len(conds) == len(machine.Status.Conditions) {
+		return machine
+	}
+
+	machine = machine.DeepCopy()
+	machine.SetConditions(conds)
+	return machine
 }
 
 func (p *Planner) getCAPICluster(controlPlane *rkev1.RKEControlPlane) (*capi.Cluster, error) {
