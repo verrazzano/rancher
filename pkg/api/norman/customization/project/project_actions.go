@@ -283,13 +283,13 @@ func (h *Handler) setPodSecurityPolicyTemplate(actionName string, action *types.
 		}
 
 		clusterName := idParts[0]
-		managementCluster, err := h.ClusterLister.Get("", clusterName)
+		cluster, err := h.ClusterLister.Get("", clusterName)
 		if err != nil {
 			return fmt.Errorf("error retrieving cluster [%s]: %v", clusterName, err)
 		}
 
 		// rke2 provisioned clusters always have PSP enabled
-		if !managementCluster.Status.Capabilities.PspEnabled && !isProvisionedRke2Cluster(managementCluster) && !k3sPodSecurityPoliciesEnabled {
+		if !cluster.Status.Capabilities.PspEnabled && !isProvisionedRke2Cluster(cluster) {
 			return httperror.NewAPIError(httperror.InvalidAction,
 				fmt.Sprintf("cluster [%s] does not have Pod Security Policies enabled", clusterName))
 		}
