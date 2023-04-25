@@ -15,7 +15,6 @@ RUN yum update -y && \
                    openssl-devel libffi-devel python3 iproute vim less bash-completion sysstat acl hostname openssl \
                    helm-3.9.4-1.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 docker-engine-19.03.11.ol-13.el7.x86_64 etcd-3.5.1-2.el7.x86_64 tini-0.19.0-2.el7.x86_64 \
                    golang-1.19 && \
-
     # Set up needed to ensure git 2.27 from rh-git227 is on the path
     ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
     source /etc/profile.d/git.sh && \
