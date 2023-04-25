@@ -3,7 +3,6 @@ package v1
 import (
 	"github.com/rancher/wrangler/pkg/genericcondition"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
 // +genclient
@@ -17,8 +16,9 @@ type RKECluster struct {
 }
 
 type RKEClusterStatus struct {
-	Conditions []genericcondition.GenericCondition `json:"conditions,omitempty"`
-	Ready      bool                                `json:"ready,omitempty"`
+	Conditions         []genericcondition.GenericCondition `json:"conditions,omitempty"`
+	Ready              bool                                `json:"ready,omitempty"`
+	ObservedGeneration int64                               `json:"observedGeneration"`
 }
 
 type RKEClusterSpecCommon struct {
@@ -26,7 +26,6 @@ type RKEClusterSpecCommon struct {
 	ChartValues           GenericMap             `json:"chartValues,omitempty" wrangler:"nullable"`
 	MachineGlobalConfig   GenericMap             `json:"machineGlobalConfig,omitempty" wrangler:"nullable"`
 	MachineSelectorConfig []RKESystemConfig      `json:"machineSelectorConfig,omitempty"`
-	MachineSelectorFiles  []RKEProvisioningFiles `json:"machineSelectorFiles,omitempty"`
 	AdditionalManifest    string                 `json:"additionalManifest,omitempty"`
 	Registries            *Registry              `json:"registries,omitempty"`
 	ETCD                  *ETCD                  `json:"etcd,omitempty"`
@@ -45,14 +44,9 @@ type RKESystemConfig struct {
 	Config               GenericMap            `json:"config,omitempty" wrangler:"nullable"`
 }
 
-type RKEProvisioningFiles struct {
-	MachineLabelSelector *metav1.LabelSelector    `json:"machineLabelSelector,omitempty"`
-	FileSources          []ProvisioningFileSource `json:"fileSources,omitempty"`
-}
-
 type RKEClusterSpec struct {
 	// Not used in anyway, just here to make cluster-api happy
-	ControlPlaneEndpoint *capi.APIEndpoint `json:"controlPlaneEndpoint,omitempty"`
+	ControlPlaneEndpoint *Endpoint `json:"controlPlaneEndpoint,omitempty"`
 }
 
 type ClusterUpgradeStrategy struct {
@@ -76,12 +70,12 @@ type DrainOptions struct {
 	// (even when set to true, kubectl won't delete pods - so setting default to true)
 	IgnoreDaemonSets *bool `json:"ignoreDaemonSets"`
 	// IgnoreErrors Ignore errors occurred between drain nodes in group
-	IgnoreErrors bool `json:"ignoreErrors"`
+	IgnoreErrors bool
 	// Continue even if there are pods using emptyDir
 	DeleteEmptyDirData bool `json:"deleteEmptyDirData"`
 	// DisableEviction forces drain to use delete rather than evict
 	DisableEviction bool `json:"disableEviction"`
-	// Period of time in seconds given to each pod to terminate gracefully.
+	//Period of time in seconds given to each pod to terminate gracefully.
 	// If negative, the default value specified in the pod will be used
 	GracePeriod int `json:"gracePeriod"`
 	// Time to wait (in seconds) before giving up for one try
@@ -102,21 +96,7 @@ type DrainHook struct {
 	Annotation string `json:"annotation,omitempty"`
 }
 
-type ProvisioningFileSource struct {
-	Secret    K8sObjectFileSource `json:"secret,omitempty"`
-	ConfigMap K8sObjectFileSource `json:"configMap,omitempty"`
-}
-
-type K8sObjectFileSource struct {
-	Name               string      `json:"name"`
-	Items              []KeyToPath `json:"items,omitempty"`
-	DefaultPermissions string      `json:"defaultPermissions,omitempty"`
-}
-
-type KeyToPath struct {
-	Key         string `json:"key"`
-	Path        string `json:"path"`
-	Dynamic     bool   `json:"dynamic,omitempty"`
-	Permissions string `json:"permissions,omitempty"`
-	Hash        string `json:"hash,omitempty"`
+type Endpoint struct {
+	Host string `json:"host,omitempty"`
+	Port int    `json:"port,omitempty"`
 }
