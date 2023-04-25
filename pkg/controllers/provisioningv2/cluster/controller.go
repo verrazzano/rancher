@@ -62,7 +62,7 @@ type handler struct {
 
 func Register(
 	ctx context.Context,
-	clients *wrangler.Context, kubeconfigManager *kubeconfig.Manager) {
+	clients *wrangler.Context) {
 	h := handler{
 		mgmtClusterCache:  clients.Mgmt.Cluster().Cache(),
 		mgmtClusters:      clients.Mgmt.Cluster(),
@@ -78,6 +78,9 @@ func Register(
 			clients.Provisioning.Cluster(),
 			clients.Mgmt.Cluster()),
 	}
+
+	clients.Provisioning.Cluster().Cache().AddIndexer(ByCluster, byClusterIndex)
+	clients.Provisioning.Cluster().Cache().AddIndexer(ByCloudCred, byCloudCredentialIndex)
 
 	// Register a generating handler in order to generate clusters.provisioning.cattle.io/v1 objects based on
 	// clusters.management.cattle.io/v3 (legacy) cluster objects.
