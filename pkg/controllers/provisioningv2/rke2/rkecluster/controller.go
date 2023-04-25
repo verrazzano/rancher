@@ -44,7 +44,7 @@ func (h *handler) UpdateSpec(_ string, cluster *v1.RKECluster) (*v1.RKECluster, 
 
 	if cluster.Spec.ControlPlaneEndpoint == nil {
 		cluster := cluster.DeepCopy()
-		cluster.Spec.ControlPlaneEndpoint = &v1.Endpoint{
+		cluster.Spec.ControlPlaneEndpoint = &capi.APIEndpoint{
 			Host: "localhost",
 			Port: 6443,
 		}
