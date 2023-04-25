@@ -278,7 +278,7 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		joinServer       string
 	)
 
-	if status, err = p.createEtcdSnapshot(cp, status, clusterSecretTokens, plan); err != nil {
+	if status, err = p.createEtcdSnapshot(controlPlane, status, clusterSecretTokens, plan); err != nil {
 		return status, err
 	}
 
@@ -301,22 +301,22 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 	}
 
 	// on the first run through, electInitNode will return a `generic.ErrSkip` as it is attempting to wait for the cache to catch up.
-	joinServer, err = p.electInitNode(cp, plan)
+	joinServer, err = p.electInitNode(controlPlane, plan)
 	if err != nil {
 		return status, err
 	}
 
-	// select all etcd and then filter to just initNodes so that unavailable count is correct
-	err = p.reconcile(cp, clusterSecretTokens, plan, true, bootstrapTier, isEtcd, isNotInitNodeOrIsDeleting,
+	// select all etcd and then filter to just initNodes to that unavailable count is correct
+	err = p.reconcile(controlPlane, clusterSecretTokens, plan, true, bootstrapTier, isEtcd, isNotInitNodeOrIsDeleting,
 		"1", "",
-		cp.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
+		controlPlane.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
 		return status, err
 	}
 
 	if joinServer == "" {
-		_, joinServer, _, err = p.findInitNode(cp, plan)
+		_, joinServer, _, err = p.findInitNode(controlPlane, plan)
 		if err != nil {
 			return status, err
 		} else if joinServer == "" && firstIgnoreError != nil {
@@ -326,17 +326,17 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		}
 	}
 
-	err = p.reconcile(cp, clusterSecretTokens, plan, true, etcdTier, isEtcd, isInitNodeOrDeleting,
+	err = p.reconcile(controlPlane, clusterSecretTokens, plan, true, etcdTier, isEtcd, isInitNodeOrDeleting,
 		"1", joinServer,
-		cp.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
+		controlPlane.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
 		return status, err
 	}
 
-	err = p.reconcile(cp, clusterSecretTokens, plan, true, controlPlaneTier, isControlPlane, isInitNodeOrDeleting,
-		cp.Spec.UpgradeStrategy.ControlPlaneConcurrency, joinServer,
-		cp.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
+	err = p.reconcile(controlPlane, clusterSecretTokens, plan, true, controlPlaneTier, isControlPlane, isInitNodeOrDeleting,
+		controlPlane.Spec.UpgradeStrategy.ControlPlaneConcurrency, joinServer,
+		controlPlane.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
 		return status, err
@@ -353,9 +353,9 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		return status, ErrWaiting("marking control plane as initialized and ready")
 	}
 
-	err = p.reconcile(cp, clusterSecretTokens, plan, false, workerTier, isOnlyWorker, isInitNodeOrDeleting,
-		cp.Spec.UpgradeStrategy.WorkerConcurrency, joinServer,
-		cp.Spec.UpgradeStrategy.WorkerDrainOptions)
+	err = p.reconcile(controlPlane, clusterSecretTokens, plan, false, workerTier, isOnlyWorker, isInitNodeOrDeleting,
+		controlPlane.Spec.UpgradeStrategy.WorkerConcurrency, joinServer,
+		controlPlane.Spec.UpgradeStrategy.WorkerDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
 		return status, err
@@ -708,7 +708,7 @@ func PruneEmpty(config map[string]interface{}) {
 }
 
 // getTaints returns a slice of taints for the machine in question
-func getTaints(entry *planEntry, cp *rkev1.RKEControlPlane) (result []corev1.Taint, _ error) {
+func getTaints(entry *planEntry) (result []corev1.Taint, _ error) {
 	data := entry.Metadata.Annotations[rke2.TaintsAnnotation]
 	if data != "" {
 		if err := json.Unmarshal([]byte(data), &result); err != nil {
@@ -717,8 +717,7 @@ func getTaints(entry *planEntry, cp *rkev1.RKEControlPlane) (result []corev1.Tai
 	}
 
 	if !isWorker(entry) {
-		// k3s charts do not have correct tolerations when the master node is both controlplane and etcd
-		if isEtcd(entry) && (rke2.GetRuntime(cp.Spec.KubernetesVersion) != rke2.RuntimeK3S || !isControlPlane(entry)) {
+		if isEtcd(entry) {
 			result = append(result, corev1.Taint{
 				Key:    "node-role.kubernetes.io/etcd",
 				Effect: corev1.TaintEffectNoExecute,
