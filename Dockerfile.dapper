@@ -21,8 +21,6 @@ ENV GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
 ENV CATTLE_KDM_BRANCH=release-v2.7
 
-RUN mv /usr/bin/helm /usr/bin/helm_v3 && \
-
 # Update PATH to make sure git 2.27 is on the path
 ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}" \
     KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz \
