@@ -34,7 +34,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	apierror "k8s.io/apimachinery/pkg/api/errors"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -223,36 +222,12 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		return ErrWaitingf("rkecluster %s/%s: releaseData nil for version %s", controlPlane.Namespace, controlPlane.Name, controlPlane.Spec.KubernetesVersion)
 	}
 
-	capiCluster, err := rke2.GetOwnerCAPICluster(cp, p.capiClusters)
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			return status, ErrWaiting("CAPI cluster does not exist")
-		}
-		return status, err
+	cluster, err := p.getCAPICluster(controlPlane)
+	if err != nil || !cluster.DeletionTimestamp.IsZero() {
+		return err
 	}
 
-	if capiCluster == nil {
-		return status, ErrWaiting("CAPI cluster does not exist")
-	}
-
-	if !capiCluster.DeletionTimestamp.IsZero() {
-		// because we pause reconciliation during encryption key rotation and cert rotation, unpause it. This is effectively
-		// a hack since the planner pauses the entire cluster during
-		if capiannotations.IsPaused(capiCluster, cp) {
-			err = p.pauseCAPICluster(cp, false)
-			if err != nil {
-				logrus.Errorf("error unpausing CAPI cluster during deletion: %s", err)
-			}
-		}
-		logrus.Infof("[planner] %s/%s: reconciliation stopped: CAPI cluster is deleting", cp.Namespace, cp.Name)
-		return status, nil
-	}
-
-	if !capiCluster.Status.InfrastructureReady {
-		return status, ErrWaitingf("rkecluster %s/%s: waiting for infrastructure ready", cp.Namespace, cp.Name)
-	}
-
-	plan, err := p.store.Load(capiCluster)
+	plan, err := p.store.Load(cluster, controlPlane)
 	if err != nil {
 		return err
 	}
@@ -268,7 +243,7 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		return status, ErrWaitingf("Waiting for System Upgrade Controller to be updated for Kubernetes version %s", cp.Spec.KubernetesVersion)
 	}
 
-	clusterSecretTokens, err := p.generateSecrets(cp)
+	clusterSecretTokens, err := p.generateSecrets(controlPlane)
 	if err != nil {
 		return err
 	}
@@ -278,16 +253,19 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		joinServer       string
 	)
 
-	if status, err = p.createEtcdSnapshot(controlPlane, status, clusterSecretTokens, plan); err != nil {
-		return err
-	}
-
-	if err = p.restoreEtcdSnapshot(cp, status, clusterSecretTokens, plan); err != nil {
-		return err
-	}
-
-	if status, err = p.rotateCertificates(cp, status, plan); err != nil {
-		return err
+	if errs := p.createEtcdSnapshot(controlPlane, clusterSecretTokens, plan); len(errs) > 0 {
+		var errMsg string
+		for i, err := range errs {
+			if err == nil {
+				continue
+			}
+			if i == 0 {
+				errMsg = err.Error()
+			} else {
+				errMsg = errMsg + ", " + err.Error()
+			}
+		}
+		return ErrWaiting(errMsg)
 	}
 
 	if err = p.restoreEtcdSnapshot(controlPlane, clusterSecretTokens, plan); err != nil {
