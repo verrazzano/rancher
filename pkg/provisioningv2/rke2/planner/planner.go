@@ -253,19 +253,16 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		joinServer       string
 	)
 
-	if errs := p.createEtcdSnapshot(controlPlane, clusterSecretTokens, plan); len(errs) > 0 {
-		var errMsg string
-		for i, err := range errs {
-			if err == nil {
-				continue
-			}
-			if i == 0 {
-				errMsg = err.Error()
-			} else {
-				errMsg = errMsg + ", " + err.Error()
-			}
-		}
-		return ErrWaiting(errMsg)
+	if status, err = p.createEtcdSnapshot(controlPlane, status, clusterSecretTokens, plan); err != nil {
+		return err
+	}
+
+	if err = p.restoreEtcdSnapshot(cp, status, clusterSecretTokens, plan); err != nil {
+		return err
+	}
+
+	if status, err = p.rotateCertificates(cp, status, plan); err != nil {
+		return err
 	}
 
 	if err = p.restoreEtcdSnapshot(controlPlane, clusterSecretTokens, plan); err != nil {
