@@ -210,15 +210,15 @@ func (p *Planner) setMachineConditionStatus(clusterPlan *plan.Plan, machineNames
 	return nil
 }
 
-func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlaneStatus) (rkev1.RKEControlPlaneStatus, error) {
-	logrus.Debugf("[planner] %s/%s: attempting to lock %s for processing", cp.Namespace, cp.Name, string(cp.UID))
-	p.locker.Lock(string(cp.UID))
-	defer func(namespace, name, uid string) {
-		logrus.Debugf("[planner] %s/%s: unlocking %s", namespace, name, uid)
-		_ = p.locker.Unlock(uid)
-	}(cp.Namespace, cp.Name, string(cp.UID))
+func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
+	logrus.Debugf("[planner] rkecluster %s/%s: attempting to lock %s for processing", controlPlane.Namespace, controlPlane.Name, string(controlPlane.UID))
+	p.locker.Lock(string(controlPlane.UID))
+	defer func(namespace, name, uid string) error {
+		logrus.Debugf("[planner] rkecluster %s/%s: unlocking %s", namespace, name, uid)
+		return p.locker.Unlock(uid)
+	}(controlPlane.Namespace, controlPlane.Name, string(controlPlane.UID))
 
-	releaseData := rke2.GetKDMReleaseData(p.ctx, cp)
+	releaseData := rke2.GetKDMReleaseData(p.ctx, controlPlane)
 	if releaseData == nil {
 		return status, ErrWaitingf("%s/%s: releaseData nil for version %s", cp.Namespace, cp.Name, cp.Spec.KubernetesVersion)
 	}
@@ -252,9 +252,9 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		return status, ErrWaitingf("rkecluster %s/%s: waiting for infrastructure ready", cp.Namespace, cp.Name)
 	}
 
-	plan, err := p.store.Load(capiCluster, cp)
+	plan, err := p.store.Load(capiCluster)
 	if err != nil {
-		return status, err
+		return err
 	}
 
 	// we need to make sure the cluster has undergone initial provisioning and bootstrapping before we can enforce this condition,
@@ -270,7 +270,7 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 
 	clusterSecretTokens, err := p.generateSecrets(cp)
 	if err != nil {
-		return status, err
+		return err
 	}
 
 	var (
@@ -279,19 +279,19 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 	)
 
 	if status, err = p.createEtcdSnapshot(controlPlane, status, clusterSecretTokens, plan); err != nil {
-		return status, err
+		return err
 	}
 
 	if status, err = p.restoreEtcdSnapshot(cp, status, clusterSecretTokens, plan); err != nil {
-		return status, err
+		return err
 	}
 
 	if status, err = p.rotateCertificates(cp, status, plan); err != nil {
-		return status, err
+		return err
 	}
 
 	if status, err = p.rotateEncryptionKeys(cp, status, clusterSecretTokens, plan, releaseData); err != nil {
-		return status, err
+		return err
 	}
 
 	// pausing the control plane only affects machine reconciliation: etcd snapshot/restore, encryption key & cert
@@ -303,7 +303,7 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 	// on the first run through, electInitNode will return a `generic.ErrSkip` as it is attempting to wait for the cache to catch up.
 	joinServer, err = p.electInitNode(controlPlane, plan)
 	if err != nil {
-		return status, err
+		return err
 	}
 
 	// select all etcd and then filter to just initNodes to that unavailable count is correct
@@ -312,17 +312,17 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		controlPlane.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
-		return status, err
+		return err
 	}
 
 	if joinServer == "" {
 		_, joinServer, _, err = p.findInitNode(controlPlane, plan)
 		if err != nil {
-			return status, err
+			return err
 		} else if joinServer == "" && firstIgnoreError != nil {
-			return status, ErrWaiting(firstIgnoreError.Error() + " and join url to be available on bootstrap node")
+			return ErrWaiting(firstIgnoreError.Error() + " and join url to be available on bootstrap node")
 		} else if joinServer == "" {
-			return status, ErrWaiting("waiting for join url to be available on bootstrap node")
+			return ErrWaiting("waiting for join url to be available on bootstrap node")
 		}
 	}
 
@@ -331,7 +331,7 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		controlPlane.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
-		return status, err
+		return err
 	}
 
 	err = p.reconcile(controlPlane, clusterSecretTokens, plan, true, controlPlaneTier, isControlPlane, isInitNodeOrDeleting,
@@ -339,12 +339,12 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		controlPlane.Spec.UpgradeStrategy.ControlPlaneDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
-		return status, err
+		return err
 	}
 
 	joinServer = getControlPlaneJoinURL(plan)
 	if joinServer == "" {
-		return status, ErrWaiting("waiting for control plane to be available")
+		return ErrWaiting("waiting for control plane to be available")
 	}
 
 	if status.Initialized != true || status.Ready != true {
@@ -358,14 +358,14 @@ func (p *Planner) Process(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlan
 		controlPlane.Spec.UpgradeStrategy.WorkerDrainOptions)
 	firstIgnoreError, err = ignoreErrors(firstIgnoreError, err)
 	if err != nil {
-		return status, err
+		return err
 	}
 
 	if firstIgnoreError != nil {
-		return status, ErrWaiting(firstIgnoreError.Error())
+		return ErrWaiting(firstIgnoreError.Error())
 	}
 
-	return status, nil
+	return nil
 }
 
 func atMostThree(names []string) string {
