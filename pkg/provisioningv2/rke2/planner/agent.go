@@ -32,7 +32,7 @@ func (p *Planner) generateClusterAgentManifest(controlPlane *rkev1.RKEControlPla
 		return nil, err
 	}
 
-	taints, err := getTaints(entry, controlPlane)
+	taints, err := getTaints(entry)
 	if err != nil {
 		return nil, err
 	}
