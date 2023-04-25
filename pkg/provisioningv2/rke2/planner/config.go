@@ -10,20 +10,23 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/rancher/rancher/pkg/provisioningv2/image"
+
+	"github.com/rancher/rancher/pkg/controllers/management/secretmigrator"
+
+	v1 "k8s.io/api/core/v1"
+
 	"github.com/rancher/norman/types/values"
 	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
-	"github.com/rancher/rancher/pkg/controllers/management/secretmigrator"
 	"github.com/rancher/rancher/pkg/controllers/provisioningv2/rke2"
 	"github.com/rancher/rancher/pkg/nodeconfig"
-	"github.com/rancher/rancher/pkg/provisioningv2/image"
 	"github.com/rancher/wrangler/pkg/data"
 	"github.com/rancher/wrangler/pkg/data/convert"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	"github.com/rancher/wrangler/pkg/kv"
 	"github.com/rancher/wrangler/pkg/yaml"
 	"github.com/sirupsen/logrus"
-	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -346,7 +349,7 @@ func addTaints(config map[string]interface{}, entry *planEntry) error {
 		taintString []string
 	)
 
-	taints, err := getTaints(entry, cp)
+	taints, err := getTaints(entry)
 	if err != nil {
 		return err
 	}
