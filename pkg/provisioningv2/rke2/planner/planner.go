@@ -13,8 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/go-semver/semver"
-
+	"github.com/Masterminds/semver/v3"
 	"github.com/moby/locker"
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
