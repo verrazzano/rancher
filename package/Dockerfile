@@ -46,6 +46,8 @@ ARG RKE2_CHART_DEFAULT_BRANCH=main
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
 ARG CATTLE_KDM_BRANCH=release-v2.7
 ARG CATTLE_DASHBOARD_TAR_URL=https://github.com/verrazzano/rancher-dashboard/releases/download/v2.6.5-vz/rancher-dashboard-v2.6.5.tar.gz
+# Specific version of OCI OCNE Driver
+ARG OCI_OCNE_DRIVER_VERSION=v0.0.1
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
 ENV CATTLE_CHART_DEFAULT_BRANCH=oracle/release/2.7.2
@@ -64,7 +66,9 @@ ENV LINODE_UI_DRIVER_VERSION v0.5.0
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
 ENV HELM_VERSION 3.9.0-rancher1
-
+ENV OCI_OCNE_DRIVER_VERSION=$OCI_OCNE_DRIVER_VERSION
+ENV OCI_OCNE_DRIVER_PATH=/var/lib/rancher-data/drivers/$OCI_OCNE_DRIVER_VERSION
+ENV OCI_OCNE_DRIVER_BINARY=kontainer-engine-driver-ociocne-linux
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=102.0.0+up0.6.0
@@ -81,6 +85,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/helm3-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/v2 && \
+    mkdir -p $OCI_OCNE_DRIVER_PATH  && \
     # Set up the git 2.x environment variables so that it's on the path
     source /etc/profile.d/git.sh && \
     #
@@ -91,7 +96,9 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
     #
     git clone -b master --depth 1 https://github.com/verrazzano/rancher-charts/ /var/lib/rancher-data/local-catalogs/library && \
-    git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
+    git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library && \
+    # Download the OCI OCNE Driver
+    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne//releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
 
 
 RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \

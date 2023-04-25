@@ -24,11 +24,18 @@ if [ ${ARCH} == s390x ]; then
 fi
 
 echo The value of CATTLE_DASHBOARD_TAR_URL is "${CATTLE_DASHBOARD_TAR_URL}"
+echo The value of OCI_OCNE_DRIVER_VERSION is "${OCI_OCNE_DRIVER_VERSION}"
+
+# Compose build args for Rancher Docker image
+BUILD_ARGS="--build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH}"
 if [ -n "${CATTLE_DASHBOARD_TAR_URL}" ]; then
-    docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} --build-arg CATTLE_DASHBOARD_TAR_URL=${CATTLE_DASHBOARD_TAR_URL} -t ${IMAGE} .
-else
-    docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} -t ${IMAGE} .
+    BUILD_ARGS="${BUILD_ARGS} --build-arg CATTLE_DASHBOARD_TAR_URL=${CATTLE_DASHBOARD_TAR_URL}"
 fi
+if [ -n "${OCI_OCNE_DRIVER_VERSION}" ]; then
+    BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_VERSION=${OCI_OCNE_DRIVER_VERSION}"
+fi
+
+docker build $BUILD_ARGS -t ${IMAGE} .
 
 docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f Dockerfile.agent .
 
