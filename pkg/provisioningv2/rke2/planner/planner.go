@@ -210,6 +210,19 @@ func (p *Planner) setMachineConditionStatus(clusterPlan *plan.Plan, machineNames
 	return nil
 }
 
+func (p *Planner) getCAPICluster(controlPlane *rkev1.RKEControlPlane) (*capi.Cluster, error) {
+	ref := metav1.GetControllerOf(controlPlane)
+	if ref == nil {
+		return nil, generic.ErrSkip
+	}
+	gvk := schema.FromAPIVersionAndKind(ref.APIVersion, ref.Kind)
+	if gvk.Kind != "Cluster" || gvk.Group != "cluster.x-k8s.io" {
+		return nil, fmt.Errorf("RKEControlPlane %s/%s has wrong owner kind %s/%s", controlPlane.Namespace,
+			controlPlane.Name, ref.APIVersion, ref.Kind)
+	}
+	return p.capiClusters.Get(controlPlane.Namespace, ref.Name)
+}
+
 func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 	logrus.Debugf("[planner] rkecluster %s/%s: attempting to lock %s for processing", controlPlane.Namespace, controlPlane.Name, string(controlPlane.UID))
 	p.locker.Lock(string(controlPlane.UID))
