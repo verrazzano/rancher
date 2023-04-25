@@ -13,7 +13,7 @@ type Handler struct {
 
 func NewKontainerDriverHandler() http.Handler {
 	return &Handler{
-		fileHandler: http.FileServer(http.Dir("/Users/answanso/go/oci-ocne-driver")),
+		fileHandler: http.FileServer(http.Dir("/var/lib/rancher-data/drivers")),
 	}
 }
 
