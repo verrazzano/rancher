@@ -12,7 +12,6 @@ RUN useradd rancher && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
     rm -f /bin/sh && ln -s /bin/bash /bin/sh && \
-    mv /usr/bin/helm /usr/bin/helm_v3 && \
     yum clean all && \
     rm -rf /var/cache/yum
 
