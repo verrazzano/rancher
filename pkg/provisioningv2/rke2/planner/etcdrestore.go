@@ -12,27 +12,29 @@ import (
 
 const ETCDRestoreMessage = "etcd restore"
 
-func (p *Planner) setEtcdSnapshotRestoreState(status rkev1.RKEControlPlaneStatus, restore *rkev1.ETCDSnapshotRestore, phase rkev1.ETCDSnapshotPhase) (rkev1.RKEControlPlaneStatus, error) {
-	if !equality.Semantic.DeepEqual(status.ETCDSnapshotRestore, restore) || status.ETCDSnapshotRestorePhase != phase {
-		status.ETCDSnapshotRestore = restore
-		status.ETCDSnapshotRestorePhase = phase
-		return status, ErrWaiting("refreshing etcd restore state")
+func (p *Planner) setEtcdSnapshotRestoreState(controlPlane *rkev1.RKEControlPlane, status *rkev1.ETCDSnapshotRestore, phase rkev1.ETCDSnapshotPhase) error {
+	controlPlane = controlPlane.DeepCopy()
+	controlPlane.Status.ETCDSnapshotRestorePhase = phase
+	controlPlane.Status.ETCDSnapshotRestore = status
+	_, err := p.rkeControlPlanes.UpdateStatus(controlPlane)
+	if err != nil {
+		return err
 	}
-	return status, nil
+	return ErrWaiting("refreshing etcd restore state")
 }
 
-func (p *Planner) resetEtcdSnapshotRestoreState(status rkev1.RKEControlPlaneStatus) (rkev1.RKEControlPlaneStatus, error) {
-	if status.ETCDSnapshotRestore == nil && status.ETCDSnapshotRestorePhase == "" {
-		return status, nil
+func (p *Planner) resetEtcdSnapshotRestoreState(controlPlane *rkev1.RKEControlPlane) error {
+	if controlPlane.Status.ETCDSnapshotRestore == nil && controlPlane.Status.ETCDSnapshotRestorePhase == "" {
+		return nil
 	}
-	return p.setEtcdSnapshotRestoreState(status, nil, "")
+	return p.setEtcdSnapshotRestoreState(controlPlane, nil, "")
 }
 
-func (p *Planner) startOrRestartEtcdSnapshotRestore(status rkev1.RKEControlPlaneStatus, restore *rkev1.ETCDSnapshotRestore) (rkev1.RKEControlPlaneStatus, error) {
-	if status.ETCDSnapshotRestore == nil || !equality.Semantic.DeepEqual(restore, status.ETCDSnapshotRestore) {
-		return p.setEtcdSnapshotRestoreState(status, restore, rkev1.ETCDSnapshotPhaseStarted)
+func (p *Planner) startOrRestartEtcdSnapshotRestore(controlPlane *rkev1.RKEControlPlane) error {
+	if controlPlane.Status.ETCDSnapshotRestore == nil || !equality.Semantic.DeepEqual(*controlPlane.Spec.ETCDSnapshotRestore, *controlPlane.Status.ETCDSnapshotRestore) {
+		return p.setEtcdSnapshotRestoreState(controlPlane, controlPlane.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseStarted)
 	}
-	return status, nil
+	return nil
 }
 
 func (p *Planner) runEtcdSnapshotRestorePlan(controlPlane *rkev1.RKEControlPlane, snapshot *rkev1.ETCDSnapshot, tokensSecret plan.Secret, clusterPlan *plan.Plan) error {
@@ -292,45 +294,46 @@ func (p *Planner) retrieveEtcdSnapshot(controlPlane *rkev1.RKEControlPlane) (*rk
 // Shutdown -> When the phase is shutdown, it attempts to shut down etcd on all nodes (stop etcd)
 // Restore ->  When the phase is restore, it attempts to restore etcd
 // Finished -> When the phase is finished, Restore returns nil.
-func (p *Planner) restoreEtcdSnapshot(cp *rkev1.RKEControlPlane, status rkev1.RKEControlPlaneStatus, tokensSecret plan.Secret, clusterPlan *plan.Plan) (rkev1.RKEControlPlaneStatus, error) {
-	if cp.Spec.ETCDSnapshotRestore == nil || cp.Spec.ETCDSnapshotRestore.Name == "" {
-		return p.resetEtcdSnapshotRestoreState(status)
+func (p *Planner) restoreEtcdSnapshot(controlPlane *rkev1.RKEControlPlane, tokensSecret plan.Secret, clusterPlan *plan.Plan) error {
+	if controlPlane.Spec.ETCDSnapshotRestore == nil || controlPlane.Spec.ETCDSnapshotRestore.Name == "" {
+		return p.resetEtcdSnapshotRestoreState(controlPlane)
 	}
 
-	if status, err := p.startOrRestartEtcdSnapshotRestore(status, cp.Spec.ETCDSnapshotRestore); err != nil {
-		return status, err
+	if err := p.startOrRestartEtcdSnapshotRestore(controlPlane); err != nil {
+		return err
 	}
 
-	switch cp.Status.ETCDSnapshotRestorePhase {
+	switch controlPlane.Status.ETCDSnapshotRestorePhase {
 	case rkev1.ETCDSnapshotPhaseStarted:
-		return p.setEtcdSnapshotRestoreState(status, cp.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseShutdown)
+		return p.setEtcdSnapshotRestoreState(controlPlane, controlPlane.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseShutdown)
 	case rkev1.ETCDSnapshotPhaseShutdown:
-		snapshot, err := p.retrieveEtcdSnapshot(cp)
+		snapshot, err := p.retrieveEtcdSnapshot(controlPlane)
 		if err != nil {
-			return status, err
+			return err
 		}
-		if err = p.runEtcdRestoreServiceStop(cp, snapshot, tokensSecret, clusterPlan); err != nil {
-			return status, err
+		if err := p.runEtcdRestoreServiceStop(controlPlane, snapshot, tokensSecret, clusterPlan); err != nil {
+			return err
 		}
-		return p.setEtcdSnapshotRestoreState(status, cp.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseRestore)
+		return p.setEtcdSnapshotRestoreState(controlPlane, controlPlane.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseRestore)
 	case rkev1.ETCDSnapshotPhaseRestore:
-		snapshot, err := p.retrieveEtcdSnapshot(cp)
+		snapshot, err := p.retrieveEtcdSnapshot(controlPlane)
 		if err != nil {
-			return status, err
+			return err
 		}
-		if err = p.runEtcdSnapshotRestorePlan(cp, snapshot, tokensSecret, clusterPlan); err != nil {
-			return status, err
+		if err := p.runEtcdSnapshotRestorePlan(controlPlane, snapshot, tokensSecret, clusterPlan); err != nil {
+			return err
 		}
-		status.ConfigGeneration++
-		return p.setEtcdSnapshotRestoreState(status, cp.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseRestartCluster)
+		controlPlane := controlPlane.DeepCopy()
+		controlPlane.Status.ConfigGeneration++
+		return p.setEtcdSnapshotRestoreState(controlPlane, controlPlane.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseRestartCluster)
 	case rkev1.ETCDSnapshotPhaseRestartCluster:
-		if err := p.runEtcdRestoreServiceStart(cp, tokensSecret, clusterPlan); err != nil {
-			return status, err
+		if err := p.runEtcdRestoreServiceStart(controlPlane, tokensSecret, clusterPlan); err != nil {
+			return err
 		}
-		return p.setEtcdSnapshotRestoreState(status, cp.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseFinished)
+		return p.setEtcdSnapshotRestoreState(controlPlane, controlPlane.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseFinished)
 	case rkev1.ETCDSnapshotPhaseFinished:
-		return status, nil
+		return nil
 	default:
-		return p.setEtcdSnapshotRestoreState(status, cp.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseStarted)
+		return p.setEtcdSnapshotRestoreState(controlPlane, controlPlane.Spec.ETCDSnapshotRestore, rkev1.ETCDSnapshotPhaseStarted)
 	}
 }

@@ -220,7 +220,7 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 
 	releaseData := rke2.GetKDMReleaseData(p.ctx, controlPlane)
 	if releaseData == nil {
-		return status, ErrWaitingf("%s/%s: releaseData nil for version %s", cp.Namespace, cp.Name, cp.Spec.KubernetesVersion)
+		return ErrWaitingf("rkecluster %s/%s: releaseData nil for version %s", controlPlane.Namespace, controlPlane.Name, controlPlane.Spec.KubernetesVersion)
 	}
 
 	capiCluster, err := rke2.GetOwnerCAPICluster(cp, p.capiClusters)
@@ -282,7 +282,7 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		return err
 	}
 
-	if status, err = p.restoreEtcdSnapshot(cp, status, clusterSecretTokens, plan); err != nil {
+	if err = p.restoreEtcdSnapshot(cp, status, clusterSecretTokens, plan); err != nil {
 		return err
 	}
 
@@ -290,7 +290,7 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		return err
 	}
 
-	if status, err = p.rotateEncryptionKeys(cp, status, clusterSecretTokens, plan, releaseData); err != nil {
+	if err = p.restoreEtcdSnapshot(controlPlane, clusterSecretTokens, plan); err != nil {
 		return err
 	}
 
