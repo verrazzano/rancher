@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/coreos/go-semver/semver"
 
@@ -27,6 +28,7 @@ import (
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/wrangler"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
+	"github.com/rancher/wrangler/pkg/generic"
 	"github.com/rancher/wrangler/pkg/name"
 	"github.com/rancher/wrangler/pkg/randomtoken"
 	"github.com/rancher/wrangler/pkg/summary"
@@ -37,7 +39,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
-	capiannotations "sigs.k8s.io/cluster-api/util/annotations"
 	"sigs.k8s.io/cluster-api/util/conditions"
 )
 
@@ -261,12 +262,6 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		return err
 	}
 
-	// pausing the control plane only affects machine reconciliation: etcd snapshot/restore, encryption key & cert
-	// rotation are not interruptable processes, and therefore must always be completed when requested
-	if capiannotations.IsPaused(capiCluster, cp) {
-		return status, ErrWaitingf("CAPI cluster or RKEControlPlane is paused")
-	}
-
 	// on the first run through, electInitNode will return a `generic.ErrSkip` as it is attempting to wait for the cache to catch up.
 	joinServer, err = p.electInitNode(controlPlane, plan)
 	if err != nil {
@@ -312,12 +307,6 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 	joinServer = getControlPlaneJoinURL(plan)
 	if joinServer == "" {
 		return ErrWaiting("waiting for control plane to be available")
-	}
-
-	if status.Initialized != true || status.Ready != true {
-		status.Initialized = true
-		status.Ready = true
-		return status, ErrWaiting("marking control plane as initialized and ready")
 	}
 
 	err = p.reconcile(controlPlane, clusterSecretTokens, plan, false, workerTier, isOnlyWorker, isInitNodeOrDeleting,
@@ -1147,26 +1136,26 @@ func (h *helmChartConfig) DeepCopyObject() runtime.Object {
 	panic("unsupported")
 }
 
-func IsErrWaiting(err error) bool {
-	var errWaiting ErrWaiting
-	return errors.As(err, &errWaiting)
+func (p *Planner) enqueueAndSkip(cp *rkev1.RKEControlPlane) error {
+	p.rkeControlPlanes.EnqueueAfter(cp.Namespace, cp.Name, 10*time.Second)
+	return generic.ErrSkip
 }
 
-func (p *Planner) pauseCAPICluster(cp *rkev1.RKEControlPlane, pause bool) error {
-	if cp == nil {
-		return fmt.Errorf("cannot toggle health checks for nil controlplane")
-	}
-	cluster, err := rke2.GetOwnerCAPICluster(cp, p.capiClusters)
+// enqueueIfErrWaiting will enqueue the control plan if err is ErrWaiting, otherwise err is returned.
+// Some plan store functions as well as internal functions can return ErrWaiting, for instance when the plan has been
+// applied, but output is not yet available for periodic status.
+func (p *Planner) enqueueIfErrWaiting(cp *rkev1.RKEControlPlane, err error) error {
 	if err != nil {
+		if isErrWaiting(err) {
+			logrus.Tracef("Enqueuing [%s] because of ErrWaiting: %s", cp.Spec.ClusterName, err.Error())
+			return p.enqueueAndSkip(cp)
+		}
 		return err
 	}
-	if cluster == nil {
-		return fmt.Errorf("CAPI cluster does not exist for %s/%s", cp.Namespace, cp.Name)
-	}
-	if cluster.Spec.Paused == pause {
-		return nil
-	}
-	cluster.Spec.Paused = pause
-	_, err = p.capiClient.Update(cluster)
-	return err
+	return nil
+}
+
+func isErrWaiting(err error) bool {
+	var errWaiting ErrWaiting
+	return errors.As(err, &errWaiting)
 }
