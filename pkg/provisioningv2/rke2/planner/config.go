@@ -346,7 +346,7 @@ func addTaints(config map[string]interface{}, entry *planEntry) error {
 		taintString []string
 	)
 
-	taints, err := getTaints(entry)
+	taints, err := getTaints(entry, cp)
 	if err != nil {
 		return err
 	}
