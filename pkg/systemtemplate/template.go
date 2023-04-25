@@ -218,6 +218,8 @@ spec:
             value: "true"
           - name: CATTLE_CLUSTER_REGISTRY
             value: "{{.ClusterRegistry}}"
+          - name: CATTLE_SHELL_IMAGE
+            value: "{{.ShellImage}}"
       {{- if .AgentEnvVars}}
 {{ .AgentEnvVars | indent 10 }}
       {{- end }}

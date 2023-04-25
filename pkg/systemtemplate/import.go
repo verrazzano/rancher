@@ -33,6 +33,7 @@ type context struct {
 	Features              string
 	CAChecksum            string
 	AgentImage            string
+	ShellImage            string
 	AgentEnvVars          string
 	AuthImage             string
 	TokenKey              string
@@ -112,6 +113,7 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 		Features:              toFeatureString(features),
 		CAChecksum:            CAChecksum(),
 		AgentImage:            agentImage,
+		ShellImage:            GetEnvWithDefault("CATTLE_SHELL_IMAGE", "rancher/shell:v0.1.19"),
 		AgentEnvVars:          agentEnvVars,
 		AuthImage:             authImage,
 		TokenKey:              tokenKey,
@@ -199,4 +201,13 @@ func GetDesiredAuthImage(cluster *apimgmtv3.Cluster) string {
 	}
 	logrus.Tracef("clusterDeploy: deployAgent: desiredAuth is [%s] for cluster [%s]", desiredAuth, cluster.Name)
 	return desiredAuth
+}
+
+// GetEnvWithDefault returns if a value is set in env, else the default value
+func GetEnvWithDefault(key, defaultValue string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		return defaultValue
+	}
+	return value
 }
