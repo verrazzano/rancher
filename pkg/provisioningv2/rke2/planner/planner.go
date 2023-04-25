@@ -232,18 +232,7 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		return err
 	}
 
-	// we need to make sure the cluster has undergone initial provisioning and bootstrapping before we can enforce this condition,
-	// otherwise the system-upgrade-controller bundle will never become ready and the planner will be indefinitely blocked.
-	// We do this by ensuring the cluster has reconciled, and has a valid control plane join URL. However, it should be noted
-	// that a small window of time does exist when the joinURL has not been set, but the bootstrap node is up.
-	if rke2.Reconciled.IsTrue(cp) && p.store.ClusterHasBeenBootstrapped(plan) && rke2.SystemUpgradeControllerReady.IsFalse(&status) {
-		if rke2.SystemUpgradeControllerReady.GetReason(&status) != "" {
-			return status, ErrWaitingf("Waiting for System Upgrade Controller to be updated for Kubernetes version %s: %s", cp.Spec.KubernetesVersion, rke2.SystemUpgradeControllerReady.GetReason(&status))
-		}
-		return status, ErrWaitingf("Waiting for System Upgrade Controller to be updated for Kubernetes version %s", cp.Spec.KubernetesVersion)
-	}
-
-	clusterSecretTokens, err := p.generateSecrets(controlPlane)
+	controlPlane, clusterSecretTokens, err := p.generateSecrets(controlPlane)
 	if err != nil {
 		return err
 	}
@@ -253,16 +242,19 @@ func (p *Planner) Process(controlPlane *rkev1.RKEControlPlane) error {
 		joinServer       string
 	)
 
-	if status, err = p.createEtcdSnapshot(controlPlane, status, clusterSecretTokens, plan); err != nil {
-		return err
-	}
-
-	if err = p.restoreEtcdSnapshot(cp, status, clusterSecretTokens, plan); err != nil {
-		return err
-	}
-
-	if status, err = p.rotateCertificates(cp, status, plan); err != nil {
-		return err
+	if errs := p.createEtcdSnapshot(controlPlane, clusterSecretTokens, plan); len(errs) > 0 {
+		var errMsg string
+		for i, err := range errs {
+			if err == nil {
+				continue
+			}
+			if i == 0 {
+				errMsg = err.Error()
+			} else {
+				errMsg = errMsg + ", " + err.Error()
+			}
+		}
+		return ErrWaiting(errMsg)
 	}
 
 	if err = p.restoreEtcdSnapshot(controlPlane, clusterSecretTokens, plan); err != nil {
@@ -931,11 +923,10 @@ func (p *Planner) desiredPlan(controlPlane *rkev1.RKEControlPlane, tokensSecret 
 		return nodePlan, err
 	}
 
-	probes, err := p.generateProbes(controlPlane, entry, config)
+	nodePlan, err = p.addProbes(nodePlan, controlPlane, entry, config)
 	if err != nil {
 		return nodePlan, err
 	}
-	nodePlan.Probes = probes
 
 	// Add instruction last because it hashes config content
 	nodePlan, err = p.addInstallInstructionWithRestartStamp(nodePlan, controlPlane, entry)
@@ -1078,13 +1069,14 @@ func collect(plan *plan.Plan, include roleFilter) (result []*planEntry) {
 }
 
 // generateSecrets generates the server/agent tokens for a v2prov cluster
-func (p *Planner) generateSecrets(controlPlane *rkev1.RKEControlPlane) (plan.Secret, error) {
+func (p *Planner) generateSecrets(controlPlane *rkev1.RKEControlPlane) (*rkev1.RKEControlPlane, plan.Secret, error) {
 	_, secret, err := p.ensureRKEStateSecret(controlPlane)
 	if err != nil {
-		return secret, err
+		return nil, secret, err
 	}
 
-	return secret, nil
+	controlPlane = controlPlane.DeepCopy()
+	return controlPlane, secret, nil
 }
 
 func (p *Planner) ensureRKEStateSecret(controlPlane *rkev1.RKEControlPlane) (string, plan.Secret, error) {
