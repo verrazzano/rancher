@@ -837,7 +837,7 @@ func (p *Provisioner) getSystemImages(spec apimgmtv3.ClusterSpec) (*rketypes.RKE
 		return nil, fmt.Errorf("failed to find system images for version %s: %v", version, err)
 	}
 
-	privateRegistry := util.GetPrivateRegistryURL(spec.RancherKubernetesEngineConfig)
+	privateRegistry := util.GetPrivateRegistryURL(&apimgmtv3.Cluster{Spec: spec})
 	if privateRegistry == "" {
 		return &systemImages, nil
 	}
