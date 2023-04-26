@@ -1,9 +1,16 @@
 package rke2
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"regexp"
 	"strings"
 	"time"
@@ -13,12 +20,15 @@ import (
 	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	"github.com/rancher/rancher/pkg/serviceaccounttoken"
 	"github.com/rancher/wrangler/pkg/condition"
+	"github.com/rancher/wrangler/pkg/data"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	"github.com/rancher/wrangler/pkg/generic"
 	"github.com/rancher/wrangler/pkg/name"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 )
@@ -246,4 +256,188 @@ func CopyMapWithExcludes(destination map[string]string, source map[string]string
 			destination[k] = v
 		}
 	}
+}
+
+var errNilObject = errors.New("cannot get capi cluster for nil object")
+
+// GetCAPIClusterFromLabel takes a runtime.Object and will attempt to find the label denoting which capi cluster it
+// belongs to.
+// If the object is nil, it cannot access to object or type metas, or the label is not present, it returns an error.
+// If the object has the expected label, it will return the capi cluster object.
+func GetCAPIClusterFromLabel(obj runtime.Object, cache capicontrollers.ClusterCache) (*capi.Cluster, error) {
+	if obj == nil {
+		return nil, errNilObject
+	}
+	data, err := data.Convert(obj)
+	if err != nil {
+		return nil, err
+	}
+	clusterName := data.String("metadata", "labels", capi.ClusterLabelName)
+	if clusterName != "" {
+		return cache.Get(data.String("metadata", "namespace"), clusterName)
+	}
+	return nil, fmt.Errorf("%s label not present on %s: %s/%s", capi.ClusterLabelName, obj.GetObjectKind().GroupVersionKind().Kind, data.String("metadata", "namespace"), data.String("metadata", "name"))
+}
+
+// GetOwnerCAPICluster takes an obj and will attempt to find the capi cluster owner reference.
+// If the object is nil, it cannot access to object or type metas, the owner reference Kind or APIVersion do not match,
+// or the object could not be found, it returns an error.
+// If the owner reference exists and is valid, it will return the owning capi cluster object.
+func GetOwnerCAPICluster(obj runtime.Object, cache capicontrollers.ClusterCache) (*capi.Cluster, error) {
+	ref, namespace, err := GetOwnerFromGVK(capi.GroupVersion.String(), "Cluster", obj)
+	if err != nil {
+		return nil, err
+	}
+	return cache.Get(namespace, ref.Name)
+}
+
+// GetOwnerCAPIMachine takes an obj and will attempt to find the capi machine owner reference.
+// If the object is nil, it cannot access to object or type metas, the owner reference Kind or APIVersion do not match,
+// or the object could not be found, it returns an error.
+// If the owner reference exists and is valid, it will return the owning capi machine object.
+func GetOwnerCAPIMachine(obj runtime.Object, cache capicontrollers.MachineCache) (*capi.Machine, error) {
+	ref, namespace, err := GetOwnerFromGVK(capi.GroupVersion.String(), "Machine", obj)
+	if err != nil {
+		return nil, err
+	}
+	return cache.Get(namespace, ref.Name)
+}
+
+// GetOwnerCAPIMachineSet takes an obj and will attempt to find the capi machine set owner reference.
+// If the object is nil, it cannot access to object or type metas, the owner reference Kind or APIVersion do not match,
+// or the object could not be found, it returns an error.
+// If the owner reference exists and is valid, it will return the owning capi machine object.
+func GetOwnerCAPIMachineSet(obj runtime.Object, cache capicontrollers.MachineSetCache) (*capi.MachineSet, error) {
+	ref, namespace, err := GetOwnerFromGVK(capi.GroupVersion.String(), "MachineSet", obj)
+	if err != nil {
+		return nil, err
+	}
+	return cache.Get(namespace, ref.Name)
+}
+
+// GetOwnerFromGVK takes a runtime.Object, and will search for a controlling owner reference of kind apiVersion.
+// If the object is nil, it cannot access to object or type metas, the owner reference Kind or APIVersion do not match,
+// or the object could not be found, it returns an ErrNoMatchingControllerOwnerRef error.
+// If the owner reference exists and is valid, it will return the owner reference and the namespace it belongs to.
+func GetOwnerFromGVK(groupVersion, kind string, obj runtime.Object) (*metav1.OwnerReference, string, error) {
+	if obj == nil {
+		return nil, "", errNilObject
+	}
+	objMeta, err := meta.Accessor(obj)
+	if err != nil {
+		return nil, "", err
+	}
+	ref := metav1.GetControllerOf(objMeta)
+	if ref == nil || ref.Kind != kind || ref.APIVersion != groupVersion {
+		return nil, "", ErrNoMatchingControllerOwnerRef
+	}
+	return ref, objMeta.GetNamespace(), nil
+}
+
+// SafeConcatName takes a maximum length and set of strings, it returns a string
+// representing the concatenation of the given strings which is at most maxLength long.
+// If a given set of strings exceeds the maxLength parameter, the concatenated string will be truncated and
+// a hash will be prepended so that the result is at most maxLength long.
+// If the maxLength parameter is equal to or less than 5, the string will simply be shortened with no additional hash added.
+// TODO; move this updated logic into wrangler, where it belongs.
+func SafeConcatName(maxLength int, name ...string) string {
+
+	hashLength := 6
+
+	fullPath := strings.Join(name, "-")
+	if len(fullPath) <= maxLength {
+		return fullPath
+	}
+
+	if maxLength == 0 {
+		return ""
+	}
+
+	if maxLength <= 5 {
+		return fullPath[:maxLength]
+	}
+
+	digest := sha256.Sum256([]byte(fullPath))
+
+	// since we trailingCharacterIndex the string in the middle, the last char may not be compatible with what is expected in k8s
+	// we are checking and if necessary removing the last char
+	trailingCharacterIndex := maxLength - (hashLength + 1)
+	if trailingCharacterIndex < 0 {
+		trailingCharacterIndex = 0
+	}
+	c := fullPath[trailingCharacterIndex]
+
+	if 'a' <= c && c <= 'z' || '0' <= c && c <= '9' {
+		remainingString := fullPath[0 : maxLength-(hashLength)]
+		hash := hex.EncodeToString(digest[0:])[0 : hashLength-1]
+		if remainingString == "" {
+			// if we've completely converted the input into a hash don't append '-'
+			return hash
+		}
+		return remainingString + "-" + hash
+	}
+
+	return fullPath[0:maxLength-(hashLength+1)] + "-" + hex.EncodeToString(digest[0:])[0:hashLength]
+}
+
+// CompressInterface is a function that will marshal, gzip, then base64 encode the provided interface.
+func CompressInterface(v interface{}) (string, error) {
+	marshalledCluster, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	var b bytes.Buffer
+	gz := gzip.NewWriter(&b)
+	if _, err := gz.Write(marshalledCluster); err != nil {
+		return "", err
+	}
+	if err := gz.Flush(); err != nil {
+		return "", err
+	}
+	if err := gz.Close(); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(b.Bytes()), nil
+}
+
+// DecompressInterface is a function that will base64 decode, ungzip, and unmarshal a string into the provided interface.
+func DecompressInterface(inputb64 string, v any) error {
+	if inputb64 == "" {
+		return fmt.Errorf("empty base64 input")
+	}
+
+	decodedGzip, err := base64.StdEncoding.DecodeString(inputb64)
+	if err != nil {
+		return fmt.Errorf("error base64.DecodeString: %v", err)
+	}
+
+	buffer := bytes.NewBuffer(decodedGzip)
+
+	var gz io.Reader
+	gz, err = gzip.NewReader(buffer)
+	if err != nil {
+		return err
+	}
+
+	csBytes, err := io.ReadAll(gz)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(csBytes, v)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DecompressClusterSpec is a function that will base64 decode, ungzip, and unmarshal a string into a cluster spec.
+func DecompressClusterSpec(inputb64 string) (*provv1.ClusterSpec, error) {
+	c := provv1.ClusterSpec{}
+	err := DecompressInterface(inputb64, &c)
+	if err != nil {
+		return nil, err
+	}
+	return &c, nil
 }
