@@ -79,9 +79,6 @@ func Register(
 			clients.Mgmt.Cluster()),
 	}
 
-	clients.Provisioning.Cluster().Cache().AddIndexer(ByCluster, byClusterIndex)
-	clients.Provisioning.Cluster().Cache().AddIndexer(ByCloudCred, byCloudCredentialIndex)
-
 	// Register a generating handler in order to generate clusters.provisioning.cattle.io/v1 objects based on
 	// clusters.management.cattle.io/v3 (legacy) cluster objects.
 	mgmtcontrollers.RegisterClusterGeneratingHandler(ctx,
