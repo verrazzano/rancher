@@ -11,6 +11,9 @@ import (
 	"github.com/oracle/oci-go-sdk/core"
 	"github.com/rancher/norman/httperror"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	apiyaml "k8s.io/apimachinery/pkg/util/yaml"
 	"strings"
 )
 
@@ -182,8 +185,46 @@ func (v *Validator) validateSubnet(ctx context.Context, errorChannel chan error,
 }
 
 func (v *Validator) validateVerrazzano(errorChannel chan error, o *OCNEConfig) {
-	// TODO validate the OCNEConfig Verrazzano resource
+	// Don't validate Verrazzano if it's not being installed
+	if !o.InstallVerrazzano {
+		errorChannel <- nil
+		return
+	}
+	if err := checkVZObject([]byte(o.VerrazzanoResource)); err != nil {
+		errorChannel <- err
+		return
+	}
+
 	errorChannel <- nil
+}
+
+func checkVZObject(vzBytes []byte) error {
+	j, err := apiyaml.ToJSON(vzBytes)
+	if err != nil {
+		return httperror.NewAPIError(BadRequest, "Verrazzano resource must be valid YAML")
+	}
+	obj, err := runtime.Decode(unstructured.UnstructuredJSONScheme, j)
+	if err != nil {
+		return httperror.NewAPIError(BadRequest, "invalid Verrazzano resource")
+	}
+	vz, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		return httperror.NewAPIError(BadRequest, "invalid Verrazzano resource schema")
+	}
+
+	gvk := vz.GroupVersionKind()
+	if gvk.Kind != "Verrazzano" {
+		return httperror.NewAPIError(BadRequest, fmt.Sprintf("invalid Kind '%s' for Verrazzano", gvk.Kind))
+	}
+	if gvk.Group != "install.verrazzano.io" {
+		return httperror.NewAPIError(BadRequest, fmt.Sprintf("invalid Group '%s' for Verrazzano", gvk.Group))
+	}
+	name := vz.GetName()
+	namespace := vz.GetNamespace()
+	if name == "" || namespace == "" {
+		return httperror.NewAPIError(BadRequest, "missing required Verrazzano metadata.name and metadata.namespace")
+	}
+	return nil
 }
 
 func (v *Validator) validateOCNECluster(errorChannel chan error, o *OCNEConfig) {
