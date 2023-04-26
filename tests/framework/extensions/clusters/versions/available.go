@@ -74,50 +74,6 @@ func ListNormanRKE2AvailableVersions(client *rancher.Client, cluster *v3.Cluster
 	return
 }
 
-// ListK3SAvailableVersions is a function to list and return only available K3S versions for a specific cluster.
-func ListK3SAvailableVersions(client *rancher.Client, cluster *v1.SteveAPIObject) (availableVersion []string, err error) {
-	allAvailableVersions, err := ListK3SAllVersions(client)
-	if err != nil {
-		return
-	}
-
-	availableVersion = allAvailableVersions
-
-	clusterSpec := &apiv1.ClusterSpec{}
-	err = v1.ConvertToK8sType(cluster.Spec, clusterSpec)
-	if err != nil {
-		return
-	}
-
-	for i, version := range allAvailableVersions {
-		if strings.Contains(version, clusterSpec.KubernetesVersion) {
-			availableVersion = allAvailableVersions[i+1:]
-			break
-		}
-	}
-
-	return
-}
-
-// ListNormanK3SAvailableVersions is a function to list and return only available K3S versions for an imported specific cluster.
-func ListNormanK3SAvailableVersions(client *rancher.Client, cluster *v3.Cluster) (availableVersion []string, err error) {
-	allAvailableVersions, err := ListK3SAllVersions(client)
-	if err != nil {
-		return
-	}
-
-	availableVersion = allAvailableVersions
-
-	for i, version := range allAvailableVersions {
-		if strings.Contains(version, cluster.K3sConfig.Version) {
-			availableVersion = allAvailableVersions[i+1:]
-			break
-		}
-	}
-
-	return
-}
-
 // ListGKEAvailableVersions is a function to list and return only available GKE versions for a specific cluster.
 func ListGKEAvailableVersions(client *rancher.Client, cluster *v3.Cluster) (availableVersions []string, err error) {
 	currentVersion, err := semver.NewVersion(cluster.Version.GitVersion)
