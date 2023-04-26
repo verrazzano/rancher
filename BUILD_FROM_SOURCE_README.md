@@ -14,12 +14,6 @@ $ docker run --privileged -it --entrypoint=bash rancher/rancher:v2.7.2
 
 de667f186d5d:/var/lib/rancher # git -C /var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721 rev-parse HEAD
 7db2041af1d3b5a51167af967cf9c118b35efe31
-
-de667f186d5d:/var/lib/rancher # git -C /var/lib/rancher-data/local-catalogs/v2/rancher-partner-charts/8f17acdce9bffd6e05a58a3798840e408c4ea71783381ecd2e9af30baad65974 rev-parse HEAD
-8c3df241d265ae75d1b7150f2e864171d6dc844f
-
-de667f186d5d:/var/lib/rancher # git -C /var/lib/rancher-data/local-catalogs/v2/rancher-rke2-charts/675f1b63a0a83905972dcab2794479ed599a6f41b86cd6193d69472d0fa889c9 rev-parse HEAD
-479c43307869f1969b16d760a1c8f9c38dd7fc1a
 ```
 
 ## Build Instructions
