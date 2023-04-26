@@ -94,9 +94,10 @@ const (
 )
 
 var (
-	ErrNoMachineOwnerRef = errors.New("no machine owner ref")
-	labelAnnotationMatch = regexp.MustCompile(`^((rke\.cattle\.io)|((?:machine\.)?cluster\.x-k8s\.io))/`)
-	windowsDrivers       = map[string]struct{}{
+	ErrNoMachineOwnerRef            = errors.New("no machine owner ref")
+	ErrNoMatchingControllerOwnerRef = errors.New("no matching controller owner ref")
+	labelAnnotationMatch            = regexp.MustCompile(`^((rke\.cattle\.io)|((?:machine\.)?cluster\.x-k8s\.io))/`)
+	windowsDrivers                  = map[string]struct{}{
 		"vmwarevsphere": {},
 	}
 )
