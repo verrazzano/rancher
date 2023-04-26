@@ -19,18 +19,17 @@ const (
 	// KubernetesProvider string enums are to determine cluster's provider.
 	KubernetesProviderRKE  KubernetesProvider = rke
 	KubernetesProviderRKE2 KubernetesProvider = rke2
-	KubernetesProviderK3S  KubernetesProvider = k3s
 	KubernetesProviderAKS  KubernetesProvider = aks
 	KubernetesProviderEKS  KubernetesProvider = eks
 	KubernetesProviderGKE  KubernetesProvider = gke
 )
 
 // ClusterMeta is a struct that contains a cluster's meta:
-//  - ID is used for value of cluster's ID.
-//  - Name is a used for cluster's name.
-//  - Provider is used for cluster's provider.
-//  - IsHosted is used for cluster's hosted information.
-//  - IsImported is used for cluster's imported information.
+//   - ID is used for value of cluster's ID.
+//   - Name is a used for cluster's name.
+//   - Provider is used for cluster's provider.
+//   - IsHosted is used for cluster's hosted information.
+//   - IsImported is used for cluster's imported information.
 type ClusterMeta struct {
 	ID       string
 	Name     string
@@ -75,8 +74,6 @@ func GetClusterProvider(client *rancher.Client, clusterID string) (provider Kube
 	switch cluster.Provider {
 	case rke:
 		provider = KubernetesProviderRKE
-	case k3s:
-		provider = KubernetesProviderK3S
 	case rke2:
 		provider = KubernetesProviderRKE2
 	case aks:

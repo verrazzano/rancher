@@ -28,9 +28,8 @@ func NewWithClusterMeta(cmeta *clusters.ClusterMeta) (cluster *BundledCluster, e
 
 	isClusterImported := cmeta.IsImported
 	isClusterRKE2 := cmeta.Provider == clusters.KubernetesProviderRKE2
-	isClusterK3S := cmeta.Provider == clusters.KubernetesProviderK3S
 
-	isClusterV1 := (isClusterK3S || isClusterRKE2) && isClusterImported
+	isClusterV1 := (isClusterRKE2) && isClusterImported
 
 	if isClusterV1 {
 		cluster.V1 = new(v1.SteveAPIObject)
