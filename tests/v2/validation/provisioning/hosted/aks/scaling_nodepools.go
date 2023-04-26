@@ -28,7 +28,6 @@ func ScalingAKSNodePools(client *rancher.Client, oldCluster *management.Cluster,
 	updatedCluster := &management.Cluster{
 		AKSConfig:               aksHostCluster,
 		DockerRootDir:           "/var/lib/docker",
-		EnableClusterAlerting:   oldCluster.EnableClusterAlerting,
 		EnableClusterMonitoring: oldCluster.EnableClusterMonitoring,
 		EnableNetworkPolicy:     oldCluster.EnableNetworkPolicy,
 		Labels:                  oldCluster.Labels,
