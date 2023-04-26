@@ -20,7 +20,7 @@ func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 				Name: repoName,
 			},
 			Spec: v1.RepoSpec{
-				GitRepo:   "https://github.com/verrazzano/" + repoName,
+				GitRepo:   "https://git.rancher.io/" + repoName,
 				GitBranch: branchName,
 			},
 		})
@@ -33,7 +33,7 @@ func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 }
 
 func addRepos(ctx context.Context, wrangler *wrangler.Context) error {
-	if err := addRepo(wrangler, "rancher-charts", settings.ChartDefaultBranch.Get()); err != nil {
+	if err := addRepo(wrangler, "charts", settings.ChartDefaultBranch.Get()); err != nil {
 		return err
 	}
 	return nil
