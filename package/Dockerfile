@@ -90,6 +90,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     rm -rf $RANCHER_CHARTS_DIR/charts/rancher-pushprox && \
     rm -rf $RANCHER_CHARTS_DIR/assets/rancher-pushprox && \
     rm -rf $RANCHER_CHARTS_DIR/packages/rancher-monitoring/rancher-pushprox && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-monitoring/9.4.* && \
     rm -rf $RANCHER_CHARTS_DIR/charts/rancher-sachet && \
     rm -rf $RANCHER_CHARTS_DIR/assets/rancher-sachet && \
     rm -rf $RANCHER_CHARTS_DIR/packages/rancher-alerting/rancher-sachet && \
