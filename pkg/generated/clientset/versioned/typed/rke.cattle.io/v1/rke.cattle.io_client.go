@@ -28,12 +28,7 @@ import (
 
 type RkeV1Interface interface {
 	RESTClient() rest.Interface
-	CustomMachinesGetter
 	ETCDSnapshotsGetter
-	RKEBootstrapsGetter
-	RKEBootstrapTemplatesGetter
-	RKEClustersGetter
-	RKEControlPlanesGetter
 }
 
 // RkeV1Client is used to interact with features provided by the rke.cattle.io group.
@@ -41,28 +36,8 @@ type RkeV1Client struct {
 	restClient rest.Interface
 }
 
-func (c *RkeV1Client) CustomMachines(namespace string) CustomMachineInterface {
-	return newCustomMachines(c, namespace)
-}
-
 func (c *RkeV1Client) ETCDSnapshots(namespace string) ETCDSnapshotInterface {
 	return newETCDSnapshots(c, namespace)
-}
-
-func (c *RkeV1Client) RKEBootstraps(namespace string) RKEBootstrapInterface {
-	return newRKEBootstraps(c, namespace)
-}
-
-func (c *RkeV1Client) RKEBootstrapTemplates(namespace string) RKEBootstrapTemplateInterface {
-	return newRKEBootstrapTemplates(c, namespace)
-}
-
-func (c *RkeV1Client) RKEClusters(namespace string) RKEClusterInterface {
-	return newRKEClusters(c, namespace)
-}
-
-func (c *RkeV1Client) RKEControlPlanes(namespace string) RKEControlPlaneInterface {
-	return newRKEControlPlanes(c, namespace)
 }
 
 // NewForConfig creates a new RkeV1Client for the given config.

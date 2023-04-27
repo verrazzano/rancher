@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster logging CRDs and APIs have been removed
+
 package v3
 
 import (
@@ -8,28 +13,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type ClusterLogging struct {
-	types.Namespaced
-
-	metav1.TypeMeta `json:",inline"`
-	// Standard object’s metadata. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#metadata
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-	// Specification of the desired behavior of the the cluster. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#spec-and-status
-	Spec ClusterLoggingSpec `json:"spec"`
-	// Most recent observed status of the cluster. More info:
-	// https://github.com/kubernetes/community/blob/master/contributors/devel/api-conventions.md#spec-and-status
-	Status ClusterLoggingStatus `json:"status"`
-}
-
-func (c *ClusterLogging) ObjClusterName() string {
-	return c.Spec.ObjClusterName()
-}
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -69,17 +52,6 @@ type LoggingTargets struct {
 	CustomTargetConfig    *CustomTargetConfig    `json:"customTargetConfig,omitempty"`
 }
 
-type ClusterLoggingSpec struct {
-	LoggingTargets
-	LoggingCommonField
-	ClusterName            string `json:"clusterName" norman:"type=reference[cluster]"`
-	IncludeSystemComponent *bool  `json:"includeSystemComponent,omitempty" norman:"default=true"`
-}
-
-func (c *ClusterLoggingSpec) ObjClusterName() string {
-	return c.ClusterName
-}
-
 type ProjectLoggingSpec struct {
 	LoggingTargets
 	LoggingCommonField
@@ -91,12 +63,6 @@ func (p *ProjectLoggingSpec) ObjClusterName() string {
 		return parts[0]
 	}
 	return ""
-}
-
-type ClusterLoggingStatus struct {
-	Conditions  []LoggingCondition  `json:"conditions,omitempty"`
-	AppliedSpec ClusterLoggingSpec  `json:"appliedSpec,omitempty"`
-	FailedSpec  *ClusterLoggingSpec `json:"failedSpec,omitempty"`
 }
 
 type ProjectLoggingStatus struct {

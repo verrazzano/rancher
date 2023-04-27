@@ -1,3 +1,8 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to the cluster alerting CRDs and APIs have been removed
+
 import os
 from .common import  get_user_client
 from .common import random_test_name
@@ -76,7 +81,6 @@ def test_eks_v2_hosted_cluster_create_basic():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     create_and_validate_eks_cluster(cluster_config)
@@ -102,7 +106,6 @@ def test_eks_v2_hosted_cluster_create_all():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     create_and_validate_eks_cluster(cluster_config)
@@ -130,7 +133,6 @@ def test_eks_v2_hosted_cluster_edit():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     client, cluster = create_and_validate_eks_cluster(cluster_config)
@@ -158,7 +160,6 @@ def test_eks_v2_hosted_cluster_delete():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     client, cluster = create_and_validate_eks_cluster(cluster_config)
@@ -184,7 +185,6 @@ def test_eks_v2_create_import_cluster():
         "type": "cluster",
         "dockerRootDir": "/var/lib/docker",
         "enableNetworkPolicy": False,
-        "enableClusterAlerting": False,
         "enableClusterMonitoring": False
     }
     create_and_validate_eks_cluster(cluster_config,

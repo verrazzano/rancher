@@ -1,32 +1,22 @@
-FROM ghcr.io/oracle/oraclelinux:7-slim
+# Copyright (C) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to k3s have been removed
+
+ARG RANCHER_BASE_TAG=base
+ARG RANCHER_REPO=rancher
+FROM ${RANCHER_REPO}/rancher:${RANCHER_BASE_TAG}
 
 ARG ARCH=amd64
 
-RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons && \
-    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/developer_EPEL/x86_64 && \
-    yum-config-manager --enable ol7_developer_golang119 && \
-    yum install oracle-golang-release-el7 -y && \
-    yum clean all
 
-RUN yum update -y && \
-    # software collections repo needed for git 2.x on OL7
-    yum -y install rh-git227 curl ca-certificates unzip tar nc mkisofs helm-3.3.4-2.el7.x86_64 golang-1.19 docker-engine-19.03.11.ol-13.el7.x86_64 kubectl-1.23.11-1.el7.x86_64 etcd-3.5.1-2.el7.x86_64 tini-0.19.0-2.el7.x86_64 && \
-    # Set up needed to ensure git 2.27 from rh-git227 is on the path
-    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
-    source /etc/profile.d/git.sh && \
-    git version && \
-    useradd rancher && \
+RUN useradd rancher && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
     mkdir -p /var/lib/rancher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
     rm -f /bin/sh && ln -s /bin/bash /bin/sh && \
-    mv /usr/bin/helm /usr/bin/helm_v3 && \
     yum clean all && \
     rm -rf /var/cache/yum
 
@@ -51,16 +41,12 @@ ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
 ENV CATTLE_CHART_DEFAULT_BRANCH=oracle/release/2.7.2
 ENV CATTLE_PARTNER_CHART_DEFAULT_BRANCH=$PARTNER_CHART_DEFAULT_BRANCH
 ENV CATTLE_RKE2_CHART_DEFAULT_BRANCH=$RKE2_CHART_DEFAULT_BRANCH
-ENV CATTLE_HELM_VERSION v2.16.8-rancher2
 ENV CATTLE_MACHINE_VERSION v0.15.0-rancher95
-ENV CATTLE_K3S_VERSION v1.25.5+k3s1
 ENV CATTLE_MACHINE_PROVISION_IMAGE rancher/machine:${CATTLE_MACHINE_VERSION}
 ENV CATTLE_ETCD_VERSION v3.5.1
 ENV LOGLEVEL_VERSION v0.1.5
 ENV TINI_VERSION v0.19.0
 ENV TELEMETRY_VERSION v0.5.20
-ENV DOCKER_MACHINE_LINODE_VERSION v0.1.8
-ENV LINODE_UI_DRIVER_VERSION v0.5.0
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
 ENV HELM_VERSION 3.9.0-rancher1
@@ -94,8 +80,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
 
 
-RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
-    curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
+RUN curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
     chmod +x /usr/bin/tini /usr/bin/telemetry && \
     mkdir -p /var/lib/rancher-data/driver-metadata
 
@@ -121,7 +106,6 @@ ENV AUDIT_LEVEL 0
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
     curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
-    mkdir -p assets/rancher-ui-driver-linode && \
     mkdir -p /usr/share/rancher/ui/api-ui && \
     cd /usr/share/rancher/ui/api-ui && \
     curl -sL https://releases.rancher.com/api-ui/${CATTLE_API_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \

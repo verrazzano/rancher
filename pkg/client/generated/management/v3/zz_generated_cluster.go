@@ -35,7 +35,6 @@ const (
 	ClusterFieldConditions                                           = "conditions"
 	ClusterFieldCreated                                              = "created"
 	ClusterFieldCreatorID                                            = "creatorId"
-	ClusterFieldCurrentCisRunName                                    = "currentCisRunName"
 	ClusterFieldDefaultClusterRoleForProjectMembers                  = "defaultClusterRoleForProjectMembers"
 	ClusterFieldDefaultPodSecurityAdmissionConfigurationTemplateName = "defaultPodSecurityAdmissionConfigurationTemplateName"
 	ClusterFieldDefaultPodSecurityPolicyTemplateID                   = "defaultPodSecurityPolicyTemplateId"
@@ -46,7 +45,6 @@ const (
 	ClusterFieldDriver                                               = "driver"
 	ClusterFieldEKSConfig                                            = "eksConfig"
 	ClusterFieldEKSStatus                                            = "eksStatus"
-	ClusterFieldEnableClusterAlerting                                = "enableClusterAlerting"
 	ClusterFieldEnableClusterMonitoring                              = "enableClusterMonitoring"
 	ClusterFieldEnableNetworkPolicy                                  = "enableNetworkPolicy"
 	ClusterFieldFailedSpec                                           = "failedSpec"
@@ -56,7 +54,6 @@ const (
 	ClusterFieldImportedConfig                                       = "importedConfig"
 	ClusterFieldInternal                                             = "internal"
 	ClusterFieldIstioEnabled                                         = "istioEnabled"
-	ClusterFieldK3sConfig                                            = "k3sConfig"
 	ClusterFieldLabels                                               = "labels"
 	ClusterFieldLimits                                               = "limits"
 	ClusterFieldLinuxWorkerCount                                     = "linuxWorkerCount"
@@ -118,7 +115,6 @@ type Cluster struct {
 	Conditions                                           []ClusterCondition             `json:"conditions,omitempty" yaml:"conditions,omitempty"`
 	Created                                              string                         `json:"created,omitempty" yaml:"created,omitempty"`
 	CreatorID                                            string                         `json:"creatorId,omitempty" yaml:"creatorId,omitempty"`
-	CurrentCisRunName                                    string                         `json:"currentCisRunName,omitempty" yaml:"currentCisRunName,omitempty"`
 	DefaultClusterRoleForProjectMembers                  string                         `json:"defaultClusterRoleForProjectMembers,omitempty" yaml:"defaultClusterRoleForProjectMembers,omitempty"`
 	DefaultPodSecurityAdmissionConfigurationTemplateName string                         `json:"defaultPodSecurityAdmissionConfigurationTemplateName,omitempty" yaml:"defaultPodSecurityAdmissionConfigurationTemplateName,omitempty"`
 	DefaultPodSecurityPolicyTemplateID                   string                         `json:"defaultPodSecurityPolicyTemplateId,omitempty" yaml:"defaultPodSecurityPolicyTemplateId,omitempty"`
@@ -129,7 +125,6 @@ type Cluster struct {
 	Driver                                               string                         `json:"driver,omitempty" yaml:"driver,omitempty"`
 	EKSConfig                                            *EKSClusterConfigSpec          `json:"eksConfig,omitempty" yaml:"eksConfig,omitempty"`
 	EKSStatus                                            *EKSStatus                     `json:"eksStatus,omitempty" yaml:"eksStatus,omitempty"`
-	EnableClusterAlerting                                bool                           `json:"enableClusterAlerting,omitempty" yaml:"enableClusterAlerting,omitempty"`
 	EnableClusterMonitoring                              bool                           `json:"enableClusterMonitoring,omitempty" yaml:"enableClusterMonitoring,omitempty"`
 	EnableNetworkPolicy                                  *bool                          `json:"enableNetworkPolicy,omitempty" yaml:"enableNetworkPolicy,omitempty"`
 	FailedSpec                                           *ClusterSpec                   `json:"failedSpec,omitempty" yaml:"failedSpec,omitempty"`
@@ -139,7 +134,6 @@ type Cluster struct {
 	ImportedConfig                                       *ImportedConfig                `json:"importedConfig,omitempty" yaml:"importedConfig,omitempty"`
 	Internal                                             bool                           `json:"internal,omitempty" yaml:"internal,omitempty"`
 	IstioEnabled                                         bool                           `json:"istioEnabled,omitempty" yaml:"istioEnabled,omitempty"`
-	K3sConfig                                            *K3sConfig                     `json:"k3sConfig,omitempty" yaml:"k3sConfig,omitempty"`
 	Labels                                               map[string]string              `json:"labels,omitempty" yaml:"labels,omitempty"`
 	Limits                                               map[string]string              `json:"limits,omitempty" yaml:"limits,omitempty"`
 	LinuxWorkerCount                                     int64                          `json:"linuxWorkerCount,omitempty" yaml:"linuxWorkerCount,omitempty"`

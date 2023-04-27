@@ -1,12 +1,10 @@
 package clusterauthtoken
 
 import (
-	"fmt"
 	"reflect"
 	"sort"
 
 	"github.com/rancher/rancher/pkg/controllers/managementuser/clusterauthtoken/common"
-	"github.com/rancher/rancher/pkg/features"
 	clusterv3 "github.com/rancher/rancher/pkg/generated/norman/cluster.cattle.io/v3"
 	managementv3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -36,11 +34,6 @@ func (h *tokenHandler) Create(token *managementv3.Token) (runtime.Object, error)
 	_, err := h.clusterAuthTokenLister.Get(h.namespace, token.Name)
 	if !errors.IsNotFound(err) {
 		return h.Updated(token)
-	} else if features.TokenHashing.Enabled() {
-		// clusterAuthToken is no longer created here because it requires the rawValue of the
-		// original token and the token could be hashed. Now, clusterAuthToken is created in
-		// the API layer right after token creation.
-		return token, fmt.Errorf("clusterAuthToken for token [%s] has not been created yet", token.Name)
 	}
 
 	err = h.updateClusterUserAttribute(token)

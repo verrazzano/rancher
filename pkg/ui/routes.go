@@ -28,7 +28,6 @@ func New(_ v3.PreferenceCache, clusterRegistrationTokenCache v3.ClusterRegistrat
 	router.Path("/verify-auth-azure").Queries("state", "{state}").HandlerFunc(redirectAuth)
 	router.Path("/verify-auth").Queries("state", "{state}").HandlerFunc(redirectAuth)
 	router.PathPrefix("/api-ui").Handler(ember.ServeAsset())
-	router.PathPrefix("/assets/rancher-ui-driver-linode").Handler(emberAlwaysOffline.ServeAsset())
 	router.PathPrefix("/assets").Handler(ember.ServeAsset())
 	router.PathPrefix("/dashboard/").Handler(vue.IndexFileOnNotFound())
 	router.PathPrefix("/ember-fetch").Handler(ember.ServeAsset())

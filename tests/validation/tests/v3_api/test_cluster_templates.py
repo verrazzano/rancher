@@ -1,3 +1,8 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to the cluster alerting CRDs and APIs have been removed
+
 import copy
 import os
 import pytest
@@ -73,7 +78,6 @@ def get_cluster_config(k8sversion, enableMonitoring="false"):
     rke_config = getRKEConfig(k8sversion)
     cluster_config = {
         "dockerRootDir": "/var/lib/docker123",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": enableMonitoring,
         "enableNetworkPolicy": "false",
         "type": "clusterSpecBase",
@@ -91,7 +95,6 @@ def get_cisscan_enabled_clusterconfig(k8sversion):
 
     cluster_config = {
         "dockerRootDir": "/var/lib/docker123",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": "false",
         "enableNetworkPolicy": "false",
         "type": "clusterSpecBase",

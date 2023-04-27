@@ -5,7 +5,6 @@ const (
 	TemplateSpecFieldCatalogID                = "catalogId"
 	TemplateSpecFieldCategories               = "categories"
 	TemplateSpecFieldCategory                 = "category"
-	TemplateSpecFieldClusterCatalogID         = "clusterCatalogId"
 	TemplateSpecFieldClusterID                = "clusterId"
 	TemplateSpecFieldDefaultTemplateVersionID = "defaultTemplateVersionId"
 	TemplateSpecFieldDefaultVersion           = "defaultVersion"
@@ -28,7 +27,6 @@ type TemplateSpec struct {
 	CatalogID                string                `json:"catalogId,omitempty" yaml:"catalogId,omitempty"`
 	Categories               []string              `json:"categories,omitempty" yaml:"categories,omitempty"`
 	Category                 string                `json:"category,omitempty" yaml:"category,omitempty"`
-	ClusterCatalogID         string                `json:"clusterCatalogId,omitempty" yaml:"clusterCatalogId,omitempty"`
 	ClusterID                string                `json:"clusterId,omitempty" yaml:"clusterId,omitempty"`
 	DefaultTemplateVersionID string                `json:"defaultTemplateVersionId,omitempty" yaml:"defaultTemplateVersionId,omitempty"`
 	DefaultVersion           string                `json:"defaultVersion,omitempty" yaml:"defaultVersion,omitempty"`

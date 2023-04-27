@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to k3s have been removed
+
 package external
 
 import (
@@ -8,21 +13,17 @@ import (
 	"strings"
 
 	"github.com/coreos/go-semver/semver"
-	"github.com/rancher/rancher/pkg/controllers/management/k3sbasedupgrade"
-	"github.com/rancher/rancher/pkg/image"
-	"github.com/rancher/rancher/pkg/settings"
 	"github.com/sirupsen/logrus"
 )
 
 type Source string
 
 const (
-	K3S  Source = "k3s"
 	RKE2 Source = "rke2"
 )
 
-func GetExternalImages(rancherVersion string, externalData map[string]interface{}, source Source, minimumKubernetesVersion *semver.Version, osType image.OSType) ([]string, error) {
-	if source != K3S && source != RKE2 {
+func GetExternalImages(rancherVersion string, externalData map[string]interface{}, source Source, minimumKubernetesVersion *semver.Version) ([]string, error) {
+	if source != RKE2 {
 		return nil, fmt.Errorf("invalid source provided: %s", source)
 	}
 
@@ -62,7 +63,7 @@ func GetExternalImages(rancherVersion string, externalData map[string]interface{
 				continue
 			}
 
-			versionGTMin, err := k3sbasedupgrade.IsNewerVersion(minVersion, rancherVersion)
+			versionGTMin, err := isNewerVersion(minVersion, rancherVersion)
 			if err != nil {
 				continue
 			}
@@ -71,7 +72,7 @@ func GetExternalImages(rancherVersion string, externalData map[string]interface{
 				continue
 			}
 
-			versionLTMax, err := k3sbasedupgrade.IsNewerVersion(rancherVersion, maxVersion)
+			versionLTMax, err := isNewerVersion(rancherVersion, maxVersion)
 			if err != nil {
 				continue
 			}
@@ -94,10 +95,8 @@ func GetExternalImages(rancherVersion string, externalData map[string]interface{
 		// Registries don't allow "+", so image names will have these substituted.
 		upgradeImage := fmt.Sprintf("rancher/%s-upgrade:%s", source, strings.ReplaceAll(release, "+", "-"))
 		externalImagesMap[upgradeImage] = true
-		systemAgentInstallerImage := fmt.Sprintf("%s%s:%s", settings.SystemAgentInstallerImage.Default, source, strings.ReplaceAll(release, "+", "-"))
-		externalImagesMap[systemAgentInstallerImage] = true
 
-		images, err := downloadExternalSupportingImages(release, source, osType)
+		images, err := downloadExternalSupportingImages(release, source)
 		if err != nil {
 			logrus.Infof("could not find supporting images for %s release [%s]: %v", source, release, err)
 			continue
@@ -125,30 +124,23 @@ func GetExternalImages(rancherVersion string, externalData map[string]interface{
 	return externalImages, nil
 }
 
-// downloadExternalSupportingImages downloads the list of images used by a Source from GitHub releases.
-// The osType parameter is only used by RKE2 since K3s is not currently available for Windows containers.
-func downloadExternalSupportingImages(release string, source Source, osType image.OSType) (string, error) {
+func downloadExternalSupportingImages(release string, source Source) (string, error) {
 	switch source {
 	case RKE2:
-		// FIXME: Support s390x and arm64 images lists.
-		// rke2 publishes a list of images for s390x but not for arm64 at the moment.
-		var externalImageURL string
-		switch osType {
-		case image.Linux:
-			externalImageURL = fmt.Sprintf("https://github.com/rancher/rke2/releases/download/%s/rke2-images-all.linux-amd64.txt", release)
-		case image.Windows:
-			externalImageURL = fmt.Sprintf("https://github.com/rancher/rke2/releases/download/%s/rke2-images.windows-amd64.txt", release)
-		default:
-			return "", fmt.Errorf("could not download external supporting images: unsupported os type %v", osType)
-		}
-		images, err := downloadExternalImageListFromURL(externalImageURL)
+		// The "images-all" file is only provided for RKE2 amd64 images. This may be subject to change.
+		linuxImages, err := downloadExternalImageListFromURL(fmt.Sprintf("https://github.com/rancher/rke2/releases/download/%s/rke2-images-all.linux-amd64.txt", release))
 		if err != nil {
 			return "", err
 		}
-		return images, nil
-	case K3S:
-		// k3s does not support Windows containers at the moment.
-		return downloadExternalImageListFromURL(fmt.Sprintf("https://github.com/k3s-io/k3s/releases/download/%s/k3s-images.txt", release))
+		windowsImages, err := downloadExternalImageListFromURL(fmt.Sprintf("https://github.com/rancher/rke2/releases/download/%s/rke2-images.windows-amd64.txt", release))
+		if err != nil {
+			return "", err
+		}
+		builder := strings.Builder{}
+		builder.WriteString(linuxImages)
+		builder.WriteString("\n")
+		builder.WriteString(windowsImages)
+		return builder.String(), nil
 	default:
 		// This function should never be called with an invalid source, but we will anticipate this
 		// error for safety.
@@ -173,4 +165,31 @@ func downloadExternalImageListFromURL(url string) (string, error) {
 	}
 
 	return string(body), nil
+}
+
+// isNewerVersion returns true if updated versions semver is newer and false if its
+// semver is older. If semver is equal then metadata is alphanumerically compared.
+func isNewerVersion(prevVersion, updatedVersion string) (bool, error) {
+	parseErrMsg := "failed to parse version: %v"
+	prevVer, err := semver.NewVersion(strings.TrimPrefix(prevVersion, "v"))
+	if err != nil {
+		return false, fmt.Errorf(parseErrMsg, err)
+	}
+
+	updatedVer, err := semver.NewVersion(strings.TrimPrefix(updatedVersion, "v"))
+	if err != nil {
+		return false, fmt.Errorf(parseErrMsg, err)
+	}
+
+	switch updatedVer.Compare(*prevVer) {
+	case -1:
+		return false, nil
+	case 1:
+		return true, nil
+	default:
+		// using metadata to determine precedence is against semver standards
+		// this is ignored because it because k3s uses it to precedence between
+		// two versions based on same k8s version
+		return updatedVer.Metadata > prevVer.Metadata, nil
+	}
 }

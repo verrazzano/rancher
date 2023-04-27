@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to k3s have been removed
+
 package image
 
 import (
@@ -224,7 +229,7 @@ var OriginMap = map[string]string{
 	"rke2-runtime":                                            "https://github.com/rancher/rke2",
 	"rke2-upgrade":                                            "https://github.com/rancher/rke2-upgrade",
 	"security-scan":                                           "https://github.com/rancher/security-scan",
-	"shell":                                                   "https://github.com/rancher/shell",
+	"shell":                                                   "https://github.com/verrazzano/shell",
 	"system-agent":                                            "https://github.com/rancher/system-agent",
 	"system-agent-installer-k3s":                              "https://github.com/rancher/system-agent-installer-k3s",
 	"system-agent-installer-rke2":                             "https://github.com/rancher/system-agent-installer-rke2",

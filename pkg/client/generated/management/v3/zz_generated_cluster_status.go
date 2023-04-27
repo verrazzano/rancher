@@ -20,7 +20,6 @@ const (
 	ClusterStatusFieldCertificatesExpiration               = "certificatesExpiration"
 	ClusterStatusFieldComponentStatuses                    = "componentStatuses"
 	ClusterStatusFieldConditions                           = "conditions"
-	ClusterStatusFieldCurrentCisRunName                    = "currentCisRunName"
 	ClusterStatusFieldDriver                               = "driver"
 	ClusterStatusFieldEKSStatus                            = "eksStatus"
 	ClusterStatusFieldFailedSpec                           = "failedSpec"
@@ -63,7 +62,6 @@ type ClusterStatus struct {
 	CertificatesExpiration               map[string]CertExpiration `json:"certificatesExpiration,omitempty" yaml:"certificatesExpiration,omitempty"`
 	ComponentStatuses                    []ClusterComponentStatus  `json:"componentStatuses,omitempty" yaml:"componentStatuses,omitempty"`
 	Conditions                           []ClusterCondition        `json:"conditions,omitempty" yaml:"conditions,omitempty"`
-	CurrentCisRunName                    string                    `json:"currentCisRunName,omitempty" yaml:"currentCisRunName,omitempty"`
 	Driver                               string                    `json:"driver,omitempty" yaml:"driver,omitempty"`
 	EKSStatus                            *EKSStatus                `json:"eksStatus,omitempty" yaml:"eksStatus,omitempty"`
 	FailedSpec                           *ClusterSpec              `json:"failedSpec,omitempty" yaml:"failedSpec,omitempty"`

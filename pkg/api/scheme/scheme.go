@@ -1,3 +1,9 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster alerting CRDs and APIs have been removed
+// - references to the cluster monitor graphing CRDs and APIs have been removed
+
 package scheme
 
 import (
@@ -99,11 +105,8 @@ func init() {
 	// unstructured object and allow the missing fields to be included.
 	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("ClusterList"))
 	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("NodeTemplateList"))
-	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("ClusterAlertRuleList"))
-	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("ClusterAlertGroupList"))
 	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("ProjectAlertRuleList"))
 	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("ProjectAlertGroupList"))
-	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("ClusterMonitorGraphList"))
 	Scheme.ExcludeGVK(management.SchemeGroupVersion.WithKind("ProjectMonitorGraphList"))
 
 }

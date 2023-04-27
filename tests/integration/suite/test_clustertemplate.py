@@ -1,3 +1,8 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to the cluster alerting CRDs and APIs have been removed
+
 from .common import random_str, check_subject_in_rb
 from rancher import ApiError
 from .conftest import wait_until, wait_for, DEFAULT_TIMEOUT
@@ -123,7 +128,6 @@ def test_cron_schedule(admin_mc, list_remove_resource):
     client = admin_mc.client
     cconfig = {
         "dockerRootDir": "/var/lib/docker",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": "false",
         "enableNetworkPolicy": "false",
         "labels": {},
@@ -962,7 +966,6 @@ def create_cluster_template_revision(client, clusterTemplateId):
 
     cluster_config = {
         "dockerRootDir": "/var/lib/docker",
-        "enableClusterAlerting": "false",
         "enableClusterMonitoring": "false",
         "enableNetworkPolicy": "false",
         "type": "clusterSpecBase",

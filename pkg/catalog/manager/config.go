@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster cataloging CRDs and APIs have been removed
+
 package manager
 
 import (
@@ -7,5 +12,4 @@ import (
 type CatalogInfo struct {
 	catalog        *v3.Catalog
 	projectCatalog *v3.ProjectCatalog
-	clusterCatalog *v3.ClusterCatalog
 }

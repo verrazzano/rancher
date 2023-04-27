@@ -80,7 +80,7 @@ func (a ActionHandler) refresh(apiContext *types.APIContext) error {
 		return httperror.WrapAPIError(err, httperror.ServerError, msg)
 	}
 
-	// refresh to sync k3s/rke2 releases
+	// refresh to sync rke2 releases
 	channelserver.Refresh()
 	apiContext.WriteResponse(http.StatusOK, response)
 	return nil

@@ -1,3 +1,11 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster cataloging CRDs and APIs have been removed
+// - references to the cluster alerting CRDs and APIs have been removed
+// - references to the cluster scanning CRDs and APIs have been removed
+// - references to the cluster monitor graphing CRDs and APIs have been removed
+
 package managementstored
 
 import (
@@ -119,11 +127,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 		client.CatalogType,
 		client.CatalogTemplateType,
 		client.CatalogTemplateVersionType,
-		client.ClusterAlertType,
-		client.ClusterAlertGroupType,
-		client.ClusterCatalogType,
-		client.ClusterAlertRuleType,
-		client.ClusterMonitorGraphType,
 		client.ComposeConfigType,
 		client.MultiClusterAppType,
 		client.MultiClusterAppRevisionType,
@@ -179,7 +182,6 @@ func Setup(ctx context.Context, apiContext *config.ScaledContext, clusterManager
 	TemplateVersion(ctx, schemas, apiContext)
 	Catalog(schemas, apiContext)
 	ProjectCatalog(schemas, apiContext)
-	ClusterCatalog(schemas, apiContext)
 	App(schemas, apiContext, clusterManager)
 	Alert(schemas, apiContext)
 	TemplateContent(schemas)
@@ -272,6 +274,7 @@ func Clusters(ctx context.Context, schemas *types.Schemas, managementContext *co
 	}
 
 	handler.CatalogTemplateVersionLister = managementContext.Management.CatalogTemplateVersions("").Controller().Lister()
+
 	schema.ActionHandler = handler.ClusterActionHandler
 	schema.Validator = clusterValidator.Validator
 }
@@ -283,7 +286,6 @@ func Templates(ctx context.Context, schemas *types.Schemas, managementContext *c
 
 	wrapper := catalog.TemplateWrapper{
 		CatalogLister:                managementContext.Management.Catalogs("").Controller().Lister(),
-		ClusterCatalogLister:         managementContext.Management.ClusterCatalogs("").Controller().Lister(),
 		ProjectCatalogLister:         managementContext.Management.ProjectCatalogs("").Controller().Lister(),
 		CatalogTemplateVersionLister: managementContext.Management.CatalogTemplateVersions("").Controller().Lister(),
 		SecretLister:                 managementContext.Core.Secrets("").Controller().Lister(),
@@ -309,7 +311,6 @@ func TemplateVersion(ctx context.Context, schemas *types.Schemas, managementCont
 		"catalogtemplateversions")
 	t := catalog.TemplateVerionFormatterWrapper{
 		CatalogLister:        managementContext.Management.Catalogs("").Controller().Lister(),
-		ClusterCatalogLister: managementContext.Management.ClusterCatalogs("").Controller().Lister(),
 		ProjectCatalogLister: managementContext.Management.ProjectCatalogs("").Controller().Lister(),
 		SecretLister:         managementContext.Core.Secrets("").Controller().Lister(),
 	}
@@ -354,24 +355,6 @@ func ProjectCatalog(schemas *types.Schemas, managementContext *config.ScaledCont
 		ProjectCatalogClient: managementContext.Management.ProjectCatalogs(""),
 	}
 	schema.ActionHandler = handler.RefreshProjectCatalogActionHandler
-	schema.CollectionFormatter = catalog.CollectionFormatter
-	schema.Validator = catalog.Validator
-	users := managementContext.Management.Users("")
-	grbLister := managementContext.Management.GlobalRoleBindings("").Controller().Lister()
-	grLister := managementContext.Management.GlobalRoles("").Controller().Lister()
-	secretLister := managementContext.Core.Secrets("").Controller().Lister()
-	secrets := managementContext.Core.Secrets("")
-	clusterLister := managementContext.Management.Clusters("").Controller().Lister()
-	schema.Store = catalogStore.Wrap(schema.Store, managementContext, users, grbLister, grLister, secretLister, secrets, clusterLister)
-}
-
-func ClusterCatalog(schemas *types.Schemas, managementContext *config.ScaledContext) {
-	schema := schemas.Schema(&managementschema.Version, client.ClusterCatalogType)
-	schema.Formatter = catalog.Formatter
-	handler := catalog.ActionHandler{
-		ClusterCatalogClient: managementContext.Management.ClusterCatalogs(""),
-	}
-	schema.ActionHandler = handler.RefreshClusterCatalogActionHandler
 	schema.CollectionFormatter = catalog.CollectionFormatter
 	schema.Validator = catalog.Validator
 	users := managementContext.Management.Users("")
@@ -551,7 +534,6 @@ func Feature(schemas *types.Schemas, management *config.ScaledContext) {
 
 func Alert(schemas *types.Schemas, management *config.ScaledContext) {
 	handler := &alert.Handler{
-		ClusterAlertRule: management.Management.ClusterAlertRules(""),
 		ProjectAlertRule: management.Management.ProjectAlertRules(""),
 		Notifiers:        management.Management.Notifiers(""),
 		DialerFactory:    management.Dialer,
@@ -563,31 +545,20 @@ func Alert(schemas *types.Schemas, management *config.ScaledContext) {
 	schema.ActionHandler = handler.NotifierActionHandler
 	schema.Store = alertStore.NewNotifier(management, schema.Store)
 
-	schema = schemas.Schema(&managementschema.Version, client.ClusterAlertRuleType)
-	schema.Formatter = alert.RuleFormatter
-	schema.Validator = alert.ClusterAlertRuleValidator
-	schema.ActionHandler = handler.ClusterAlertRuleActionHandler
-
 	schema = schemas.Schema(&managementschema.Version, client.ProjectAlertRuleType)
 	schema.Formatter = alert.RuleFormatter
 	schema.Validator = alert.ProjectAlertRuleValidator
 	schema.ActionHandler = handler.ProjectAlertRuleActionHandler
 
 	//old schema just for migrate
-	schema = schemas.Schema(&managementschema.Version, client.ClusterAlertType)
 	schema = schemas.Schema(&managementschema.Version, client.ProjectAlertType)
 }
 
 func Monitor(schemas *types.Schemas, management *config.ScaledContext, clusterManager *clustermanager.Manager) {
-	clusterGraphHandler := monitor.NewClusterGraphHandler(management.Dialer, clusterManager)
 	projectGraphHandler := monitor.NewProjectGraphHandler(management.Dialer, clusterManager)
 	metricHandler := monitor.NewMetricHandler(management.Dialer, clusterManager)
 
-	schema := schemas.Schema(&managementschema.Version, client.ClusterMonitorGraphType)
-	schema.CollectionFormatter = monitor.QueryGraphCollectionFormatter
-	schema.ActionHandler = clusterGraphHandler.QuerySeriesAction
-
-	schema = schemas.Schema(&managementschema.Version, client.ProjectMonitorGraphType)
+	schema := schemas.Schema(&managementschema.Version, client.ProjectMonitorGraphType)
 	schema.CollectionFormatter = monitor.QueryGraphCollectionFormatter
 	schema.ActionHandler = projectGraphHandler.QuerySeriesAction
 

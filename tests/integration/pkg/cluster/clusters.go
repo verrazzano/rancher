@@ -290,14 +290,6 @@ func WaitForDelete(clients *clients.Clients, c *provisioningv1api.Cluster) (_ *p
 			return nil, fmt.Errorf("infra machine %s/%s not deleted: %w", machine.Spec.InfrastructureRef.Namespace, machine.Spec.InfrastructureRef.Name, err)
 		}
 
-		if machine.Spec.Bootstrap.ConfigRef != nil {
-			if err := wait.EnsureDoesNotExist(clients.Ctx, func() (runtime.Object, error) {
-				return clients.RKE.RKEBootstrap().Get(machine.Spec.Bootstrap.ConfigRef.Namespace, machine.Spec.Bootstrap.ConfigRef.Name, metav1.GetOptions{})
-			}); err != nil {
-				return nil, fmt.Errorf("bootstrap config %s/%s not deleted: %w", machine.Spec.Bootstrap.ConfigRef.Namespace, machine.Spec.Bootstrap.ConfigRef.Name, err)
-			}
-		}
-
 		if err := wait.EnsureDoesNotExist(clients.Ctx, func() (runtime.Object, error) {
 			return clients.Batch.Job().Get(machine.Namespace, machineprovision.GetJobName(machine.Name), metav1.GetOptions{})
 		}); err != nil {

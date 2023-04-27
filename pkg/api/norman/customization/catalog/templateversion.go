@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster cataloging CRDs and APIs have been removed
+
 package catalog
 
 import (
@@ -26,7 +31,6 @@ import (
 
 type TemplateVerionFormatterWrapper struct {
 	CatalogLister        v3.CatalogLister
-	ClusterCatalogLister v3.ClusterCatalogLister
 	ProjectCatalogLister v3.ProjectCatalogLister
 	SecretLister         v1.SecretLister
 }
@@ -143,7 +147,7 @@ func (t TemplateVerionFormatterWrapper) loadChart(templateVersion *client.Catalo
 	if err != nil {
 		return nil, err
 	}
-	catalog, err := helmlib.GetCatalog(catalogType, namespace, catalogName, t.CatalogLister, t.ClusterCatalogLister, t.ProjectCatalogLister)
+	catalog, err := helmlib.GetCatalog(catalogType, namespace, catalogName, t.CatalogLister, t.ProjectCatalogLister)
 	if err != nil {
 		return nil, err
 	}

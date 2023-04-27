@@ -32,8 +32,8 @@ provisioningInput is needed to the run the RKE1 tests, specifically kubernetesVe
         "quantity": 2,
       }
     ],
-    "rke1KubernetesVersion": ["v1.24.2-rancher1-1"],
-    "providers": ["linode", "aws", "azure", "harvester"],
+    "kubernetesVersion": ["v1.24.2-rancher1-1"],
+    "providers": ["aws", "azure", "harvester"],
     "nodeProviders": ["ec2"]
   }
 ```
@@ -54,7 +54,7 @@ RKE1 specifically needs a node template config to run properly. These are the in
     "iamInstanceProfile": "EngineeringUsersUS",
     "insecureTransport": false,
     "instanceType": "t2.2xlarge",
-    "keypairName": "your-key-name",
+    "keypairName": "jenkins-rke-validation",
     "kmsKey": "",
     "monitoring": false,
     "privateAddressOnly": false,
@@ -151,29 +151,6 @@ RKE1 specifically needs a node template config to run properly. These are the in
     "userData": "",
     "vmAffinity": "",
     "vmNamespace": "default"
-}
-```
-
-### Linode
-```json
-"linodeNodeTemplate:" { 
-    "authorizedUsers": "",
-    "createPrivateIp": true,
-    "dockerPort": "2376",
-    "image": "linode/ubuntu20.04",
-    "instanceType": "g6-dedicated-8",
-    "label": "",
-    "region": "us-east",
-    "rootPass": "",
-    "sshPort": "22",
-    "sshUser": "root",
-    "stackscript": "",
-    "stackscriptData": "",
-    "swapSize": "512",
-    "tags": "",
-    "token": "",
-    "type": "linodeConfig",
-    "uaPrefix": "Rancher",
 }
 ```
 

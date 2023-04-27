@@ -28,28 +28,8 @@ type FakeRkeV1 struct {
 	*testing.Fake
 }
 
-func (c *FakeRkeV1) CustomMachines(namespace string) v1.CustomMachineInterface {
-	return &FakeCustomMachines{c, namespace}
-}
-
 func (c *FakeRkeV1) ETCDSnapshots(namespace string) v1.ETCDSnapshotInterface {
 	return &FakeETCDSnapshots{c, namespace}
-}
-
-func (c *FakeRkeV1) RKEBootstraps(namespace string) v1.RKEBootstrapInterface {
-	return &FakeRKEBootstraps{c, namespace}
-}
-
-func (c *FakeRkeV1) RKEBootstrapTemplates(namespace string) v1.RKEBootstrapTemplateInterface {
-	return &FakeRKEBootstrapTemplates{c, namespace}
-}
-
-func (c *FakeRkeV1) RKEClusters(namespace string) v1.RKEClusterInterface {
-	return &FakeRKEClusters{c, namespace}
-}
-
-func (c *FakeRkeV1) RKEControlPlanes(namespace string) v1.RKEControlPlaneInterface {
-	return &FakeRKEControlPlanes{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

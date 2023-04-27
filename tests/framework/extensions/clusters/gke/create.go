@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster alerting CRDs and APIs have been removed
+
 package gke
 
 import (
@@ -6,13 +11,12 @@ import (
 )
 
 // CreateGKEHostedCluster is a helper function that creates an GKE hosted cluster
-func CreateGKEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
+func CreateGKEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
 	gkeHostCluster := gkeHostClusterConfig(displayName, cloudCredentialID)
 	cluster := &management.Cluster{
 		DockerRootDir:           "/var/lib/docker",
 		GKEConfig:               gkeHostCluster,
 		Name:                    displayName,
-		EnableClusterAlerting:   enableClusterAlerting,
 		EnableClusterMonitoring: enableClusterMonitoring,
 		EnableNetworkPolicy:     &enableNetworkPolicy,
 		Labels:                  labels,

@@ -1,3 +1,8 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to the cluster alerting have been removed
+
 apiVersion: management.cattle.io/v3
 kind: Cluster
 spec:
@@ -9,7 +14,6 @@ spec:
   desiredAuthImage: ""
   displayName: gke-test
   dockerRootDir: /var/lib/docker
-  enableClusterAlerting: false
   enableClusterMonitoring: false
   enableNetworkPolicy: false
   fleetWorkspaceName: fleet-default

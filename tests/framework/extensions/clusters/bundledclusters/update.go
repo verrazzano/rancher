@@ -82,32 +82,6 @@ func (bc *BundledCluster) UpdateKubernetesVersion(client *rancher.Client, versio
 				return updatedCluster, err
 			}
 		}
-	case clusters.KubernetesProviderK3S:
-		if !bc.Meta.IsImported {
-			bundledv3.V3.Name = bc.Meta.Name
-			bundledv3.V3.K3sConfig = bc.V3.K3sConfig
-			bundledv3.V3.K3sConfig.Version = *versionToUpgrade
-
-			updatedCluster, err = bc.Update(client, &bundledv3)
-			if err != nil {
-				return updatedCluster, err
-			}
-		} else if bc.Meta.IsImported {
-			bundledv1.V1 = bc.V1
-			clusterSpec := &apiv1.ClusterSpec{}
-			err = v1.ConvertToK8sType(bundledv1.V1.Spec, clusterSpec)
-			if err != nil {
-				return updatedCluster, err
-			}
-
-			clusterSpec.KubernetesVersion = *versionToUpgrade
-			bundledv1.V1.Spec = clusterSpec
-
-			updatedCluster, err = bc.Update(client, &bundledv1)
-			if err != nil {
-				return updatedCluster, err
-			}
-		}
 	case clusters.KubernetesProviderGKE:
 		bundledv3.V3.Name = bc.Meta.Name
 		bundledv3.V3.GKEConfig = bc.V3.GKEConfig

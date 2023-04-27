@@ -46,16 +46,12 @@ type Interface interface {
 	ProjectNetworkPoliciesGetter
 	SettingsGetter
 	FeaturesGetter
-	ClusterAlertsGetter
 	ProjectAlertsGetter
 	NotifiersGetter
-	ClusterAlertGroupsGetter
 	ProjectAlertGroupsGetter
-	ClusterAlertRulesGetter
 	ProjectAlertRulesGetter
 	ComposeConfigsGetter
 	ProjectCatalogsGetter
-	ClusterCatalogsGetter
 	MultiClusterAppsGetter
 	MultiClusterAppRevisionsGetter
 	GlobalDnsesGetter
@@ -63,7 +59,6 @@ type Interface interface {
 	KontainerDriversGetter
 	EtcdBackupsGetter
 	MonitorMetricsGetter
-	ClusterMonitorGraphsGetter
 	ProjectMonitorGraphsGetter
 	CloudCredentialsGetter
 	ClusterTemplatesGetter
@@ -599,20 +594,6 @@ func (c *Client) Features(namespace string) FeatureInterface {
 	}
 }
 
-type ClusterAlertsGetter interface {
-	ClusterAlerts(namespace string) ClusterAlertInterface
-}
-
-func (c *Client) ClusterAlerts(namespace string) ClusterAlertInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterAlertGroupVersionResource, ClusterAlertGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterAlertResource, ClusterAlertGroupVersionKind, clusterAlertFactory{})
-	return &clusterAlertClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
 type ProjectAlertsGetter interface {
 	ProjectAlerts(namespace string) ProjectAlertInterface
 }
@@ -641,20 +622,6 @@ func (c *Client) Notifiers(namespace string) NotifierInterface {
 	}
 }
 
-type ClusterAlertGroupsGetter interface {
-	ClusterAlertGroups(namespace string) ClusterAlertGroupInterface
-}
-
-func (c *Client) ClusterAlertGroups(namespace string) ClusterAlertGroupInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterAlertGroupGroupVersionResource, ClusterAlertGroupGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterAlertGroupResource, ClusterAlertGroupGroupVersionKind, clusterAlertGroupFactory{})
-	return &clusterAlertGroupClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
 type ProjectAlertGroupsGetter interface {
 	ProjectAlertGroups(namespace string) ProjectAlertGroupInterface
 }
@@ -663,20 +630,6 @@ func (c *Client) ProjectAlertGroups(namespace string) ProjectAlertGroupInterface
 	sharedClient := c.clientFactory.ForResourceKind(ProjectAlertGroupGroupVersionResource, ProjectAlertGroupGroupVersionKind.Kind, true)
 	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ProjectAlertGroupResource, ProjectAlertGroupGroupVersionKind, projectAlertGroupFactory{})
 	return &projectAlertGroupClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
-type ClusterAlertRulesGetter interface {
-	ClusterAlertRules(namespace string) ClusterAlertRuleInterface
-}
-
-func (c *Client) ClusterAlertRules(namespace string) ClusterAlertRuleInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterAlertRuleGroupVersionResource, ClusterAlertRuleGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterAlertRuleResource, ClusterAlertRuleGroupVersionKind, clusterAlertRuleFactory{})
-	return &clusterAlertRuleClient{
 		ns:           namespace,
 		client:       c,
 		objectClient: objectClient,
@@ -719,20 +672,6 @@ func (c *Client) ProjectCatalogs(namespace string) ProjectCatalogInterface {
 	sharedClient := c.clientFactory.ForResourceKind(ProjectCatalogGroupVersionResource, ProjectCatalogGroupVersionKind.Kind, true)
 	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ProjectCatalogResource, ProjectCatalogGroupVersionKind, projectCatalogFactory{})
 	return &projectCatalogClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
-type ClusterCatalogsGetter interface {
-	ClusterCatalogs(namespace string) ClusterCatalogInterface
-}
-
-func (c *Client) ClusterCatalogs(namespace string) ClusterCatalogInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterCatalogGroupVersionResource, ClusterCatalogGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterCatalogResource, ClusterCatalogGroupVersionKind, clusterCatalogFactory{})
-	return &clusterCatalogClient{
 		ns:           namespace,
 		client:       c,
 		objectClient: objectClient,
@@ -831,20 +770,6 @@ func (c *Client) MonitorMetrics(namespace string) MonitorMetricInterface {
 	sharedClient := c.clientFactory.ForResourceKind(MonitorMetricGroupVersionResource, MonitorMetricGroupVersionKind.Kind, true)
 	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &MonitorMetricResource, MonitorMetricGroupVersionKind, monitorMetricFactory{})
 	return &monitorMetricClient{
-		ns:           namespace,
-		client:       c,
-		objectClient: objectClient,
-	}
-}
-
-type ClusterMonitorGraphsGetter interface {
-	ClusterMonitorGraphs(namespace string) ClusterMonitorGraphInterface
-}
-
-func (c *Client) ClusterMonitorGraphs(namespace string) ClusterMonitorGraphInterface {
-	sharedClient := c.clientFactory.ForResourceKind(ClusterMonitorGraphGroupVersionResource, ClusterMonitorGraphGroupVersionKind.Kind, true)
-	objectClient := objectclient.NewObjectClient(namespace, sharedClient, &ClusterMonitorGraphResource, ClusterMonitorGraphGroupVersionKind, clusterMonitorGraphFactory{})
-	return &clusterMonitorGraphClient{
 		ns:           namespace,
 		client:       c,
 		objectClient: objectClient,

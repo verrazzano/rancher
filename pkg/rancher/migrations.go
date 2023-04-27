@@ -33,19 +33,17 @@ import (
 )
 
 const (
-	cattleNamespace                            = "cattle-system"
-	forceUpgradeLogoutConfig                   = "forceupgradelogout"
-	forceLocalSystemAndDefaultProjectCreation  = "forcelocalprojectcreation"
-	forceSystemNamespacesAssignment            = "forcesystemnamespaceassignment"
-	migrateFromMachineToPlanSecret             = "migratefrommachinetoplanesecret"
-	migrateEncryptionKeyRotationLeaderToStatus = "migrateencryptionkeyrotationleadertostatus"
-	migrateDynamicSchemaToMachinePools         = "migratedynamicschematomachinepools"
-	rancherVersionKey                          = "rancherVersion"
-	projectsCreatedKey                         = "projectsCreated"
-	namespacesAssignedKey                      = "namespacesAssigned"
-	capiMigratedKey                            = "capiMigrated"
-	encryptionKeyRotationStatusMigratedKey     = "encryptionKeyRotationStatusMigrated"
-	dynamicSchemaMachinePoolsMigratedKey       = "dynamicSchemaMachinePoolsMigrated"
+	cattleNamespace                           = "cattle-system"
+	forceUpgradeLogoutConfig                  = "forceupgradelogout"
+	forceLocalSystemAndDefaultProjectCreation = "forcelocalprojectcreation"
+	forceSystemNamespacesAssignment           = "forcesystemnamespaceassignment"
+	migrateFromMachineToPlanSecret            = "migratefrommachinetoplanesecret"
+	migrateDynamicSchemaToMachinePools        = "migratedynamicschematomachinepools"
+	rancherVersionKey                         = "rancherVersion"
+	projectsCreatedKey                        = "projectsCreated"
+	namespacesAssignedKey                     = "namespacesAssigned"
+	capiMigratedKey                           = "capiMigrated"
+	dynamicSchemaMachinePoolsMigratedKey      = "dynamicSchemaMachinePoolsMigrated"
 )
 
 func runMigrations(wranglerContext *wrangler.Context) error {
@@ -65,18 +63,6 @@ func runMigrations(wranglerContext *wrangler.Context) error {
 
 	if features.EmbeddedClusterAPI.Enabled() {
 		if err := addWebhookConfigToCAPICRDs(wranglerContext.CRD.CustomResourceDefinition()); err != nil {
-			return err
-		}
-	}
-
-	if features.RKE2.Enabled() {
-		if err := migrateCAPIMachineLabelsAndAnnotationsToPlanSecret(wranglerContext); err != nil {
-			return err
-		}
-		if err := migrateEncryptionKeyRotationLeader(wranglerContext); err != nil {
-			return err
-		}
-		if err := migrateMachinePoolsDynamicSchemaLabel(wranglerContext); err != nil {
 			return err
 		}
 	}
@@ -302,20 +288,6 @@ func migrateCAPIMachineLabelsAndAnnotationsToPlanSecret(w *wrangler.Context) err
 		return err
 	}
 
-	bootstrapLabelExcludes := map[string]struct{}{
-		rke2.InitNodeMachineIDLabel: {},
-		rke2.InitNodeLabel:          {},
-	}
-
-	boostrapAnnotationExcludes := map[string]struct{}{
-		rke2.DrainAnnotation:     {},
-		rke2.DrainDoneAnnotation: {},
-		rke2.JoinURLAnnotation:   {},
-		rke2.PostDrainAnnotation: {},
-		rke2.PreDrainAnnotation:  {},
-		rke2.UnCordonAnnotation:  {},
-	}
-
 	for _, mgmtCluster := range mgmtClusters.Items {
 		provClusters, err := w.Provisioning.Cluster().List(mgmtCluster.Spec.FleetWorkspaceName, metav1.ListOptions{})
 		if k8serror.IsNotFound(err) || len(provClusters.Items) == 0 {
@@ -367,27 +339,6 @@ func migrateCAPIMachineLabelsAndAnnotationsToPlanSecret(w *wrangler.Context) err
 					}
 				}
 
-				if err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-					bootstrap, err := w.RKE.RKEBootstrap().Get(machine.Spec.Bootstrap.ConfigRef.Namespace, machine.Spec.Bootstrap.ConfigRef.Name, metav1.GetOptions{})
-					if err != nil {
-						return err
-					}
-					bootstrap = bootstrap.DeepCopy()
-					rke2.CopyMapWithExcludes(bootstrap.Labels, machine.Labels, bootstrapLabelExcludes)
-					rke2.CopyMapWithExcludes(bootstrap.Annotations, machine.Annotations, boostrapAnnotationExcludes)
-					if bootstrap.Spec.ClusterName == "" {
-						// If the bootstrap spec cluster name is blank, we need to update the bootstrap spec to the correct value
-						// This is to handle old rkebootstrap objects for unmanaged clusters that did not have the spec properly set
-						if v, ok := bootstrap.Labels[capi.ClusterLabelName]; ok && v != "" {
-							bootstrap.Spec.ClusterName = v
-						}
-					}
-					_, err = w.RKE.RKEBootstrap().Update(bootstrap)
-					return err
-				}); err != nil {
-					return err
-				}
-
 				if machine.Spec.InfrastructureRef.APIVersion == rke2.RKEAPIVersion || machine.Spec.InfrastructureRef.APIVersion == rke2.RKEMachineAPIVersion {
 					gv, err := schema.ParseGroupVersion(machine.Spec.InfrastructureRef.APIVersion)
 					if err != nil {
@@ -427,56 +378,6 @@ func migrateCAPIMachineLabelsAndAnnotationsToPlanSecret(w *wrangler.Context) err
 	}
 
 	cm.Data[capiMigratedKey] = "true"
-	return createOrUpdateConfigMap(w.Core.ConfigMap(), cm)
-}
-
-func migrateEncryptionKeyRotationLeader(w *wrangler.Context) error {
-	cm, err := getConfigMap(w.Core.ConfigMap(), migrateEncryptionKeyRotationLeaderToStatus)
-	if err != nil || cm == nil {
-		return err
-	}
-
-	if cm.Data[encryptionKeyRotationStatusMigratedKey] == "true" {
-		return nil
-	}
-
-	mgmtClusters, err := w.Mgmt.Cluster().List(metav1.ListOptions{})
-	if err != nil {
-		return err
-	}
-
-	for _, mgmtCluster := range mgmtClusters.Items {
-		if err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			cp, err := w.RKE.RKEControlPlane().Get(mgmtCluster.Spec.FleetWorkspaceName, mgmtCluster.Name, metav1.GetOptions{})
-			if k8serror.IsNotFound(err) {
-				return nil
-			}
-			if err != nil {
-				return err
-			}
-			leader := cp.Annotations["rke.cattle.io/encrypt-key-rotation-leader"]
-			if leader == "" {
-				return nil
-			}
-			cp = cp.DeepCopy()
-			cp.Status.RotateEncryptionKeysLeader = leader
-			cp, err = w.RKE.RKEControlPlane().UpdateStatus(cp)
-			if err != nil {
-				return err
-			}
-			cp = cp.DeepCopy()
-			delete(cp.Annotations, "rke.cattle.io/encrypt-key-rotation-leader")
-			cp, err = w.RKE.RKEControlPlane().Update(cp)
-			if err != nil {
-				return err
-			}
-			return nil
-		}); err != nil {
-			return err
-		}
-	}
-
-	cm.Data[encryptionKeyRotationStatusMigratedKey] = "true"
 	return createOrUpdateConfigMap(w.Core.ConfigMap(), cm)
 }
 

@@ -41,12 +41,6 @@ type Interface interface {
 	CatalogTemplateVersion() CatalogTemplateVersionController
 	CloudCredential() CloudCredentialController
 	Cluster() ClusterController
-	ClusterAlert() ClusterAlertController
-	ClusterAlertGroup() ClusterAlertGroupController
-	ClusterAlertRule() ClusterAlertRuleController
-	ClusterCatalog() ClusterCatalogController
-	ClusterLogging() ClusterLoggingController
-	ClusterMonitorGraph() ClusterMonitorGraphController
 	ClusterRegistrationToken() ClusterRegistrationTokenController
 	ClusterRoleTemplateBinding() ClusterRoleTemplateBindingController
 	ClusterTemplate() ClusterTemplateController
@@ -150,24 +144,6 @@ func (c *version) CloudCredential() CloudCredentialController {
 }
 func (c *version) Cluster() ClusterController {
 	return NewClusterController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "Cluster"}, "clusters", false, c.controllerFactory)
-}
-func (c *version) ClusterAlert() ClusterAlertController {
-	return NewClusterAlertController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterAlert"}, "clusteralerts", true, c.controllerFactory)
-}
-func (c *version) ClusterAlertGroup() ClusterAlertGroupController {
-	return NewClusterAlertGroupController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterAlertGroup"}, "clusteralertgroups", true, c.controllerFactory)
-}
-func (c *version) ClusterAlertRule() ClusterAlertRuleController {
-	return NewClusterAlertRuleController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterAlertRule"}, "clusteralertrules", true, c.controllerFactory)
-}
-func (c *version) ClusterCatalog() ClusterCatalogController {
-	return NewClusterCatalogController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterCatalog"}, "clustercatalogs", true, c.controllerFactory)
-}
-func (c *version) ClusterLogging() ClusterLoggingController {
-	return NewClusterLoggingController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterLogging"}, "clusterloggings", true, c.controllerFactory)
-}
-func (c *version) ClusterMonitorGraph() ClusterMonitorGraphController {
-	return NewClusterMonitorGraphController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterMonitorGraph"}, "clustermonitorgraphs", true, c.controllerFactory)
 }
 func (c *version) ClusterRegistrationToken() ClusterRegistrationTokenController {
 	return NewClusterRegistrationTokenController(schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ClusterRegistrationToken"}, "clusterregistrationtokens", true, c.controllerFactory)

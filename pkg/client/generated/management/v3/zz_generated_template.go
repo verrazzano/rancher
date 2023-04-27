@@ -10,7 +10,6 @@ const (
 	TemplateFieldCatalogID                = "catalogId"
 	TemplateFieldCategories               = "categories"
 	TemplateFieldCategory                 = "category"
-	TemplateFieldClusterCatalogID         = "clusterCatalogId"
 	TemplateFieldClusterID                = "clusterId"
 	TemplateFieldCreated                  = "created"
 	TemplateFieldCreatorID                = "creatorId"
@@ -46,7 +45,6 @@ type Template struct {
 	CatalogID                string                `json:"catalogId,omitempty" yaml:"catalogId,omitempty"`
 	Categories               []string              `json:"categories,omitempty" yaml:"categories,omitempty"`
 	Category                 string                `json:"category,omitempty" yaml:"category,omitempty"`
-	ClusterCatalogID         string                `json:"clusterCatalogId,omitempty" yaml:"clusterCatalogId,omitempty"`
 	ClusterID                string                `json:"clusterId,omitempty" yaml:"clusterId,omitempty"`
 	Created                  string                `json:"created,omitempty" yaml:"created,omitempty"`
 	CreatorID                string                `json:"creatorId,omitempty" yaml:"creatorId,omitempty"`

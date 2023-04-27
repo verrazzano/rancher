@@ -1,3 +1,12 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster cataloging CRDs and APIs have been removed
+// - references to the cluster alerting CRDs and APIs have been removed
+// - references to the cluster scanning CRDs and APIs have been removed
+// - references to the cluster monitor graphing CRDs and APIs have been removed
+// - references to the cluster logging CRDs and APIs have been removed
+
 package schema
 
 import (
@@ -45,7 +54,6 @@ var (
 		Init(alertTypes).
 		Init(composeType).
 		Init(projectCatalogTypes).
-		Init(clusterCatalogTypes).
 		Init(multiClusterAppTypes).
 		Init(globalDNSTypes).
 		Init(kontainerTypes).
@@ -742,23 +750,10 @@ func projectNetworkPolicyTypes(schema *types.Schemas) *types.Schemas {
 
 func logTypes(schema *types.Schemas) *types.Schemas {
 	return schema.
-		AddMapperForType(&Version, v3.ClusterLogging{},
-			&m.Embed{Field: "status"},
-			m.DisplayName{}).
 		AddMapperForType(&Version, v3.ProjectLogging{},
 			m.DisplayName{}).
 		MustImport(&Version, v3.ClusterTestInput{}).
 		MustImport(&Version, v3.ProjectTestInput{}).
-		MustImportAndCustomize(&Version, v3.ClusterLogging{}, func(schema *types.Schema) {
-			schema.CollectionActions = map[string]types.Action{
-				"test": {
-					Input: "clusterTestInput",
-				},
-				"dryRun": {
-					Input: "clusterTestInput",
-				},
-			}
-		}).
 		MustImportAndCustomize(&Version, v3.ProjectLogging{}, func(schema *types.Schema) {
 			schema.CollectionActions = map[string]types.Action{
 				"test": {
@@ -792,7 +787,6 @@ func alertTypes(schema *types.Schemas) *types.Schemas {
 		AddMapperForType(&Version, v3.Notifier{},
 			&m.Embed{Field: "status"},
 			m.DisplayName{}).
-		MustImport(&Version, v3.ClusterAlert{}).
 		MustImport(&Version, v3.ProjectAlert{}).
 		MustImport(&Version, v3.Notification{}).
 		MustImportAndCustomize(&Version, v3.Notifier{}, func(schema *types.Schema) {
@@ -808,28 +802,13 @@ func alertTypes(schema *types.Schemas) *types.Schemas {
 			}
 		}).
 		MustImport(&Version, v3.AlertStatus{}).
-		AddMapperForType(&Version, v3.ClusterAlertGroup{},
-			&m.Embed{Field: "status"},
-			m.DisplayName{}).
 		AddMapperForType(&Version, v3.ProjectAlertGroup{},
-			&m.Embed{Field: "status"},
-			m.DisplayName{}).
-		AddMapperForType(&Version, v3.ClusterAlertRule{},
 			&m.Embed{Field: "status"},
 			m.DisplayName{}).
 		AddMapperForType(&Version, v3.ProjectAlertRule{},
 			&m.Embed{Field: "status"},
 			m.DisplayName{}).
-		MustImport(&Version, v3.ClusterAlertGroup{}).
 		MustImport(&Version, v3.ProjectAlertGroup{}).
-		MustImportAndCustomize(&Version, v3.ClusterAlertRule{}, func(schema *types.Schema) {
-			schema.ResourceActions = map[string]types.Action{
-				"activate":   {},
-				"deactivate": {},
-				"mute":       {},
-				"unmute":     {},
-			}
-		}).
 		MustImportAndCustomize(&Version, v3.ProjectAlertRule{}, func(schema *types.Schema) {
 			schema.ResourceActions = map[string]types.Action{
 				"activate":   {},
@@ -853,23 +832,6 @@ func projectCatalogTypes(schemas *types.Schemas) *types.Schemas {
 			&m.Drop{Field: "helmVersionCommits"},
 			&mapper.NamespaceIDMapper{}).
 		MustImportAndCustomize(&Version, v3.ProjectCatalog{}, func(schema *types.Schema) {
-			schema.ResourceActions = map[string]types.Action{
-				"refresh": {Output: "catalogRefresh"},
-			}
-			schema.CollectionActions = map[string]types.Action{
-				"refresh": {Output: "catalogRefresh"},
-			}
-		})
-}
-
-func clusterCatalogTypes(schemas *types.Schemas) *types.Schemas {
-	return schemas.
-		AddMapperForType(&Version, v3.ClusterCatalog{},
-			&m.Move{From: "catalogKind", To: "kind"},
-			&m.Embed{Field: "status"},
-			&m.Drop{Field: "helmVersionCommits"},
-			&mapper.NamespaceIDMapper{}).
-		MustImportAndCustomize(&Version, v3.ClusterCatalog{}, func(schema *types.Schema) {
 			schema.ResourceActions = map[string]types.Action{
 				"refresh": {Output: "catalogRefresh"},
 			}
@@ -949,7 +911,6 @@ func kontainerTypes(schemas *types.Schemas) *types.Schemas {
 func monitorTypes(schemas *types.Schemas) *types.Schemas {
 	return schemas.
 		MustImport(&Version, v3.QueryGraphInput{}).
-		MustImport(&Version, v3.QueryClusterGraphOutput{}).
 		MustImport(&Version, v3.QueryProjectGraphOutput{}).
 		MustImport(&Version, v3.QueryClusterMetricInput{}).
 		MustImport(&Version, v3.QueryProjectMetricInput{}).
@@ -975,14 +936,6 @@ func monitorTypes(schemas *types.Schemas) *types.Schemas {
 				"listprojectmetricname": {
 					Input:  "projectMetricNamesInput",
 					Output: "metricNamesOutput",
-				},
-			}
-		}).
-		MustImportAndCustomize(&Version, v3.ClusterMonitorGraph{}, func(schema *types.Schema) {
-			schema.CollectionActions = map[string]types.Action{
-				"query": {
-					Input:  "queryGraphInput",
-					Output: "queryClusterGraphOutput",
 				},
 			}
 		}).

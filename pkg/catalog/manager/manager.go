@@ -36,8 +36,6 @@ type Manager struct {
 	templateVersionLister v3.CatalogTemplateVersionLister
 	projectCatalogClient  v3.ProjectCatalogInterface
 	ProjectCatalogLister  v3.ProjectCatalogLister
-	clusterCatalogClient  v3.ClusterCatalogInterface
-	ClusterCatalogLister  v3.ClusterCatalogLister
 	appRevisionClient     projectv3.AppRevisionInterface
 	lastUpdateTime        time.Time
 	bundledMode           bool
@@ -70,8 +68,6 @@ func New(management v3.Interface, project projectv3.Interface, core corev1.Inter
 		templateVersionLister: management.CatalogTemplateVersions("").Controller().Lister(),
 		projectCatalogClient:  management.ProjectCatalogs(""),
 		ProjectCatalogLister:  management.ProjectCatalogs("").Controller().Lister(),
-		clusterCatalogClient:  management.ClusterCatalogs(""),
-		ClusterCatalogLister:  management.ClusterCatalogs("").Controller().Lister(),
 		appRevisionClient:     project.AppRevisions(""),
 		bundledMode:           bundledMode,
 		ConfigMap:             core.ConfigMaps(""),
@@ -142,14 +138,6 @@ func (m *Manager) deleteBadCatalogTemplates() []error {
 		hasCatalog[getKey(namespace.GlobalNamespace, catalog.Name)] = true
 	}
 
-	clusterCatalogs, err := m.clusterCatalogClient.List(metav1.ListOptions{})
-	if err != nil {
-		return []error{err}
-	}
-	for _, clusterCatalog := range clusterCatalogs.Items {
-		hasCatalog[getKey(clusterCatalog.Namespace, clusterCatalog.Name)] = true
-	}
-
 	projectCatalogs, err := m.projectCatalogClient.List(metav1.ListOptions{})
 	if err != nil {
 		return []error{err}
@@ -167,8 +155,6 @@ func (m *Manager) deleteBadCatalogTemplates() []error {
 		var catalogName string
 		if template.Spec.CatalogID != "" {
 			catalogName = template.Spec.CatalogID
-		} else if template.Spec.ClusterCatalogID != "" {
-			catalogName = template.Spec.ClusterCatalogID
 		} else if template.Spec.ProjectCatalogID != "" {
 			catalogName = template.Spec.ProjectCatalogID
 		}

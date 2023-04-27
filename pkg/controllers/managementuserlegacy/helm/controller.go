@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster cataloging CRDs and APIs have been removed
+
 package helm
 
 import (
@@ -67,7 +72,6 @@ func registerDeferred(ctx context.Context, mgmt *config.ScaledContext, user *con
 		TemplateVersionClient: user.Management.Management.CatalogTemplateVersions(""),
 		TemplateClient:        user.Management.Management.CatalogTemplates(""),
 		CatalogLister:         user.Management.Management.Catalogs("").Controller().Lister(),
-		ClusterCatalogLister:  user.Management.Management.ClusterCatalogs("").Controller().Lister(),
 		ProjectCatalogLister:  user.Management.Management.ProjectCatalogs("").Controller().Lister(),
 		TemplateVersionLister: user.Management.Management.CatalogTemplateVersions("").Controller().Lister(),
 		ClusterName:           user.ClusterName,
@@ -94,7 +98,6 @@ type Lifecycle struct {
 	TemplateVersionClient mgmtv3.CatalogTemplateVersionInterface
 	TemplateClient        mgmtv3.CatalogTemplateInterface
 	CatalogLister         mgmtv3.CatalogLister
-	ClusterCatalogLister  mgmtv3.ClusterCatalogLister
 	ProjectCatalogLister  mgmtv3.ProjectCatalogLister
 	TemplateVersionLister mgmtv3.CatalogTemplateVersionLister
 	K8sClient             kubernetes.Interface

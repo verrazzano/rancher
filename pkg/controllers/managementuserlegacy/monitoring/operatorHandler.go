@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster alerting CRDs and APIs have been removed
+
 package monitoring
 
 import (
@@ -39,16 +44,8 @@ func (h *operatorHandler) syncCluster(key string, obj *mgmtv3.Cluster) (runtime.
 
 	cpy := obj.DeepCopy()
 	var returnErr, updateErr error
-	var newObj runtime.Object
-	//should deploy
-	if obj.Spec.EnableClusterAlerting || obj.Spec.EnableClusterMonitoring {
-		newObj, returnErr = v32.ClusterConditionPrometheusOperatorDeployed.Do(cpy, func() (runtime.Object, error) {
-			return cpy, deploySystemMonitor(cpy, h.app, h.catalogManager, h.clusterName)
-		})
-		cpy = newObj.(*mgmtv3.Cluster)
-	} else { // should withdraw
-		returnErr = withdrawSystemMonitor(cpy, h.app)
-	}
+	// should withdraw
+	returnErr = withdrawSystemMonitor(cpy, h.app)
 
 	if !reflect.DeepEqual(cpy, obj) {
 		if cpy, updateErr = h.clusters.Update(cpy); updateErr != nil {
@@ -78,7 +75,7 @@ func (h *operatorHandler) syncProject(key string, project *mgmtv3.Project) (runt
 	var returnErr error
 	var newObj runtime.Object
 	//should deploy
-	if cluster.Spec.EnableClusterAlerting || project.Spec.EnableProjectMonitoring {
+	if project.Spec.EnableProjectMonitoring {
 		newObj, returnErr = v32.ClusterConditionPrometheusOperatorDeployed.Do(cluster, func() (runtime.Object, error) {
 			return cpyCluster, deploySystemMonitor(cpyCluster, h.app, h.catalogManager, cluster.Name)
 		})

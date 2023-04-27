@@ -82,16 +82,6 @@ func validateKubernetesVersions(t *testing.T, client *rancher.Client, bc *bundle
 		} else if !cluster.Meta.IsImported {
 			assert.Equalf(t, *versionToUpgrade, cluster.V3.Rke2Config.Version, "[%v]: %v", cluster.Meta.Name, logMessageKubernetesVersion)
 		}
-	case clusters.KubernetesProviderK3S:
-		if cluster.Meta.IsImported {
-			clusterSpec := &apiv1.ClusterSpec{}
-			err = v1.ConvertToK8sType(cluster.V1.Spec, clusterSpec)
-			require.NoError(t, err)
-
-			assert.Equalf(t, *versionToUpgrade, clusterSpec.KubernetesVersion, "[%v]: %v", cluster.Meta.Name, logMessageKubernetesVersion)
-		} else if !cluster.Meta.IsImported {
-			assert.Equalf(t, *versionToUpgrade, cluster.V3.K3sConfig.Version, "[%v]: %v", cluster.Meta.Name, logMessageKubernetesVersion)
-		}
 	case clusters.KubernetesProviderGKE:
 		assert.Equalf(t, *versionToUpgrade, *cluster.V3.GKEConfig.KubernetesVersion, "[%v]: %v", cluster.Meta.Name, logMessageKubernetesVersion)
 	case clusters.KubernetesProviderAKS:

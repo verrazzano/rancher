@@ -15,6 +15,14 @@ import (
 	"helm.sh/helm/v3/pkg/release"
 )
 
+var (
+	readmes = map[string]bool{
+		"readme":     true,
+		"readme.txt": true,
+		"readme.md":  true,
+	}
+)
+
 func isHelm3(labels map[string]string) bool {
 	return labels["owner"] == "helm"
 }

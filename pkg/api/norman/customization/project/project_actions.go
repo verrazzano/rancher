@@ -20,7 +20,6 @@ import (
 	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
 	"github.com/rancher/rancher/pkg/clustermanager"
 	"github.com/rancher/rancher/pkg/controllers/management/imported"
-	"github.com/rancher/rancher/pkg/fleet"
 	"github.com/rancher/rancher/pkg/generated/compose"
 	provisioningcontrollerv1 "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
@@ -284,18 +283,13 @@ func (h *Handler) setPodSecurityPolicyTemplate(actionName string, action *types.
 		}
 
 		clusterName := idParts[0]
-		managementCluster, err := h.ClusterLister.Get("", clusterName)
+		cluster, err := h.ClusterLister.Get("", clusterName)
 		if err != nil {
-			return fmt.Errorf("error retrieving management cluster [%s]: %w", clusterName, err)
-		}
-
-		k3sPodSecurityPoliciesEnabled, err := h.areK3SPodSecurityPoliciesEnabled(managementCluster)
-		if err != nil {
-			return fmt.Errorf("error checking if K3s pod security policies are enabled for cluster [%s]: %w", clusterName, err)
+			return fmt.Errorf("error retrieving cluster [%s]: %v", clusterName, err)
 		}
 
 		// rke2 provisioned clusters always have PSP enabled
-		if !managementCluster.Status.Capabilities.PspEnabled && !isProvisionedRke2Cluster(managementCluster) && !k3sPodSecurityPoliciesEnabled {
+		if !cluster.Status.Capabilities.PspEnabled && !isProvisionedRke2Cluster(cluster) {
 			return httperror.NewAPIError(httperror.InvalidAction,
 				fmt.Sprintf("cluster [%s] does not have Pod Security Policies enabled", clusterName))
 		}
@@ -442,24 +436,6 @@ func (h *Handler) updateBinding(binding map[string]interface{}, request *types.A
 	}
 
 	return nil
-}
-
-func (h *Handler) areK3SPodSecurityPoliciesEnabled(managementCluster *v32.Cluster) (bool, error) {
-	if managementCluster.Status.Provider != v32.ClusterDriverK3s {
-		return false, nil
-	}
-
-	provisioningCluster, err := h.ProvisioningClusterCache.Get(fleet.ClustersDefaultNamespace, managementCluster.Spec.DisplayName)
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			// cluster not found by provisioning API, assume PSPs are not enabled
-			return false, nil
-		}
-		return false, fmt.Errorf("error retrieving provisioning cluster [%s]: %w", managementCluster.Spec.DisplayName, err)
-	}
-
-	args := parseKubeAPIServerArgs(provisioningCluster)
-	return strings.Contains(args["enable-admission-plugins"], "PodSecurityPolicy"), nil
 }
 
 func getID(id interface{}) (string, error) {

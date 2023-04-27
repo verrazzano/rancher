@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster monitor graphing CRDs and APIs have been removed
+
 package monitor
 
 import (
@@ -21,6 +26,7 @@ import (
 
 const (
 	prometheusReqTimeout = 30 * time.Second
+	projectIDAnn         = "field.cattle.io/projectId"
 )
 
 var (
@@ -368,4 +374,28 @@ func validateNS(params map[string]string, ns string) bool {
 		}
 	}
 	return false
+}
+
+func nodeName2InternalIP(nodeLister v3.NodeLister, clusterName, nodeName string) (string, error) {
+	_, name := ref.Parse(nodeName)
+	node, err := nodeLister.Get(clusterName, name)
+	if err != nil {
+		return "", fmt.Errorf("get node from mgmt failed, %v", err)
+	}
+
+	internalNodeIP := getInternalNodeIP(node)
+	if internalNodeIP == "" {
+		return "", fmt.Errorf("could not find endpoint ip address for node %s", nodeName)
+	}
+
+	return internalNodeIP, nil
+}
+
+func getInternalNodeIP(node *v3.Node) string {
+	for _, ip := range node.Status.InternalNodeStatus.Addresses {
+		if ip.Type == "InternalIP" && ip.Address != "" {
+			return ip.Address
+		}
+	}
+	return ""
 }

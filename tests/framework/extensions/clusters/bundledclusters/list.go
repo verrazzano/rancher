@@ -30,18 +30,6 @@ func (bc *BundledCluster) ListAvailableVersions(client *rancher.Client) (version
 				return
 			}
 		}
-	case clusters.KubernetesProviderK3S:
-		if bc.Meta.IsImported {
-			versions, err = available.ListK3SAvailableVersions(client, bc.V1)
-			if err != nil {
-				return
-			}
-		} else if !bc.Meta.IsImported {
-			versions, err = available.ListNormanK3SAvailableVersions(client, bc.V3)
-			if err != nil {
-				return
-			}
-		}
 	case clusters.KubernetesProviderGKE:
 		versions, err = available.ListGKEAvailableVersions(client, bc.V3)
 		if err != nil {

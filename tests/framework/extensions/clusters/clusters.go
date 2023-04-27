@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster alerting CRDs and APIs have been removed
+
 package clusters
 
 import (
@@ -124,7 +129,6 @@ func CheckServiceAccountTokenSecret(client *rancher.Client, clusterName string) 
 func NewRKE1ClusterConfig(clusterName, cni, kubernetesVersion string, client *rancher.Client) *management.Cluster {
 	clusterConfig := &management.Cluster{
 		DockerRootDir:           "/var/lib/docker",
-		EnableClusterAlerting:   false,
 		EnableClusterMonitoring: false,
 		LocalClusterAuthEndpoint: &management.LocalClusterAuthEndpoint{
 			Enabled: true,

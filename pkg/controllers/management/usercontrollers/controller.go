@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to k3s have been removed
+
 package usercontrollers
 
 import (
@@ -87,10 +92,7 @@ func (c *ClusterLifecycleCleanup) Remove(obj *v3.Cluster) (runtime.Object, error
 		var err error
 		if obj.Name == "local" && obj.Spec.Internal {
 			err = c.cleanupLocalCluster(obj)
-		} else if obj.Status.Driver == v32.ClusterDriverK3s ||
-			obj.Status.Driver == v32.ClusterDriverK3os ||
-			obj.Status.Driver == v32.ClusterDriverRke2 ||
-			obj.Status.Driver == v32.ClusterDriverRancherD ||
+		} else if obj.Status.Driver == v32.ClusterDriverRke2 ||
 			(obj.Status.Driver == v32.ClusterDriverImported && !imported.IsAdministratedByProvisioningCluster(obj)) ||
 			(obj.Status.AKSStatus.UpstreamSpec != nil && obj.Status.AKSStatus.UpstreamSpec.Imported) ||
 			(obj.Status.EKSStatus.UpstreamSpec != nil && obj.Status.EKSStatus.UpstreamSpec.Imported) ||

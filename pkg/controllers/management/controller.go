@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster alerting CRDs and APIs have been removed
+
 package management
 
 import (
@@ -65,11 +70,6 @@ func Register(ctx context.Context, management *config.ManagementContext, manager
 	secretmigrator.Register(ctx, management)
 	settings.Register(ctx, management)
 	managementlegacy.Register(ctx, management, manager)
-
-	// Ensure caches are available for user controllers, these are used as part of
-	// registration
-	management.Management.ClusterAlertGroups("").Controller()
-	management.Management.ClusterAlertRules("").Controller()
 
 	// Register last
 	auth.RegisterLate(ctx, management)

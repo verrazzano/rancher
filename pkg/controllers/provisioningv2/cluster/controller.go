@@ -62,7 +62,7 @@ type handler struct {
 
 func Register(
 	ctx context.Context,
-	clients *wrangler.Context, kubeconfigManager *kubeconfig.Manager) {
+	clients *wrangler.Context) {
 	h := handler{
 		mgmtClusterCache:  clients.Mgmt.Cluster().Cache(),
 		mgmtClusters:      clients.Mgmt.Cluster(),
@@ -212,7 +212,7 @@ func NormalizeCluster(cluster *v3.Cluster, isImportedCluster bool) (runtime.Obje
 	if _, ok := spec["localClusterAuthEndpoint"]; ok && isImportedCluster {
 		// For imported clusters, we need to delete the localClusterAuthEndpoint so that it doesn't get overwritten here.
 		// In general, imported clusters don't support localClusterAuthEndpoint.
-		// However, imported RKE2/K3S clusters do and this is driven by the management cluster.
+		// However, imported RKE2 clusters do and this is driven by the management cluster.
 		delete(spec, "localClusterAuthEndpoint")
 	}
 	data = map[string]interface{}{

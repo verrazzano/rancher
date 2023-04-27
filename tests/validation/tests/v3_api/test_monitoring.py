@@ -1,3 +1,9 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+
+# This file from the Rancher repository has been modified by Oracle as follows:
+# - references to the cluster alerting CRDs and APIs have been removed
+# - references to the cluster monitor graphing CRDs and APIs have been removed
+
 import pytest
 import copy
 from .common import *  # NOQA
@@ -140,17 +146,6 @@ PROMETHEUS_PROJECT_MONITORING = "prometheus-project-monitoring"
 LONGHORN_APP_VERSION = os.environ.get('RANCHER_LONGHORN_VERSION', "1.0.2")
 
 
-def test_monitoring_cluster_graph():
-    rancher_client, cluster = get_user_client_and_cluster()
-    cluster_monitoring_obj = rancher_client.list_clusterMonitorGraph()
-    # generate the request payload
-    query1 = copy.deepcopy(cluster_query_template)
-    query1["obj"] = cluster_monitoring_obj
-    query1["filters"]["clusterId"] = cluster.id
-    query1["filters"]["resourceType"] = "cluster"
-    validate_cluster_graph(query1, "cluster")
-
-
 def test_monitoring_etcd_graph():
     rancher_client, cluster = get_user_client_and_cluster()
     cluster_monitoring_obj = rancher_client.list_clusterMonitorGraph()
@@ -171,23 +166,6 @@ def test_monitoring_kube_component_graph():
     query1["filters"]["clusterId"] = cluster.id
     query1["filters"]["displayResourceType"] = "kube-component"
     validate_cluster_graph(query1, "kube-component")
-
-
-# rancher component graphs are from the fluent app for cluster logging
-def test_monitoring_rancher_component_graph():
-    rancher_client, cluster = get_user_client_and_cluster()
-    # check if the cluster logging is enabled, assuming fluent is used
-    if cluster.enableClusterAlerting is False:
-        print("cluster logging is not enabled, skip the test")
-        return
-    else:
-        cluster_monitoring_obj = rancher_client.list_clusterMonitorGraph()
-        # generate the request payload
-        query1 = copy.deepcopy(cluster_query_template)
-        query1["obj"] = cluster_monitoring_obj
-        query1["filters"]["clusterId"] = cluster.id
-        query1["filters"]["displayResourceType"] = "rancher-component"
-        validate_cluster_graph(query1, "rancher-component")
 
 
 def test_monitoring_node_graph():

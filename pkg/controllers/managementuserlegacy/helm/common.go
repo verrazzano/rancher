@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster cataloging CRDs and APIs have been removed
+
 package helm
 
 import (
@@ -107,7 +112,7 @@ func (l *Lifecycle) generateTemplates(obj *v3.App) (string, *common.HelmPath, er
 		if err != nil {
 			return "", nil, err
 		}
-		catalog, err := helmlib.GetCatalog(catalogType, namespace, catalogName, l.CatalogLister, l.ClusterCatalogLister, l.ProjectCatalogLister)
+		catalog, err := helmlib.GetCatalog(catalogType, namespace, catalogName, l.CatalogLister, l.ProjectCatalogLister)
 		if err != nil {
 			return "", nil, err
 		}

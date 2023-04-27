@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster logging CRDs and APIs have been removed
+
 package store
 
 import (
@@ -59,7 +64,6 @@ func SetPasswordStore(schemas *types.Schemas, secretStore v1.SecretInterface, ns
 
 	//add your parent schema name here
 	pwdTypes := []string{
-		"clusterlogging",
 		"projectlogging",
 		"globaldnsprovider",
 	}

@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to the cluster monitor graphing CRDs and APIs have been removed
+
 package monitoring
 
 import (
@@ -464,16 +469,6 @@ func (ch *clusterHandler) deployMetrics(cluster *mgmtv3.Cluster) error {
 		}
 	}
 
-	for _, graph := range preDefinedClusterGraph {
-		newObj := graph.DeepCopy()
-		newObj.Namespace = clusterName
-
-		_, err := ch.app.cattleClusterGraphClient.Create(newObj)
-		if err != nil && !k8serrors.IsAlreadyExists(err) {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -482,13 +477,6 @@ func (ch *clusterHandler) withdrawMetrics(cluster *mgmtv3.Cluster) error {
 
 	for _, metric := range preDefinedClusterMetrics {
 		err := ch.app.cattleMonitorMetricClient.DeleteNamespaced(clusterName, metric.Name, &metav1.DeleteOptions{})
-		if err != nil && !k8serrors.IsNotFound(err) {
-			return err
-		}
-	}
-
-	for _, graph := range preDefinedClusterGraph {
-		err := ch.app.cattleClusterGraphClient.DeleteNamespaced(clusterName, graph.Name, &metav1.DeleteOptions{})
 		if err != nil && !k8serrors.IsNotFound(err) {
 			return err
 		}

@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to k3s have been removed
+
 package dialer
 
 import (
@@ -61,10 +66,7 @@ func IsCloudDriver(cluster *v3.Cluster) bool {
 		cluster.Status.Driver != "" &&
 		cluster.Status.Driver != v32.ClusterDriverImported &&
 		cluster.Status.Driver != v32.ClusterDriverRKE &&
-		cluster.Status.Driver != v32.ClusterDriverK3s &&
-		cluster.Status.Driver != v32.ClusterDriverK3os &&
-		cluster.Status.Driver != v32.ClusterDriverRke2 &&
-		cluster.Status.Driver != v32.ClusterDriverRancherD
+		cluster.Status.Driver != v32.ClusterDriverRke2
 }
 
 func IsPublicCloudDriver(cluster *v3.Cluster) bool {

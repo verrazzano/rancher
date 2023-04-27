@@ -1,3 +1,8 @@
+// Copyright (c) 2023, Oracle and/or its affiliates.
+
+// This file from the Rancher repository has been modified by Oracle as follows:
+// - references to k3s have been removed
+
 package snapshotbackpopulate
 
 import (
@@ -28,10 +33,6 @@ import (
 )
 
 var (
-	configMapNames = map[string]bool{
-		"k3s-etcd-snapshots":  true,
-		"rke2-etcd-snapshots": true,
-	}
 	InvalidKeyChars = regexp.MustCompile(`[^-.a-zA-Z0-9]`)
 )
 
@@ -82,10 +83,6 @@ func Register(ctx context.Context, userContext *config.UserContext) {
 func (h *handler) OnChange(key string, configMap *corev1.ConfigMap) (runtime.Object, error) {
 	if configMap == nil {
 		return nil, nil
-	}
-
-	if configMap.Namespace != "kube-system" || !configMapNames[configMap.Name] {
-		return configMap, nil
 	}
 
 	if h.activeConfigMap == "" {

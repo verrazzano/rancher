@@ -79,7 +79,6 @@ func (d *DynamicInterval) Wait(ctx context.Context) bool {
 }
 
 func Refresh() {
-	action <- "k3s"
 	action <- "rke2"
 }
 
@@ -116,7 +115,6 @@ func GetReleaseConfigByRuntime(ctx context.Context, runtime string) *config.Conf
 			config.StringSource("/var/lib/rancher-data/driver-metadata/data.json"),
 		}
 		configs = map[string]*config.Config{
-			"k3s":  config.NewConfig(ctx, "k3s", &DynamicInterval{"k3s"}, getChannelServerArg(), "rancher", urls),
 			"rke2": config.NewConfig(ctx, "rke2", &DynamicInterval{"rke2"}, getChannelServerArg(), "rancher", urls),
 		}
 	})
@@ -126,7 +124,6 @@ func GetReleaseConfigByRuntime(ctx context.Context, runtime string) *config.Conf
 func NewHandler(ctx context.Context) http.Handler {
 	action = make(chan string, 2)
 	return server.NewHandler(map[string]*config.Config{
-		"v1-k3s-release":  GetReleaseConfigByRuntime(ctx, "k3s"),
 		"v1-rke2-release": GetReleaseConfigByRuntime(ctx, "rke2"),
 	})
 }
