@@ -36,7 +36,7 @@ ARG OCI_OCNE_DRIVER_VERSION=v0.0.1
 ARG OCI_OCNE_DRIVER_HASH=""
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
-ENV CATTLE_CHART_DEFAULT_BRANCH=oracle/release/2.7.2
+ENV CATTLE_CHART_DEFAULT_BRANCH=release-v2.7
 ENV CATTLE_PARTNER_CHART_DEFAULT_BRANCH=$PARTNER_CHART_DEFAULT_BRANCH
 ENV CATTLE_RKE2_CHART_DEFAULT_BRANCH=$RKE2_CHART_DEFAULT_BRANCH
 ENV CATTLE_HELM_VERSION v2.16.8-rancher2
@@ -66,7 +66,7 @@ ENV CATTLE_CSP_ADAPTER_MIN_VERSION=2.0.1
 ENV RANCHER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721
 
 # System chart commits
-ENV RANCHER_CHARTS_COMMIT=7db2041af1d3b5a51167af967cf9c118b35efe31
+ENV RANCHER_CHARTS_COMMIT=d1528d8815a9033c42473ce13bbf674b289f5945
 
 RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
@@ -79,10 +79,10 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     #
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
-    git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://github.com/verrazzano/rancher-charts/ $RANCHER_CHARTS_DIR && \
+    git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://git.rancher.io/charts/ $RANCHER_CHARTS_DIR && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
     #
-    git clone -b master --depth 1 https://github.com/verrazzano/rancher-charts/ /var/lib/rancher-data/local-catalogs/library && \
+    git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library && \
     # Download the OCI OCNE Driver
     curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne//releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
