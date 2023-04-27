@@ -63,6 +63,9 @@ func GetCreateFlagsForDriver(driver string) ([]cli.Flag, error) {
 			&cli.StringFlag{
 				Name: "oci-region",
 			},
+			&cli.StringFlag{
+				Name: "oci-passphrase",
+			},
 		}
 	}
 	return flags, nil

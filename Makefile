@@ -3,6 +3,9 @@ TARGETS := $(shell ls scripts)
 GO ?= CGO_ENABLED=0 GO111MODULE=on go
 DAPPER_VERSION = v0.6.0-v8o-1
 
+RANCHER_BASE_TAG ?= base
+RANCHER_BASE_REPO ?= rancher
+
 # find or download dapper
 DAPPER_PATH := $(shell eval go env GOPATH)
 .PHONY: dapper
@@ -16,6 +19,7 @@ else
 endif
 
 $(TARGETS): dapper
+	docker build -f Dockerfile.base -t ${RANCHER_BASE_REPO}/rancher:${RANCHER_BASE_TAG} .
 	@if [[ "$@" = "post-release-checks" ]] || [[ "$@" = "list-gomod-updates" ]] || [[ "$@" = "check-chart-kdm-source-values" ]]; then\
 		dapper -q --no-out $@;\
 	else\
