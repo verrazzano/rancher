@@ -24,6 +24,91 @@ func responseError(response *http.Response) int {
 	return httpErr.Status
 }
 
+type CompartmentTree struct {
+	Name         string             `json:"name"`
+	Id           string             `json:"id"`
+	Compartments []*CompartmentTree `json:"compartments,omitempty"`
+}
+
+func processCompartments(provider common.ConfigurationProvider, tenancy string) ([]byte, int, error) {
+	client, err := identity.NewIdentityClientWithConfigurationProvider(provider)
+	if err != nil {
+		return nil, httperror.ServerError.Status, err
+	}
+
+	compartments, code, err := paginateCompartments(client, tenancy)
+	if err != nil {
+		return nil, code, err
+	}
+	root := &CompartmentTree{
+		Name:         "root",
+		Id:           tenancy,
+		Compartments: []*CompartmentTree{},
+	}
+	buildCompartmentTree(root, compartments)
+	treeBytes, err := json.Marshal(root)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+	return treeBytes, http.StatusOK, err
+}
+
+func paginateCompartments(client identity.IdentityClient, tenancy string) ([]identity.Compartment, int, error) {
+	var compartments []identity.Compartment
+	done := false
+	var opcNextPage *string
+	for {
+		if done {
+			break
+		}
+		compartmentIdInSubtree := true
+		compartmentsRequest := identity.ListCompartmentsRequest{
+			CompartmentId:          &tenancy,
+			AccessLevel:            identity.ListCompartmentsAccessLevelAccessible,
+			CompartmentIdInSubtree: &compartmentIdInSubtree,
+			RequestMetadata:        common.RequestMetadata{},
+			// set next page if present
+			Page: opcNextPage,
+		}
+
+		compartmentResponse, err := client.ListCompartments(context.Background(), compartmentsRequest)
+		if err != nil {
+			return nil, compartmentResponse.RawResponse.StatusCode, err
+		}
+		compartments = append(compartments, compartmentResponse.Items...)
+		opcNextPage = compartmentResponse.OpcNextPage
+		if opcNextPage == nil {
+			done = true
+		}
+	}
+
+	return compartments, 0, nil
+}
+
+// buildCompartmentTree constructs a tree of compartments from an unsorted compartment list
+func buildCompartmentTree(root *CompartmentTree, ociCompartments []identity.Compartment) {
+	// memoize visited compartments
+	compartmentMap := map[string]*CompartmentTree{
+		root.Id: root,
+	}
+	for _, compartment := range ociCompartments {
+		node := &CompartmentTree{
+			Name:         *compartment.Name,
+			Id:           *compartment.Id,
+			Compartments: []*CompartmentTree{},
+		}
+		// cache the visisted compartment
+		compartmentMap[*compartment.Id] = node
+	}
+
+	for _, compartment := range ociCompartments {
+		if node, ok := compartmentMap[*compartment.Id]; ok {
+			// add the node as a child of its parent
+			compartmentMap[*compartment.CompartmentId].Compartments = append(compartmentMap[*compartment.CompartmentId].Compartments, node)
+		}
+	}
+}
+
 func processVcns(provider common.ConfigurationProvider, compartment string) ([]byte, int, error) {
 	logrus.Debugf("[oci-handler] listing VCNs in compartment: %s", compartment)
 	virtualNetworkClient, err := core.NewVirtualNetworkClientWithConfigurationProvider(provider)
