@@ -13,7 +13,7 @@ The rancher charts commit below must be updated from the latest commit on the Ve
 $ docker run --privileged -it --entrypoint=bash rancher/rancher:v2.7.2
 
 de667f186d5d:/var/lib/rancher # git -C /var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721 rev-parse HEAD
-7db2041af1d3b5a51167af967cf9c118b35efe31
+d1528d8815a9033c42473ce13bbf674b289f5945
 ```
 
 ## Build Instructions
