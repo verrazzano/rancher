@@ -83,6 +83,13 @@ func (handler *handler) ServeHTTP(writer http.ResponseWriter, req *http.Request)
 	var serialized []byte
 
 	switch resourceType {
+	case "compartments":
+		if serialized, errCode, err = processCompartments(provider, creds.Tenancy); err != nil {
+			logrus.Debugf("[oci-handler] error processing vcn ids: %v", err)
+			util.ReturnHTTPError(writer, req, errCode, err.Error())
+			return
+		}
+		writer.Write(serialized)
 	case "vcnIds":
 		if serialized, errCode, err = processVcnsWithIds(provider, creds.Compartment); err != nil {
 			logrus.Debugf("[oci-handler] error processing vcn ids: %v", err)
