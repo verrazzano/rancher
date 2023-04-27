@@ -34,6 +34,9 @@ fi
 if [ -n "${OCI_OCNE_DRIVER_VERSION}" ]; then
     BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_VERSION=${OCI_OCNE_DRIVER_VERSION}"
 fi
+if [ -n "${OCI_OCNE_DRIVER_HASH}" ]; then
+  BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_HASH=${OCI_OCNE_DRIVER_HASH}"
+fi
 
 docker build $BUILD_ARGS -t ${IMAGE} .
 
