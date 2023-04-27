@@ -78,6 +78,15 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     rm -rf $RANCHER_CHARTS_DIR/charts/rancher-alerting-drivers && \
     rm -rf $RANCHER_CHARTS_DIR/assets/rancher-alerting-drivers && \
     rm -rf $RANCHER_CHARTS_DIR/packages/rancher-alerting/rancher-alerting-drivers && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-cis-benchmark && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-cis-benchmark && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-cis-benchmark && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-cis-benchmark-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-cis-benchmark-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-cis-benchmark-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-sachet && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-sachet && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-alerting/rancher-sachet && \
     #
     git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
