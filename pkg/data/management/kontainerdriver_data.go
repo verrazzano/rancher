@@ -51,6 +51,10 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		return err
 	}
 
+	if err := creator.addHostedDriverFromEnv("ociocne", "OCI_OCNE_DRIVER_VERSION", "OCI_OCNE_DRIVER_HASH"); err != nil {
+		return err
+	}
+
 	return creator.addCustomDriver(
 		"oraclecontainerengine",
 		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.8.3/kontainer-engine-driver-oke-linux",
