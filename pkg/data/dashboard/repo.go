@@ -2,14 +2,17 @@ package dashboard
 
 import (
 	"context"
-
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-
-	"github.com/rancher/rancher/pkg/settings"
+	"strings"
 
 	v1 "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
+	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/wrangler"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+var (
+	prefix = "rancher-"
 )
 
 func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
@@ -20,7 +23,7 @@ func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 				Name: repoName,
 			},
 			Spec: v1.RepoSpec{
-				GitRepo:   "https://github.com/verrazzano/" + repoName,
+				GitRepo:   "https://git.rancher.io/" + strings.TrimPrefix(repoName, prefix),
 				GitBranch: branchName,
 			},
 		})
