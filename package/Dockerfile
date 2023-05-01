@@ -75,6 +75,36 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
     git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://git.rancher.io/charts/ $RANCHER_CHARTS_DIR && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
+    # Remove charts that are not used \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-alerting-drivers && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-alerting-drivers && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-alerting/rancher-alerting-drivers && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-cis-benchmark && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-cis-benchmark && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-cis-benchmark && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-cis-benchmark-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-cis-benchmark-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-cis-benchmark-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-istio && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-istio && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-istio && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-pushprox && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-pushprox && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-monitoring/rancher-pushprox && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-monitoring/9.4.* && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-sachet && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-sachet && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-alerting/rancher-sachet && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-tracing && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-tracing && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-windows-exporter && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-windows-exporter && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-monitoring/rancher-windows-exporter && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-windows-gmsa-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-windows-gmsa-crd && \
+    rm -rf $RANCHER_CHARTS_DIR/charts/rancher-windows-gmsa && \
+    rm -rf $RANCHER_CHARTS_DIR/assets/rancher-windows-gmsa && \
+    rm -rf $RANCHER_CHARTS_DIR/packages/rancher-windows-gmsa && \
     #
     git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
