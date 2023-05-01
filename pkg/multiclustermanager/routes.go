@@ -2,6 +2,7 @@ package multiclustermanager
 
 import (
 	"context"
+	"github.com/rancher/rancher/pkg/controllers/management/drivers/kontainerdriver"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -75,6 +76,7 @@ func router(ctx context.Context, localClusterEnabled bool, tunnelAuthorizer *mcm
 	unauthed.UseEncodedPath()
 
 	unauthed.Path("/").MatcherFunc(parse.MatchNotBrowser).Handler(managementAPI)
+	unauthed.PathPrefix("/kontainerdriver").Handler(http.StripPrefix("/kontainerdriver", kontainerdriver.NewKontainerDriverHandler()))
 	unauthed.Handle("/v3/connect/config", connectConfigHandler)
 	unauthed.Handle("/v3/connect", connectHandler)
 	unauthed.Handle("/v3/connect/register", connectHandler)

@@ -1,7 +1,10 @@
 package management
 
 import (
+	"context"
 	"fmt"
+	"github.com/rancher/rancher/pkg/namespace"
+	"k8s.io/client-go/kubernetes"
 	"os"
 	"strings"
 
@@ -25,6 +28,7 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 	creator := driverCreator{
 		driversLister: management.Management.KontainerDrivers("").Controller().Lister(),
 		drivers:       management.Management.KontainerDrivers(""),
+		k8s:           management.K8sClient,
 	}
 
 	if err := cleanupImportDriver(creator); err != nil {
@@ -42,10 +46,15 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 	if err := creator.add("rancherKubernetesEngine"); err != nil {
 		return err
 	}
-	
+
 	if err := creator.add("amazonElasticContainerService"); err != nil {
 		return err
 	}
+
+	if err := creator.addHostedDriverFromEnv("ociocne", "OCI_OCNE_DRIVER_VERSION", "OCI_OCNE_DRIVER_HASH"); err != nil {
+		return err
+	}
+
 	return creator.addCustomDriver(
 		"oraclecontainerengine",
 		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.8.3/kontainer-engine-driver-oke-linux",
@@ -73,6 +82,7 @@ func cleanupImportDriver(creator driverCreator) error {
 type driverCreator struct {
 	driversLister v3.KontainerDriverLister
 	drivers       v3.KontainerDriverInterface
+	k8s           kubernetes.Interface
 }
 
 func (c *driverCreator) add(name string) error {
@@ -111,6 +121,29 @@ func (c *driverCreator) add(name string) error {
 	}
 
 	return nil
+}
+
+func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv string, domains ...string) error {
+	version := os.Getenv(versionEnv)
+	checksum := os.Getenv(checksumEnv)
+	// don't add driver if not present in environment
+	if version == "" || checksum == "" {
+		return nil
+	}
+
+	ingress, err := c.k8s.NetworkingV1().Ingresses(namespace.System).Get(context.Background(), "rancher", v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if ingress.Annotations != nil {
+		if commonName, ok := ingress.Annotations["cert-manager.io/common-name"]; ok {
+			url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", commonName, name, version, name)
+			return c.addCustomDriver(fmt.Sprintf("%sengine", name), url, checksum, "", true, domains...)
+		}
+	}
+
+	return fmt.Errorf("failed to create hosted driver, %s/rancher ingress not ready", namespace.System)
 }
 
 func (c *driverCreator) addCustomDriver(name, url, checksum, uiURL string, active bool, domains ...string) error {
