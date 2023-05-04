@@ -31,7 +31,7 @@ ARG RKE2_CHART_DEFAULT_BRANCH=main
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
 ARG CATTLE_KDM_BRANCH=release-v2.7
 ARG CATTLE_DASHBOARD_TAR_URL=https://github.com/verrazzano/rancher-dashboard/releases/download/v2.6.5-vz/rancher-dashboard-v2.6.5.tar.gz
-ARG CATTLE_UI_TAR_URL=https://github.com/verrazzano/rancher-ui/releases/tag/v2.7.2-1/release-2.7.2.tar.gz
+ARG CATTLE_UI_TAR_URL=https://github.com/verrazzano/rancher-ui/releases/download/v2.7.2-1/release-2.7.2.tar.gz
 # Specific version of OCI OCNE Driver
 ARG OCI_OCNE_DRIVER_VERSION=v0.0.1
 ARG OCI_OCNE_DRIVER_HASH=""
