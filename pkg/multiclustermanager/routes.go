@@ -2,6 +2,7 @@ package multiclustermanager
 
 import (
 	"context"
+	"github.com/rancher/rancher/pkg/api/norman/customization/ocne"
 	"github.com/rancher/rancher/pkg/controllers/management/drivers/kontainerdriver"
 	"net/http"
 
@@ -107,6 +108,7 @@ func router(ctx context.Context, localClusterEnabled bool, tunnelAuthorizer *mcm
 	authed.Path("/meta/{resource:aks.+}").Handler(aks.NewAKSHandler(scaledContext))
 	authed.Path("/meta/{resource:gke.+}").Handler(gke.NewGKEHandler(scaledContext))
 	authed.Path("/meta/oci/{resource}").Handler(oci.NewOCIHandler(scaledContext))
+	authed.Path("/meta/ocne/{resource}").Handler(ocne.NewHandler(scaledContext))
 	authed.Path("/meta/vsphere/{field}").Handler(vsphere.NewVsphereHandler(scaledContext))
 	authed.Path("/v3/tokenreview").Methods(http.MethodPost).Handler(&webhook.TokenReviewer{})
 	authed.Path("/metrics/{clusterID}").Handler(metricsHandler)
