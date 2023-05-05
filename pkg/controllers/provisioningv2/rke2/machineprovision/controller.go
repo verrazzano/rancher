@@ -654,6 +654,7 @@ func (h *handler) run(infra *infraObject, create bool) (rkev1.RKEMachineStatus, 
 	if err != nil {
 		return rkev1.RKEMachineStatus{}, false, err
 	}
+	logrus.Infof("getDriverDownloadURL returned url: %s, hash: %s", dArgs.RKEMachineStatus.DriverURL, dArgs.RKEMachineStatus.DriverHash)
 
 	if dArgs.BootstrapSecretName == "" && dArgs.BootstrapRequired {
 		return rkev1.RKEMachineStatus{}, false,
