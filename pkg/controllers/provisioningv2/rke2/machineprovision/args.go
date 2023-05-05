@@ -81,6 +81,7 @@ func (h *handler) getArgsEnvAndStatus(infra *infraObject, args map[string]interf
 		if err != nil {
 			return driverArgs{}, err
 		}
+		fmt.Println(fmt.Sprintf("getDriverDownloadURL returned url: %s, hash: %s", url, hash))
 	}
 
 	envSecret := &corev1.Secret{
