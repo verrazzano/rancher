@@ -20,7 +20,7 @@ var (
 
 	ember = newHandler(settings.UIIndex.Get,
 		settings.UIPath.Get,
-		settings.UIOfflinePreferred.Get)
+		func() string { return "true" })
 	emberAlwaysOffline = newHandler(settings.UIIndex.Get,
 		settings.UIPath.Get,
 		func() string { return "true" })
