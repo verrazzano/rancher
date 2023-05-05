@@ -47,6 +47,8 @@ func (d *DynamicDriver) Install() error {
 		return nil
 	}
 
+	logrus.Infof(fmt.Sprintf("MGIANATA dynamicDriverInstall %s/assets/%s", settings.UIPath.Get(), d.DriverName))
+
 	return d.copyTo(fmt.Sprintf("%s/assets/%s", settings.UIPath.Get(), d.DriverName))
 }
 
