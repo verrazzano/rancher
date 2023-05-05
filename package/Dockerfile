@@ -33,8 +33,8 @@ ARG CATTLE_KDM_BRANCH=release-v2.7
 ARG CATTLE_DASHBOARD_TAR_URL=https://github.com/verrazzano/rancher-dashboard/releases/download/v2.6.5-vz/rancher-dashboard-v2.6.5.tar.gz
 ARG CATTLE_UI_TAR_URL=https://github.com/verrazzano/rancher-ui/releases/download/v2.7.2-1/release-2.7.2.tar.gz
 # Specific version of OCI OCNE Driver
-ARG OCI_OCNE_DRIVER_VERSION=v0.0.1
-ARG OCI_OCNE_DRIVER_HASH=""
+ARG OCI_OCNE_DRIVER_VERSION=v0.1.0
+ARG OCI_OCNE_DRIVER_HASH="00ff160f2f73adf97162eceb54ce49b74353f888e1b448f89713e95d6e38261c"
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
 ENV CATTLE_CHART_DEFAULT_BRANCH=release-v2.7
