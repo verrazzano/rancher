@@ -33,7 +33,7 @@ ARG CATTLE_KDM_BRANCH=release-v2.7
 ARG CATTLE_DASHBOARD_TAR_URL=https://github.com/verrazzano/rancher-dashboard/releases/download/v2.6.5-vz/rancher-dashboard-v2.6.5.tar.gz
 ARG CATTLE_UI_TAR_URL=https://github.com/verrazzano/rancher-ui/releases/download/v2.7.2-1/release-2.7.2.tar.gz
 # Specific version of OCI OCNE Driver
-ARG OCI_OCNE_DRIVER_VERSION=v0.0.1
+ARG OCI_OCNE_DRIVER_VERSION=v0.1.0
 ARG OCI_OCNE_DRIVER_HASH=""
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
@@ -116,7 +116,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library && \
     # Download the OCI OCNE Driver
-    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne//releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
+    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
 
 
 RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
