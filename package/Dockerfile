@@ -36,9 +36,10 @@ ARG RKE2_CHART_DEFAULT_BRANCH=main
 # kontainer-driver-metadata branch to be set for specific branch other than dev/master, logic at rancher/rancher/pkg/settings/setting.go
 ARG CATTLE_KDM_BRANCH=release-v2.7
 ARG CATTLE_DASHBOARD_TAR_URL=https://github.com/verrazzano/rancher-dashboard/releases/download/v2.6.5-vz/rancher-dashboard-v2.6.5.tar.gz
+ARG CATTLE_UI_TAR_URL=https://github.com/verrazzano/rancher-ui/releases/download/v2.7.2-1/release-2.7.2.tar.gz
 # Specific version of OCI OCNE Driver
-ARG OCI_OCNE_DRIVER_VERSION=v0.0.1
-ARG OCI_OCNE_DRIVER_HASH=""
+ARG OCI_OCNE_DRIVER_VERSION=v0.1.0
+ARG OCI_OCNE_DRIVER_HASH="00ff160f2f73adf97162eceb54ce49b74353f888e1b448f89713e95d6e38261c"
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
 ENV CATTLE_CHART_DEFAULT_BRANCH=release-v2.7
@@ -116,7 +117,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library && \
     # Download the OCI OCNE Driver
-    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne//releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
+    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
 
 
 RUN curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
@@ -144,7 +145,8 @@ ENV AUDIT_LEVEL 0
 
 RUN mkdir -p /usr/share/rancher/ui && \
     cd /usr/share/rancher/ui && \
-    curl -sL https://releases.rancher.com/ui/${CATTLE_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
+    curl -sL ${CATTLE_UI_TAR_URL} | tar xvzf - --strip-components=1 && \
+    mkdir -p assets/rancher-ui-driver-linode && \
     mkdir -p /usr/share/rancher/ui/api-ui && \
     cd /usr/share/rancher/ui/api-ui && \
     curl -sL https://releases.rancher.com/api-ui/${CATTLE_API_UI_VERSION}.tar.gz | tar xvzf - --strip-components=1 && \
