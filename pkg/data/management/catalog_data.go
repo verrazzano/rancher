@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	libraryURL    = "https://github.com/verrazzano/rancher-charts"
+	libraryURL    = "https://git.rancher.io/charts"
 	libraryBranch = "master"
 	libraryName   = "library"
 

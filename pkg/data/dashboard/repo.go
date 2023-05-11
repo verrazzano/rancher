@@ -2,17 +2,21 @@ package dashboard
 
 import (
 	"context"
-	"github.com/rancher/rancher/pkg/features"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-
-	"github.com/rancher/rancher/pkg/settings"
+	"strings"
 
 	v1 "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
+	"github.com/rancher/rancher/pkg/features"
+	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/wrangler"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func addRepo(wrangler *wrangler.Context, gitRepo, repoName, branchName string) error {
+var (
+	prefix = "rancher-"
+)
+
+func addRepo(wrangler *wrangler.Context, repoName, branchName string) error {
 	repo, err := wrangler.Catalog.ClusterRepo().Get(repoName, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		_, err = wrangler.Catalog.ClusterRepo().Create(&v1.ClusterRepo{
@@ -20,7 +24,7 @@ func addRepo(wrangler *wrangler.Context, gitRepo, repoName, branchName string) e
 				Name: repoName,
 			},
 			Spec: v1.RepoSpec{
-				GitRepo:   gitRepo,
+				GitRepo:   "https://git.rancher.io/" + strings.TrimPrefix(repoName, prefix),
 				GitBranch: branchName,
 			},
 		})
@@ -33,15 +37,15 @@ func addRepo(wrangler *wrangler.Context, gitRepo, repoName, branchName string) e
 }
 
 func addRepos(ctx context.Context, wrangler *wrangler.Context) error {
-	if err := addRepo(wrangler, "https://github.com/verrazzano/rancher-charts", "rancher-charts", settings.ChartDefaultBranch.Get()); err != nil {
+	if err := addRepo(wrangler, "rancher-charts", settings.ChartDefaultBranch.Get()); err != nil {
 		return err
 	}
-	if err := addRepo(wrangler, "https://git.rancher.io/partner-charts", "rancher-partner-charts", settings.PartnerChartDefaultBranch.Get()); err != nil {
+	if err := addRepo(wrangler, "rancher-partner-charts", settings.PartnerChartDefaultBranch.Get()); err != nil {
 		return err
 	}
 
 	if features.RKE2.Enabled() {
-		if err := addRepo(wrangler, "https://git.rancher.io/rke2-charts", "rancher-rke2-charts", settings.RKE2ChartDefaultBranch.Get()); err != nil {
+		if err := addRepo(wrangler, "rancher-rke2-charts", settings.RKE2ChartDefaultBranch.Get()); err != nil {
 			return err
 		}
 	}
