@@ -93,7 +93,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/moby/locker v1.0.1
-	github.com/oracle/oci-go-sdk v18.0.0+incompatible
+	github.com/oracle/oci-go-sdk/v53 v53.1.0
 	github.com/pborman/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.52.0
@@ -162,6 +162,7 @@ require github.com/google/gnostic v0.5.7-v3refs
 
 require (
 	github.com/kr/fs v0.1.0 // indirect
+	github.com/sony/gobreaker v0.4.2-0.20210216022020-dd874f9dd33b // indirect
 	k8s.io/pod-security-admission v0.25.4 // indirect
 )
 
