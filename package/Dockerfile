@@ -37,7 +37,7 @@ ARG CATTLE_KDM_BRANCH=release-v2.7
 ARG CATTLE_DASHBOARD_TAR_URL=https://github.com/verrazzano/rancher-dashboard/releases/download/v2.6.5-vz/rancher-dashboard-v2.6.5.tar.gz
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
-ENV CATTLE_CHART_DEFAULT_BRANCH=oracle/release/2.7.2
+ENV CATTLE_CHART_DEFAULT_BRANCH=release-v2.7
 ENV CATTLE_PARTNER_CHART_DEFAULT_BRANCH=$PARTNER_CHART_DEFAULT_BRANCH
 ENV CATTLE_RKE2_CHART_DEFAULT_BRANCH=$RKE2_CHART_DEFAULT_BRANCH
 ENV CATTLE_HELM_VERSION v2.16.8-rancher2
@@ -46,7 +46,7 @@ ENV CATTLE_K3S_VERSION v1.25.5+k3s1
 ENV CATTLE_MACHINE_PROVISION_IMAGE rancher/machine:${CATTLE_MACHINE_VERSION}
 ENV CATTLE_ETCD_VERSION v3.5.1
 ENV LOGLEVEL_VERSION v0.1.5
-ENV TINI_VERSION v0.18.0
+ENV TINI_VERSION v0.19.0
 ENV TELEMETRY_VERSION v0.5.20
 ENV DOCKER_MACHINE_LINODE_VERSION v0.1.8
 ENV LINODE_UI_DRIVER_VERSION v0.5.0
@@ -77,7 +77,7 @@ ENV RANCHER_PARTNER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-p
 ENV RANCHER_RKE2_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-rke2-charts/675f1b63a0a83905972dcab2794479ed599a6f41b86cd6193d69472d0fa889c9
 
 # System chart commits
-ENV RANCHER_CHARTS_COMMIT=7db2041af1d3b5a51167af967cf9c118b35efe31
+ENV RANCHER_CHARTS_COMMIT=d1528d8815a9033c42473ce13bbf674b289f5945
 ENV RANCHER_PARTNER_CHARTS_COMMIT=8c3df241d265ae75d1b7150f2e864171d6dc844f
 ENV RANCHER_RKE2_CHARTS_COMMIT=479c43307869f1969b16d760a1c8f9c38dd7fc1a
 
@@ -90,7 +90,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b $CATTLE_SYSTEM_CHART_DEFAULT_BRANCH --depth 1 https://github.com/rancher/system-charts /var/lib/rancher-data/local-catalogs/system-library && \
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
-    git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://github.com/verrazzano/rancher-charts/ $RANCHER_CHARTS_DIR && \
+    git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://git.rancher.io/charts/ $RANCHER_CHARTS_DIR && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
     #
     git clone -b $CATTLE_PARTNER_CHART_DEFAULT_BRANCH https://git.rancher.io/partner-charts $RANCHER_PARTNER_CHARTS_DIR && \
@@ -99,7 +99,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b $CATTLE_RKE2_CHART_DEFAULT_BRANCH https://git.rancher.io/rke2-charts $RANCHER_RKE2_CHARTS_DIR && \
     git -C $RANCHER_RKE2_CHARTS_DIR checkout $RANCHER_RKE2_CHARTS_COMMIT && \
     #
-    git clone -b master --depth 1 https://github.com/verrazzano/rancher-charts/ /var/lib/rancher-data/local-catalogs/library && \
+    git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library
 
 RUN curl -sLf https://github.com/rancher/machine/releases/download/${CATTLE_MACHINE_VERSION}/rancher-machine-${ARCH}.tar.gz | tar xvzf - -C /usr/bin && \
