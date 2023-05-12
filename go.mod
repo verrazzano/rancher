@@ -3,7 +3,6 @@ module github.com/rancher/rancher
 go 1.19
 
 replace (
-
 	github.com/Masterminds/goutils v1.1.0 => github.com/Masterminds/goutils v1.1.1
 	github.com/docker/distribution => github.com/docker/distribution v2.7.1+incompatible // oras dep requires a replace is set
 	github.com/docker/docker => github.com/docker/docker v20.10.9+incompatible // oras dep requires a replace is set
@@ -14,6 +13,7 @@ replace (
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
 	github.com/rancher/rancher/pkg/apis => ./pkg/apis
 	github.com/rancher/rancher/pkg/client => ./pkg/client
+	github.com/rubenv/sql-migrate v1.1.1 => github.com/rubenv/sql-migrate v1.4.0
 
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.20.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp => go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.20.0
