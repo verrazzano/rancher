@@ -60,14 +60,14 @@ ENV OCI_OCNE_DRIVER_BINARY=kontainer-engine-driver-ociocne-linux
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=102.0.0+up0.6.0
-ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=2.0.2+up0.3.2
+ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=2.0.3+up0.3.3
 ENV CATTLE_CSP_ADAPTER_MIN_VERSION=2.0.1
 
 # Chart git repo directories
 ENV RANCHER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721
 
 # System chart commits
-ENV RANCHER_CHARTS_COMMIT=d1528d8815a9033c42473ce13bbf674b289f5945
+ENV RANCHER_CHARTS_COMMIT=56daab63cfc52ad362d99f9283a5f8594ec6c85f
 
 RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
