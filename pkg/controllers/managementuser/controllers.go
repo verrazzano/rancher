@@ -7,19 +7,15 @@ import (
 	"github.com/rancher/rancher/pkg/controllers/managementuser/certsexpiration"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/clusterauthtoken"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/healthsyncer"
-	"github.com/rancher/rancher/pkg/controllers/managementuser/machinerole"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/networkpolicy"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/nodesyncer"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/nsserviceaccount"
-	"github.com/rancher/rancher/pkg/controllers/managementuser/pspdelete"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/rbac"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/rbac/podsecuritypolicy"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/resourcequota"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/secret"
-	"github.com/rancher/rancher/pkg/controllers/managementuser/snapshotbackpopulate"
 	"github.com/rancher/rancher/pkg/controllers/managementuser/windows"
 	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy"
-	"github.com/rancher/rancher/pkg/features"
 	managementv3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/impersonation"
 	"github.com/rancher/rancher/pkg/types/config"
@@ -37,11 +33,6 @@ func Register(ctx context.Context, mgmt *config.ScaledContext, cluster *config.U
 	certsexpiration.Register(ctx, cluster)
 	windows.Register(ctx, clusterRec, cluster)
 	nsserviceaccount.Register(ctx, cluster)
-	if features.RKE2.Enabled() {
-		snapshotbackpopulate.Register(ctx, cluster)
-		pspdelete.Register(ctx, cluster)
-		machinerole.Register(ctx, cluster)
-	}
 
 	// register controller for API
 	cluster.APIAggregation.APIServices("").Controller()
