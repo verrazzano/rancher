@@ -43,6 +43,10 @@ if [ -n "${OCI_OCNE_DRIVER_HASH}" ]; then
   BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_HASH=${OCI_OCNE_DRIVER_HASH}"
 fi
 
+if [ -n "${OCI_OCNE_DRIVER_URL}" ]; then
+  BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_URL=${OCI_OCNE_DRIVER_URL}"
+fi
+
 docker build $BUILD_ARGS -t ${IMAGE} .
 
 docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f Dockerfile.agent .

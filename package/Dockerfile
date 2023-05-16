@@ -58,6 +58,7 @@ ENV OCI_OCNE_DRIVER_HASH=$OCI_OCNE_DRIVER_HASH
 ENV OCI_OCNE_DRIVER_PATH=/var/lib/rancher-data/drivers/ociocne/$OCI_OCNE_DRIVER_VERSION
 ENV OCI_OCNE_DRIVER_BINARY=kontainer-engine-driver-ociocne-linux
 
+ARG OCI_OCNE_DRIVER_URL=https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY}
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=102.0.0+up0.6.0
 ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=2.0.3+up0.3.3
@@ -116,8 +117,8 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library && \
     # Download the OCI OCNE Driver
-    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
-
+    # curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
+    curl -sLf ${OCI_OCNE_DRIVER_URL} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
 
 RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     curl -sLf https://github.com/rancher/telemetry/releases/download/${TELEMETRY_VERSION}/telemetry-${ARCH} > /usr/bin/telemetry && \
