@@ -31,7 +31,6 @@ import (
 	apierror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -287,12 +286,6 @@ func (h *handler) createNewCluster(cluster *v1.Cluster, status v1.ClusterStatus,
 		})
 	}
 
-	if cluster.Spec.RKEConfig != nil {
-		if err := h.updateFeatureLockedValue(true); err != nil {
-			return nil, status, err
-		}
-	}
-
 	spec.LocalClusterAuthEndpoint = v3.LocalClusterAuthEndpoint{
 		FQDN:    cluster.Spec.LocalClusterAuthEndpoint.FQDN,
 		CACerts: cluster.Spec.LocalClusterAuthEndpoint.CACerts,
@@ -421,35 +414,4 @@ func (h *handler) updateStatus(objs []runtime.Object, cluster *v1.Cluster, statu
 	}
 
 	return objs, status, nil
-}
-
-func (h *handler) updateFeatureLockedValue(lockValueToTrue bool) error {
-	feature, err := h.featureCache.Get(features.RKE2.Name())
-	if err != nil {
-		return err
-	}
-
-	if feature.Status.LockedValue == nil && !lockValueToTrue || feature.Status.LockedValue != nil && *feature.Status.LockedValue == lockValueToTrue {
-		return nil
-	}
-
-	feature = feature.DeepCopy()
-	if lockValueToTrue {
-		feature.Status.LockedValue = &lockValueToTrue
-	} else {
-		clusters, err := h.clusters.Cache().List("", labels.Everything())
-		if err != nil {
-			return err
-		}
-
-		for _, cluster := range clusters {
-			if cluster.DeletionTimestamp.IsZero() && !h.isLegacyCluster(cluster) && cluster.Spec.RKEConfig != nil {
-				return nil
-			}
-		}
-		feature.Status.LockedValue = nil
-	}
-
-	_, err = h.featureClient.Update(feature)
-	return err
 }
