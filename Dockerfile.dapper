@@ -57,7 +57,7 @@ ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin
 
-RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
+RUN yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne16/x86_64/ && \
     yum install -y helm-3.11.1-1.el7.x86_64 && \
     yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
