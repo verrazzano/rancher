@@ -82,10 +82,6 @@ func (h *handler) doClusterRemove(cluster *v1.Cluster) func() (string, error) {
 					if !apierrors.IsNotFound(err) {
 						return fmt.Sprintf("waiting for cluster [%s] to delete", cluster.Status.ClusterName), nil
 					}
-				} else {
-					if err = h.updateFeatureLockedValue(false); err != nil {
-						return "", err
-					}
 				}
 			}
 		}

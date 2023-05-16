@@ -29,9 +29,6 @@ var (
 
 func List() (result []crd.CRD) {
 	result = append(result, provisioning()...)
-	if features.RKE2.Enabled() {
-		result = append(result, rke2()...)
-	}
 	if features.EmbeddedClusterAPI.Enabled() {
 		result = append(result, capi()...)
 	}
