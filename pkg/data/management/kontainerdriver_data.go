@@ -144,7 +144,7 @@ func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv str
 
 func (c *driverCreator) addCustomDriver(name, url, checksum, uiURL string, active bool, domains ...string) error {
 	logrus.Infof("adding kontainer driver %v", name)
-	_, err := c.driversLister.Get("", name)
+	driver, err := c.driversLister.Get("", name)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			_, err = c.drivers.Create(&v3.KontainerDriver{
@@ -166,9 +166,23 @@ func (c *driverCreator) addCustomDriver(name, url, checksum, uiURL string, activ
 			if err != nil && !errors.IsAlreadyExists(err) {
 				return fmt.Errorf("error creating driver: %v", err)
 			}
-		} else {
-			return fmt.Errorf("error getting driver: %v", err)
+			return nil
 		}
+
+		return fmt.Errorf("error getting driver: %v", err)
+	}
+
+	// do an update if the driver already exists
+	driver.Spec.URL = url
+	driver.Spec.BuiltIn = false
+	driver.Spec.Active = active
+	driver.Spec.Checksum = checksum
+	driver.Spec.UIURL = uiURL
+	driver.Spec.WhitelistDomains = domains
+
+	_, err = c.drivers.Update(driver)
+	if err != nil {
+		return fmt.Errorf("error updating driver: %v", err)
 	}
 	return nil
 }
