@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	cmNamespace = "verrazzano-install"
+	cmNamespace = "verrazzano-capi"
 	cmName      = "ocne-metadata"
 )
 
