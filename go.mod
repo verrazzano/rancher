@@ -3,7 +3,6 @@ module github.com/rancher/rancher
 go 1.19
 
 replace (
-	github.com/Masterminds/goutils => github.com/Masterminds/goutils v1.1.1
 	github.com/docker/distribution => github.com/docker/distribution v2.7.1+incompatible // oras dep requires a replace is set
 	github.com/docker/docker => github.com/docker/docker v20.10.9+incompatible // oras dep requires a replace is set
 
@@ -13,7 +12,6 @@ replace (
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.2
 	github.com/rancher/rancher/pkg/apis => ./pkg/apis
 	github.com/rancher/rancher/pkg/client => ./pkg/client
-	github.com/rubenv/sql-migrate => github.com/rubenv/sql-migrate v1.4.0
 
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.20.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp => go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.20.0
@@ -23,7 +21,7 @@ replace (
 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v0.20.0
 	go.opentelemetry.io/proto/otlp => go.opentelemetry.io/proto/otlp v0.7.0
 
-	helm.sh/helm/v3 => github.com/verrazzano/helm/v3 v3.9.0-rancher1-test
+	helm.sh/helm/v3 => github.com/rancher/helm/v3 v3.9.0-rancher1
 	k8s.io/api => k8s.io/api v0.25.4
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.25.4
 	k8s.io/apimachinery => k8s.io/apimachinery v0.25.4
@@ -90,7 +88,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/heptio/authenticator v0.0.0-20180409043135-d282f87a1972
 	github.com/manicminer/hamilton v0.46.0
-	github.com/mattn/go-colorable v0.1.13
+	github.com/mattn/go-colorable v0.1.12
 	github.com/mcuadros/go-version v0.0.0-20180611085657-6d5863ca60fa
 	github.com/minio/minio-go/v7 v7.0.10
 	github.com/mitchellh/mapstructure v1.5.0
@@ -129,7 +127,7 @@ require (
 	github.com/urfave/cli v1.22.9
 	github.com/vishvananda/netlink v1.1.1-0.20210330154013-f5de75959ad5
 	github.com/vmware/govmomi v0.26.0
-	golang.org/x/crypto v0.5.0
+	golang.org/x/crypto v0.3.0
 	golang.org/x/mod v0.9.0
 	golang.org/x/net v0.8.0
 	golang.org/x/oauth2 v0.0.0-20220628200809-02e64fa58f26
@@ -217,7 +215,7 @@ require (
 	github.com/fvbommel/sortorder v1.0.1 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.3 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
-	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
+	github.com/go-gorp/gorp/v3 v3.0.2 // indirect
 	github.com/go-ini/ini v1.37.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.5 // indirect
@@ -245,8 +243,8 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/go-version v1.3.0 // indirect
-	github.com/huandu/xstrings v1.4.0 // indirect
-	github.com/imdario/mergo v0.3.13 // indirect
+	github.com/huandu/xstrings v1.3.3 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jmoiron/sqlx v1.3.4 // indirect
@@ -255,17 +253,17 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
+	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
-	github.com/lib/pq v1.10.7 // indirect
+	github.com/lib/pq v1.10.4 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/matryer/moq v0.0.0-20200607124540-4638a53893e6 // indirect
 	github.com/mattermost/xml-roundtrip-validator v0.1.0 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/minio/md5-simd v1.1.0 // indirect
@@ -293,13 +291,13 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/rs/xid v1.2.1 // indirect
-	github.com/rubenv/sql-migrate v1.4.0 // indirect
+	github.com/rubenv/sql-migrate v1.1.1 // indirect
 	github.com/russellhaering/goxmldsig v1.1.1 // indirect
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/smartystreets/goconvey v1.7.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/cobra v1.5.0
