@@ -43,10 +43,6 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		return err
 	}
 
-	if err := creator.add("rancherKubernetesEngine"); err != nil {
-		return err
-	}
-
 	if err := creator.add("amazonElasticContainerService"); err != nil {
 		return err
 	}
