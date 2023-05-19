@@ -3,19 +3,18 @@ package management
 import (
 	"context"
 	"fmt"
-	"github.com/rancher/rancher/pkg/namespace"
-	"k8s.io/client-go/kubernetes"
 	"os"
 	"strings"
 
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-
 	"github.com/rancher/rancher/pkg/controllers/management/drivers/kontainerdriver"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/rancher/rancher/pkg/namespace"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 func addKontainerDrivers(management *config.ManagementContext) error {
@@ -32,6 +31,10 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 	}
 
 	if err := cleanupImportDriver(creator); err != nil {
+		return err
+	}
+
+	if err := removeUnsupportedDrivers(creator); err != nil {
 		return err
 	}
 
@@ -72,6 +75,24 @@ func cleanupImportDriver(creator driverCreator) error {
 		return err
 	}
 
+	return nil
+}
+
+// removeUnsupportedDrivers - remove unsupported drivers
+func removeUnsupportedDrivers(creator driverCreator) error {
+	driverList := []string{"aliyunkubernetescontainerservice", "baiducloudcontainerengine", "huaweicontainercloudengine",
+		"linodekubernetesengine", "opentelekomcloudcontainerengine", "rancherkubernetesengine", "tencentkubernetesengine"}
+
+	var err error
+
+	for _, driver := range driverList {
+		if _, err = creator.driversLister.Get("", driver); err == nil {
+			err = creator.drivers.Delete(driver, &v1.DeleteOptions{})
+		}
+		if !errors.IsNotFound(err) {
+			return err
+		}
+	}
 	return nil
 }
 
