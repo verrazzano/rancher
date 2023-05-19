@@ -35,10 +35,16 @@ func (h *handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	ocneVersion := request.URL.Query().Get("ocneVersion")
+
 	resource := mux.Vars(request)["resource"]
 	switch resource {
-	case "kubernetesVersions":
-		handleRoute(writer, h.kubernetesVersions)
+	case "ocneVersions":
+		handleRoute(writer, h.ocneVersions)
+	case "metadata":
+		handleRoute(writer, func() ([]byte, int, error) {
+			return h.metadata(ocneVersion)
+		})
 	default:
 		writeError(writer, http.StatusNotFound, errors.New("Not Found"))
 	}
