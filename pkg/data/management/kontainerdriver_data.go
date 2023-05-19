@@ -87,6 +87,7 @@ func removeUnsupportedDrivers(creator driverCreator) error {
 
 	for _, driver := range driverList {
 		if _, err = creator.driversLister.Get("", driver); err == nil {
+			logrus.Infof("removing kontainer drvier %s", driver)
 			err = creator.drivers.Delete(driver, &v1.DeleteOptions{})
 		}
 		if !errors.IsNotFound(err) {
@@ -103,7 +104,7 @@ type driverCreator struct {
 }
 
 func (c *driverCreator) add(name string) error {
-	logrus.Infof("adding kontainer driver %v", name)
+	logrus.Infof("adding kontainer driver %s", name)
 
 	driver, err := c.driversLister.Get("", name)
 	if err != nil {
