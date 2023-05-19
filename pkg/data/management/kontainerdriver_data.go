@@ -90,7 +90,7 @@ func removeUnsupportedDrivers(creator driverCreator) error {
 			logrus.Infof("removing kontainer drvier %s", driver)
 			err = creator.drivers.Delete(driver, &v1.DeleteOptions{})
 		}
-		if !errors.IsNotFound(err) {
+		if err != nil && !errors.IsNotFound(err) {
 			return err
 		}
 	}
