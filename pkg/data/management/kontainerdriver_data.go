@@ -59,7 +59,7 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.8.3/kontainer-engine-driver-oke-linux",
 		"7bfde567e6d478f1da8d36531f765d348bff1cd3abe83c70ddf7766f46112170",
 		"",
-		false,
+		true,
 		"*.oraclecloud.com",
 	)
 
