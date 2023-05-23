@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	cmNamespace = "verrazzano-capi"
-	cmName      = "ocne-metadata"
+	cmNamespace   = "verrazzano-capi"
+	ocneCmName    = "ocne-metadata"
+	modulesCmName = "module-metadata"
 )
 
 type handler struct {
@@ -44,6 +45,10 @@ func (h *handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	case "metadata":
 		handleRoute(writer, func() ([]byte, int, error) {
 			return h.metadata(ocneVersion)
+		})
+	case "modules":
+		handleRoute(writer, func() ([]byte, int, error) {
+			return h.modules()
 		})
 	default:
 		writeError(writer, http.StatusNotFound, errors.New("Not Found"))

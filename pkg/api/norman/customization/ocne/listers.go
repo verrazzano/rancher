@@ -35,7 +35,7 @@ func (h *handler) loadVersionMapping() (map[string]Version, error) {
 }
 
 func (h *handler) getOCNEMetadataJSON() ([]byte, error) {
-	cm, err := h.configmapLister.Get(cmNamespace, cmName)
+	cm, err := h.configmapLister.Get(cmNamespace, ocneCmName)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			return []byte("{}"), nil
@@ -44,6 +44,22 @@ func (h *handler) getOCNEMetadataJSON() ([]byte, error) {
 	}
 
 	data, err := apiyaml.ToJSON([]byte(cm.Data["mapping"]))
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (h *handler) getModulesMetadataJSON() ([]byte, error) {
+	cm, err := h.configmapLister.Get(cmNamespace, modulesCmName)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return []byte("{}"), nil
+		}
+		return nil, err
+	}
+
+	data, err := apiyaml.ToJSON([]byte(cm.Data["entries"]))
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +102,15 @@ func (h *handler) metadata(ocneVersion string) ([]byte, int, error) {
 	}
 
 	return data, http.StatusOK, nil
+}
+
+func (h *handler) modules() ([]byte, int, error) {
+	modulesMetadata, err := h.getModulesMetadataJSON()
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	return modulesMetadata, http.StatusOK, nil
 }
 
 func (h *handler) ocneVersions() ([]byte, int, error) {
