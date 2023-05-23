@@ -43,9 +43,6 @@ func Resolve(image string) string {
 }
 
 func ResolveWithCluster(image string, cluster *v3.Cluster) string {
-	if cluster == nil {
-		return image
-	}
 	reg := util.GetPrivateRegistryURL(cluster)
 	if reg != "" && !strings.HasPrefix(image, reg) {
 		/*
