@@ -15,7 +15,7 @@ import (
 const (
 	cmNamespace   = "verrazzano-capi"
 	ocneCmName    = "ocne-metadata"
-	modulesCmName = "modules-metadata"
+	modulesCmName = "module-metadata"
 )
 
 type handler struct {

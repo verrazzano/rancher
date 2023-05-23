@@ -5,7 +5,6 @@ package ocne
 
 import (
 	"encoding/json"
-	"helm.sh/helm/v3/pkg/repo"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apiyaml "k8s.io/apimachinery/pkg/util/yaml"
 	"net/http"
@@ -33,19 +32,6 @@ func (h *handler) loadVersionMapping() (map[string]Version, error) {
 		return nil, err
 	}
 	return versionMapping, nil
-}
-
-func (h *handler) loadModulesMetadata() (map[string]repo.ChartVersions, error) {
-	data, err := h.getModulesMetadataJSON()
-	if err != nil {
-		return nil, err
-	}
-
-	modulesMetadata := map[string]repo.ChartVersions{}
-	if err := json.Unmarshal(data, &modulesMetadata); err != nil {
-		return nil, err
-	}
-	return modulesMetadata, nil
 }
 
 func (h *handler) getOCNEMetadataJSON() ([]byte, error) {
@@ -119,17 +105,12 @@ func (h *handler) metadata(ocneVersion string) ([]byte, int, error) {
 }
 
 func (h *handler) modules() ([]byte, int, error) {
-	modulesMetadata, err := h.loadModulesMetadata()
+	modulesMetadata, err := h.getModulesMetadataJSON()
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
 
-	data, err := json.Marshal(modulesMetadata)
-	if err != nil {
-		return nil, http.StatusInternalServerError, err
-	}
-
-	return data, http.StatusOK, nil
+	return modulesMetadata, http.StatusOK, nil
 }
 
 func (h *handler) ocneVersions() ([]byte, int, error) {
