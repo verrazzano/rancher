@@ -501,6 +501,9 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	if apierrors.IsNotFound(err) {
 		return nil
 	}
+
+	//m.mgmt.Management.Clusters("c-dbvs6  ").Get()
+	time.Sleep(60 * time.Second)
 	if ns.Status.Phase != v12.NamespaceTerminating {
 		logrus.Infof("[%v] Deleting namespace %v", controller, o.GetName())
 		err = nsClient.Delete(context.TODO(), o.GetName(), v1.DeleteOptions{})
