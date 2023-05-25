@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/rancher/rancher/pkg/wrangler"
 	"reflect"
 	"strings"
 	"time"
@@ -143,7 +144,7 @@ func (l *projectLifecycle) Updated(obj *v3.Project) (runtime.Object, error) {
 	return obj, nil
 }
 
-func (l *projectLifecycle) Remove(obj *v3.Project) (runtime.Object, error) {
+func (l *projectLifecycle) Remove(obj *v3.Project, clients *wrangler.Context) (runtime.Object, error) {
 	var returnErr error
 	set := labels.Set{rbac.RestrictedAdminProjectRoleBinding: "true"}
 	rbs, err := l.mgr.rbLister.List(obj.Name, labels.SelectorFromSet(set))
@@ -156,7 +157,7 @@ func (l *projectLifecycle) Remove(obj *v3.Project) (runtime.Object, error) {
 			returnErr = multierror.Append(returnErr, err)
 		}
 	}
-	err = l.mgr.deleteNamespace(obj, projectRemoveController)
+	err = l.mgr.deleteNamespace(obj, clients, projectRemoveController)
 	if err != nil {
 		returnErr = multierror.Append(returnErr, err)
 	}
@@ -228,7 +229,7 @@ func (l *clusterLifecycle) Updated(obj *v3.Cluster) (runtime.Object, error) {
 	return obj, nil
 }
 
-func (l *clusterLifecycle) Remove(obj *v3.Cluster) (runtime.Object, error) {
+func (l *clusterLifecycle) Remove(obj *v3.Cluster, clients *wrangler.Context) (runtime.Object, error) {
 	if len(obj.Finalizers) > 1 {
 		logrus.Debugf("Skipping rbac cleanup for cluster [%s] until all other finalizers are removed.", obj.Name)
 		return obj, generic.ErrSkip
@@ -246,7 +247,7 @@ func (l *clusterLifecycle) Remove(obj *v3.Cluster) (runtime.Object, error) {
 			returnErr = multierror.Append(returnErr, err)
 		}
 	}
-	err = l.mgr.deleteNamespace(obj, clusterRemoveController)
+	err = l.mgr.deleteNamespace(obj, clients, clusterRemoveController)
 	if err != nil {
 		returnErr = multierror.Append(returnErr, err)
 	}
@@ -490,7 +491,7 @@ func (m *mgr) reconcileCreatorRTB(obj runtime.Object) (runtime.Object, error) {
 	})
 }
 
-func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
+func (m *mgr) deleteNamespace(obj runtime.Object, clients *wrangler.Context, controller string) error {
 	o, err := meta.Accessor(obj)
 	if err != nil {
 		return condition.Error("MissingMetadata", err)
@@ -504,15 +505,15 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 
 	sleep := 60
 	for i := 0; i <= 3; i++ {
-		c, err := m.mgmt.Management.Clusters("").Get(o.GetName(), v1.GetOptions{})
+		c, err := clients.CAPI.Cluster().Get(o.GetNamespace(), o.GetName(), v1.GetOptions{})
 		if err != nil {
 			if apierrors.IsNotFound(err) {
-				logrus.Infof("Cluster not found:%v", c.GetName())
+				logrus.Infof("Cluster not found:%v/%v", c.GetName(), c.GetNamespace())
 				break
 			}
 			return err
 		}
-		logrus.Infof("Waiting for Cluster to be deleted..%v", c.GetName())
+		logrus.Infof("Waiting for Cluster to be deleted..%v/%v", c.GetName(), c.GetNamespace())
 		time.Sleep(time.Duration(sleep) * time.Second)
 	}
 
