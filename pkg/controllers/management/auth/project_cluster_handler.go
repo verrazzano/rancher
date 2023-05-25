@@ -503,7 +503,25 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	}
 
 	//m.mgmt.Management.Clusters("c-dbvs6  ").Get()
-	time.Sleep(60 * time.Second)
+	sleep := 60
+	for i := 0; i <= 3; i++ {
+		c, err := m.mgmt.Management.Clusters("").Get(o.GetName(), v1.GetOptions{})
+		logrus.Infof("CLUSTER NAME THAT IS BEING DELETED IS: --------%v", c.GetName())
+		if err != nil {
+			if !apierrors.IsNotFound(err) {
+				time.Sleep(time.Duration(sleep) * time.Second)
+				sleep *= 2
+				continue
+			} else if apierrors.IsNotFound(err) {
+				logrus.Infof("Cluster NAME NOT FOUND: ------%v", c.GetName())
+				break
+			} else {
+				logrus.Infof("In LOOP: ERROR: ------%v", c.GetName())
+				return err
+			}
+		}
+	}
+
 	if ns.Status.Phase != v12.NamespaceTerminating {
 		logrus.Infof("[%v] Deleting namespace %v", controller, o.GetName())
 		err = nsClient.Delete(context.TODO(), o.GetName(), v1.DeleteOptions{})
