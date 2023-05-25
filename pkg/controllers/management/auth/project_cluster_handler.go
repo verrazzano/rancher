@@ -507,12 +507,14 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	for i := 0; i <= 3; i++ {
 		c, err := m.mgmt.Management.Clusters("").Get(o.GetName(), v1.GetOptions{})
 		logrus.Infof("CLUSTER NAME THAT IS BEING DELETED IS: --------%v", c.GetName())
+
+		if !apierrors.IsNotFound(err) {
+			time.Sleep(time.Duration(sleep) * time.Second)
+			sleep *= 2
+			continue
+		}
 		if err != nil {
-			if !apierrors.IsNotFound(err) {
-				time.Sleep(time.Duration(sleep) * time.Second)
-				sleep *= 2
-				continue
-			} else if apierrors.IsNotFound(err) {
+			if apierrors.IsNotFound(err) {
 				logrus.Infof("Cluster NAME NOT FOUND: ------%v", c.GetName())
 				break
 			} else {
