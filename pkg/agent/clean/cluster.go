@@ -18,6 +18,7 @@ package clean
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -179,7 +180,12 @@ func removeNamespace(namespace string, client *kubernetes.Clientset) error {
 				return err
 			}
 		}
-
+		logrus.Infof("WAITING FOR THE CLUSTER TO BE DELETED: --------")
+		err = waitUntilClusterIsRemoved(namespace, client)
+		if err != nil {
+			return err
+		}
+		logrus.Infof("WAIT is OVER: --------")
 		logrus.Infof("Deleting namespace: %v", ns.Name)
 		if !dryRun {
 			err = client.CoreV1().Namespaces().Delete(context.TODO(), namespace, metav1.DeleteOptions{})
@@ -464,4 +470,39 @@ func isRancherInstalled(k8s kubernetes.Interface) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func waitUntilClusterIsRemoved(namespace string, client *kubernetes.Clientset) error {
+	ctx := context.TODO()
+	// Define the struct to unmarshal the response
+	var response struct {
+		APIVersion string                   `json:"apiVersion"`
+		Items      []map[string]interface{} `json:"items"`
+	}
+
+	sleep := 60
+	for i := 0; i <= 3; i++ {
+		// Perform the GET request to retrieve cluster information
+		res, err := client.RESTClient().Get().
+			AbsPath("/apis/cluster.x-k8s.io/v1beta1/namespaces/" + namespace + "/clusters").DoRaw(ctx)
+		if err != nil {
+			return err
+		}
+		// Unmarshal the response into the struct
+		err = json.Unmarshal(res, &response)
+		if err != nil {
+			return err
+		}
+		logrus.Infof("CLUSTER IS BEING DELETED IS: --------%v", len(response.Items))
+		if len(response.Items) >= 1 {
+			logrus.Infof("SLEEPING--------: --------%v", len(response.Items))
+			time.Sleep(time.Duration(sleep) * time.Second)
+			sleep *= 2
+			continue
+		} else {
+			logrus.Infof("EXITING THE LOOP---------: --------%v", len(response.Items))
+			break
+		}
+	}
+	return nil
 }

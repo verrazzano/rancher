@@ -517,9 +517,10 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 			if apierrors.IsNotFound(err) {
 				logrus.Infof("Cluster NAME NOT FOUND: ------%v", c.GetName())
 				break
+			} else {
+				logrus.Infof("In LOOP: ERROR: ------%v", c.GetName())
+				return err
 			}
-			logrus.Infof("In LOOP: ERROR: ------%v", c.GetName())
-			return err
 		}
 	}
 
