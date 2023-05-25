@@ -179,6 +179,7 @@ func removeNamespace(namespace string, client *kubernetes.Clientset) error {
 				return err
 			}
 		}
+
 		logrus.Infof("Deleting namespace: %v", ns.Name)
 		if !dryRun {
 			err = client.CoreV1().Namespaces().Delete(context.TODO(), namespace, metav1.DeleteOptions{})
