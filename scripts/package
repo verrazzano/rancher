@@ -26,7 +26,6 @@ fi
 echo "The value of CATTLE_DASHBOARD_TAR_URL is ${CATTLE_DASHBOARD_TAR_URL}"
 echo "The value of CATTLE_UI_TAR_URL IS ${CATTLE_UI_TAR_URL}"
 echo "The value of OCI_OCNE_DRIVER_VERSION is ${OCI_OCNE_DRIVER_VERSION}"
-echo "The value of OCI_OCNE_DRIVER_VERSION is ${OCI_OCNE_DRIVER_HASH}"
 
 # Compose build args for Rancher Docker image
 BUILD_ARGS="--build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH}"
@@ -38,9 +37,6 @@ if [ -n "${CATTLE_UI_TAR_URL}" ]; then
 fi
 if [ -n "${OCI_OCNE_DRIVER_VERSION}" ]; then
     BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_VERSION=${OCI_OCNE_DRIVER_VERSION}"
-fi
-if [ -n "${OCI_OCNE_DRIVER_HASH}" ]; then
-  BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_HASH=${OCI_OCNE_DRIVER_HASH}"
 fi
 
 docker build $BUILD_ARGS -t ${IMAGE} .
