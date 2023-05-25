@@ -505,20 +505,15 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	sleep := 60
 	for i := 0; i <= 3; i++ {
 		c, err := m.mgmt.Management.Clusters("").Get(o.GetName(), v1.GetOptions{})
-		logrus.Infof("CLUSTER NAME THAT IS BEING DELETED IS: --------%v", c.GetName())
 		if err != nil {
 			if apierrors.IsNotFound(err) {
-				logrus.Infof("Cluster NAME NOT FOUND: ------%v", c.GetName())
-				logrus.Infof("BREAKING THE LOOP------: ------%v", c.GetName())
+				logrus.Infof("Cluster not found:%v", c.GetName())
 				break
-			} else {
-				logrus.Infof("In LOOP: ERROR: ------%v", c.GetName())
-				return err
 			}
+			return err
 		}
-		logrus.Infof("SLEEPING-------------: --------%v", c.GetName())
+		logrus.Infof("Waiting for Cluster to be deleted..%v", c.GetName())
 		time.Sleep(time.Duration(sleep) * time.Second)
-		continue
 	}
 
 	if ns.Status.Phase != v12.NamespaceTerminating {
