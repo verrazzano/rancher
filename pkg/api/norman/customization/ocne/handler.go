@@ -13,9 +13,11 @@ import (
 )
 
 const (
-	cmNamespace   = "verrazzano-capi"
-	ocneCmName    = "ocne-metadata"
-	modulesCmName = "module-metadata"
+	capiNamespace              = "verrazzano-capi"
+	ocneCmName                 = "ocne-metadata"
+	verrazzanoCmName           = "verrazzano-meta"
+	verrazzanoInstallNamespace = "verrazzano-install"
+	modulesCmName              = "module-metadata"
 )
 
 type handler struct {
@@ -24,7 +26,7 @@ type handler struct {
 
 func NewHandler(scaledContext *config.ScaledContext) http.Handler {
 	return &handler{
-		configmapLister: scaledContext.Core.ConfigMaps(cmNamespace).Controller().Lister(),
+		configmapLister: scaledContext.Core.ConfigMaps(capiNamespace).Controller().Lister(),
 	}
 }
 
@@ -40,6 +42,8 @@ func (h *handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 
 	resource := mux.Vars(request)["resource"]
 	switch resource {
+	case "verrazzanoVersions":
+		handleRoute(writer, h.verrazzanoVersions)
 	case "ocneVersions":
 		handleRoute(writer, h.ocneVersions)
 	case "metadata":
@@ -47,9 +51,7 @@ func (h *handler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 			return h.metadata(ocneVersion)
 		})
 	case "modules":
-		handleRoute(writer, func() ([]byte, int, error) {
-			return h.modules()
-		})
+		handleRoute(writer, h.modules)
 	default:
 		writeError(writer, http.StatusNotFound, errors.New("Not Found"))
 	}

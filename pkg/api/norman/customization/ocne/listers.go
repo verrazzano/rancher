@@ -35,7 +35,7 @@ func (h *handler) loadVersionMapping() (map[string]Version, error) {
 }
 
 func (h *handler) getOCNEMetadataJSON() ([]byte, error) {
-	cm, err := h.configmapLister.Get(cmNamespace, ocneCmName)
+	cm, err := h.configmapLister.Get(capiNamespace, ocneCmName)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			return []byte("{}"), nil
@@ -51,7 +51,7 @@ func (h *handler) getOCNEMetadataJSON() ([]byte, error) {
 }
 
 func (h *handler) getModulesMetadataJSON() ([]byte, error) {
-	cm, err := h.configmapLister.Get(cmNamespace, modulesCmName)
+	cm, err := h.configmapLister.Get(capiNamespace, modulesCmName)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			return []byte("{}"), nil
@@ -64,6 +64,21 @@ func (h *handler) getModulesMetadataJSON() ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func (h *handler) verrazzanoVersions() ([]byte, int, error) {
+	cm, err := h.configmapLister.Get(verrazzanoInstallNamespace, verrazzanoCmName)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return []byte("[]"), http.StatusOK, nil
+		}
+		return nil, http.StatusInternalServerError, err
+	}
+	data, ok := cm.Data["verrazzano-versions"]
+	if !ok {
+		return []byte("[]"), http.StatusOK, nil
+	}
+	return []byte(data), http.StatusOK, nil
 }
 
 func (h *handler) metadata(ocneVersion string) ([]byte, int, error) {
