@@ -506,15 +506,15 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	pollDuration := 600 // Total poll duration in seconds
 	//  Polls to verify if the cluster exists every 10 seconds for a total duration of 10 minutes.
 	for i := 0; i < pollDuration/sleep; i++ {
-		c, err := m.mgmt.Wrangler.CAPI.Cluster().Get(o.GetName(), o.GetName(), v1.GetOptions{})
+		c, err := m.mgmt.Wrangler.CAPI.Cluster().Get(ns.Name, o.GetName(), v1.GetOptions{})
 		if err != nil {
 			if apierrors.IsNotFound(err) {
-				logrus.Infof("Cluster not found:%v/%v", c.GetName(), c.GetName())
+				logrus.Infof("Cluster not found:%v/%v", ns.Name, c.GetName())
 				break
 			}
 			return err
 		}
-		logrus.Infof("Waiting for Cluster to be deleted:%v/%v", c.GetName(), c.GetName())
+		logrus.Infof("Waiting for Cluster to be deleted:%v/%v", ns.Name, c.GetName())
 		time.Sleep(time.Duration(sleep) * time.Second)
 	}
 
