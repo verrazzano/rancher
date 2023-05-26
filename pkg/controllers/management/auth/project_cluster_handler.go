@@ -514,7 +514,7 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 			}
 			return err
 		}
-		logrus.Infof("Waiting for Cluster to be deleted..%v/%v", c.GetName(), c.GetName())
+		logrus.Infof("Waiting for Cluster to be deleted:%v/%v", c.GetName(), c.GetName())
 		time.Sleep(time.Duration(sleep) * time.Second)
 	}
 
