@@ -505,7 +505,7 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	sleep := 10         // sleep interval in seconds
 	pollDuration := 600 // Total poll duration in seconds
 	for i := 0; i < pollDuration/sleep; i++ {
-		c, err := m.mgmt.Wrangler.CAPI.Cluster().Get(o.GetNamespace(), o.GetName(), v1.GetOptions{})
+		c, err := m.mgmt.Wrangler.CAPI.Cluster().Get(o.GetName(), o.GetName(), v1.GetOptions{})
 		logrus.Infof("Cluster:%v/%v", o.GetName(), o.GetNamespace())
 		if err != nil {
 			if apierrors.IsNotFound(err) {
