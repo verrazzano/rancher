@@ -59,7 +59,7 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.8.3/kontainer-engine-driver-oke-linux",
 		"7bfde567e6d478f1da8d36531f765d348bff1cd3abe83c70ddf7766f46112170",
 		"",
-		false,
+		true,
 		"*.oraclecloud.com",
 	)
 
@@ -157,7 +157,7 @@ func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv str
 	if ingress.Annotations != nil {
 		if commonName, ok := ingress.Annotations["cert-manager.io/common-name"]; ok {
 			url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", commonName, name, version, name)
-			return c.addCustomDriver(fmt.Sprintf("%sengine", name), url, checksum, "", true, domains...)
+			return c.addCustomDriver(fmt.Sprintf("%sengine", name), url, checksum, "", false, domains...)
 		}
 	}
 
