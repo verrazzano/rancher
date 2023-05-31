@@ -157,7 +157,7 @@ func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv str
 	if ingress.Annotations != nil {
 		if commonName, ok := ingress.Annotations["cert-manager.io/common-name"]; ok {
 			url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", commonName, name, version, name)
-			return c.addCustomDriver(fmt.Sprintf("%sengine", name), url, checksum, "", true, domains...)
+			return c.addCustomDriver(fmt.Sprintf("%sengine", name), url, checksum, "", false, domains...)
 		}
 	}
 
@@ -197,7 +197,6 @@ func (c *driverCreator) addCustomDriver(name, url, checksum, uiURL string, activ
 	// do an update if the driver already exists
 	driver.Spec.URL = url
 	driver.Spec.BuiltIn = false
-	driver.Spec.Active = active
 	driver.Spec.Checksum = checksum
 	driver.Spec.UIURL = uiURL
 	driver.Spec.WhitelistDomains = domains
