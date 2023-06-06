@@ -35,6 +35,9 @@ ARG CATTLE_UI_TAR_URL=https://github.com/verrazzano/rancher-ui/releases/download
 # Specific version of OCI OCNE Driver
 ARG OCI_OCNE_DRIVER_VERSION=v0.2.0
 ARG OCI_OCNE_DRIVER_HASH="60cf8205a681a53ab73e6e9d125e741afa681b54cfd72d6c14e906d3e8b71f0c"
+# Specific version of OKE Driver
+ARG OKE_DRIVER_VERSION=v1.8.3
+ARG OKE_DRIVER_HASH="7bfde567e6d478f1da8d36531f765d348bff1cd3abe83c70ddf7766f46112170"
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
 ENV CATTLE_CHART_DEFAULT_BRANCH=release-v2.7
@@ -57,6 +60,10 @@ ENV OCI_OCNE_DRIVER_VERSION=$OCI_OCNE_DRIVER_VERSION
 ENV OCI_OCNE_DRIVER_HASH=$OCI_OCNE_DRIVER_HASH
 ENV OCI_OCNE_DRIVER_PATH=/var/lib/rancher-data/drivers/ociocne/$OCI_OCNE_DRIVER_VERSION
 ENV OCI_OCNE_DRIVER_BINARY=kontainer-engine-driver-ociocne-linux
+ENV OKE_DRIVER_VERSION=$OKE_DRIVER_VERSION
+ENV OKE_DRIVER_HASH=$OKE_DRIVER_HASH
+ENV OKE_DRIVER_PATH=/var/lib/rancher-data/drivers/oke/$OKE_DRIVER_VERSION
+ENV OKE_DRIVER_BINARY=kontainer-engine-driver-oke-linux
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=102.0.0+up0.6.0
@@ -74,6 +81,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/helm3-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/v2 && \
     mkdir -p $OCI_OCNE_DRIVER_PATH  && \
+    mkdir -p $OKE_DRIVER_PATH  && \
     # Set up the git 2.x environment variables so that it's on the path
     source /etc/profile.d/git.sh && \
     #
@@ -116,7 +124,10 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b master --depth 1 https://github.com/rancher/charts/ /var/lib/rancher-data/local-catalogs/library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library && \
     # Download the OCI OCNE Driver
-    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY}
+    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY} && \
+     # Download the OKE Driver
+    curl -sLf https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/${OKE_DRIVER_VERSION}/${OKE_DRIVER_BINARY} > ${OKE_DRIVER_PATH}/${OKE_DRIVER_BINARY}
+
 
 
 RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
