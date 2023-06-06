@@ -1,6 +1,7 @@
 package management
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -8,14 +9,13 @@ import (
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/controllers/management/drivers/kontainerdriver"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/rancher/rancher/pkg/namespace"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
-
-const RancherServiceName = "rancher"
 
 func addKontainerDrivers(management *config.ManagementContext) error {
 	// create binary drop location if not exists
@@ -141,8 +141,19 @@ func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv, dr
 		return nil
 	}
 
-	url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", RancherServiceName, name, version, name)
-	return c.addCustomDriver(fmt.Sprintf("%sengine", driverName), url, checksum, "", active, domains...)
+	ingress, err := c.k8s.NetworkingV1().Ingresses(namespace.System).Get(context.Background(), "rancher", v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if ingress.Annotations != nil {
+		if commonName, ok := ingress.Annotations["cert-manager.io/common-name"]; ok {
+			url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", commonName, name, version, name)
+			return c.addCustomDriver(fmt.Sprintf("%sengine", driverName), url, checksum, "", active, domains...)
+		}
+	}
+
+	return fmt.Errorf("failed to create hosted driver, %s/rancher ingress not ready", namespace.System)
 }
 
 func (c *driverCreator) addCustomDriver(name, url, checksum, uiURL string, active bool, domains ...string) error {
