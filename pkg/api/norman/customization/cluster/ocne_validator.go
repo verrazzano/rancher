@@ -4,7 +4,6 @@
 package cluster
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/oracle/oci-go-sdk/v53/common"
@@ -72,7 +71,6 @@ var BadRequest = httperror.ErrorCode{
 }
 
 func (v *Validator) ValidateOCNE(ocneConfig map[string]interface{}) error {
-	ctx := context.TODO()
 	o, err := getOCNEConfig(ocneConfig)
 	if err != nil {
 		return err
@@ -83,18 +81,6 @@ func (v *Validator) ValidateOCNE(ocneConfig map[string]interface{}) error {
 
 	errorChannel := make(chan error)
 	validators := []func(){
-		func() {
-			v.validateVCNId(ctx, errorChannel, o)
-		},
-		func() {
-			v.validateSubnet(ctx, errorChannel, o, o.ControlPlaneSubnet, "controlPlaneSubnet")
-		},
-		func() {
-			v.validateSubnet(ctx, errorChannel, o, o.LoadBalancerSubnet, "loadBalancerSubnet")
-		},
-		func() {
-			v.validateSubnet(ctx, errorChannel, o, o.WorkerNodeSubnet, "workerNodeSubnet")
-		},
 		func() {
 			v.validateVerrazzano(errorChannel, o)
 		},
@@ -150,38 +136,6 @@ func (v *Validator) validateOCNECredentials(o *OCNEConfig) error {
 		return httperror.NewAPIError(httperror.NotFound, fmt.Sprintf("invalid credentials for id: %s", o.CloudCredentialID))
 	}
 	return o.setOCIClients(cc)
-}
-
-func (v *Validator) validateVCNId(ctx context.Context, errorChannel chan error, o *OCNEConfig) {
-	if !o.isQuickCreateNetworking() {
-		// if not using quick create, vcn id must be present
-		if o.VcnID == "" {
-			errorChannel <- httperror.NewAPIError(BadRequest, "vcnId is required")
-			return
-		}
-		if _, err := o.net.GetVcn(ctx, core.GetVcnRequest{
-			VcnId: &o.VcnID,
-		}); err != nil {
-			errorChannel <- httperror.NewAPIError(httperror.NotFound, fmt.Sprintf("invalid VCN OCID: %s", o.VcnID))
-			return
-		}
-	}
-	errorChannel <- nil
-}
-
-func (v *Validator) validateSubnet(ctx context.Context, errorChannel chan error, o *OCNEConfig, subnetId, subnetType string) {
-	if !o.isQuickCreateNetworking() {
-		if subnetId == "" {
-			errorChannel <- httperror.NewAPIError(BadRequest, fmt.Sprintf("%s is required", subnetType))
-			return
-		}
-		if _, err := o.net.GetSubnet(ctx, core.GetSubnetRequest{
-			SubnetId: &subnetId,
-		}); err != nil {
-			errorChannel <- httperror.NewAPIError(httperror.NotFound, fmt.Sprintf("invalid %s: %s", subnetType, subnetId))
-		}
-	}
-	errorChannel <- nil
 }
 
 func (v *Validator) validateVerrazzano(errorChannel chan error, o *OCNEConfig) {
