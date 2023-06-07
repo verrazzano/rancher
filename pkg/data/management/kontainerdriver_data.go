@@ -50,11 +50,11 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		return err
 	}
 
-	if err := creator.addHostedDriverFromEnv("ociocne", "OCI_OCNE_DRIVER_VERSION", "OCI_OCNE_DRIVER_HASH", "ociocne", false); err != nil {
+	if err := creator.addHostedDriverFromEnv("ociocne", "OCI_OCNE_DRIVER_VERSION", "OCI_OCNE_DRIVER_HASH", "ociocneengine", false); err != nil {
 		return err
 	}
 
-	return creator.addHostedDriverFromEnv("oke", "OKE_DRIVER_VERSION", "OKE_DRIVER_HASH", "oraclecontainer", true, "*.oraclecloud.com")
+	return creator.addHostedDriverFromEnv("oke", "OKE_DRIVER_VERSION", "OKE_DRIVER_HASH", "oraclecontainerengine", true, "*.oraclecloud.com")
 }
 
 func cleanupImportDriver(creator driverCreator) error {
@@ -149,7 +149,7 @@ func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv, dr
 	if ingress.Annotations != nil {
 		if commonName, ok := ingress.Annotations["cert-manager.io/common-name"]; ok {
 			url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", commonName, name, version, name)
-			return c.addCustomDriver(fmt.Sprintf("%sengine", driverName), url, checksum, "", active, domains...)
+			return c.addCustomDriver(driverName, url, checksum, "", active, domains...)
 		}
 	}
 
