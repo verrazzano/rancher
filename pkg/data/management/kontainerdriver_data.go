@@ -50,19 +50,11 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		return err
 	}
 
-	if err := creator.addHostedDriverFromEnv("ociocne", "OCI_OCNE_DRIVER_VERSION", "OCI_OCNE_DRIVER_HASH"); err != nil {
+	if err := creator.addHostedDriverFromEnv("ociocne", "OCI_OCNE_DRIVER_VERSION", "OCI_OCNE_DRIVER_HASH", "ociocneengine", false); err != nil {
 		return err
 	}
 
-	return creator.addCustomDriver(
-		"oraclecontainerengine",
-		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.8.3/kontainer-engine-driver-oke-linux",
-		"7bfde567e6d478f1da8d36531f765d348bff1cd3abe83c70ddf7766f46112170",
-		"",
-		true,
-		"*.oraclecloud.com",
-	)
-
+	return creator.addHostedDriverFromEnv("oke", "OKE_DRIVER_VERSION", "OKE_DRIVER_HASH", "oraclecontainerengine", true, "*.oraclecloud.com")
 }
 
 func cleanupImportDriver(creator driverCreator) error {
@@ -141,7 +133,7 @@ func (c *driverCreator) add(name string) error {
 	return nil
 }
 
-func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv string, domains ...string) error {
+func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv, driverName string, active bool, domains ...string) error {
 	version := os.Getenv(versionEnv)
 	checksum := os.Getenv(checksumEnv)
 	// don't add driver if not present in environment
@@ -157,7 +149,7 @@ func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv str
 	if ingress.Annotations != nil {
 		if commonName, ok := ingress.Annotations["cert-manager.io/common-name"]; ok {
 			url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", commonName, name, version, name)
-			return c.addCustomDriver(fmt.Sprintf("%sengine", name), url, checksum, "", false, domains...)
+			return c.addCustomDriver(driverName, url, checksum, "", active, domains...)
 		}
 	}
 
