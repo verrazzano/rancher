@@ -54,7 +54,7 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		return err
 	}
 
-	return creator.addHostedDriverFromEnv("oke", "OKE_DRIVER_VERSION", "OKE_DRIVER_HASH", "oraclecontainerengine", true, "*.oraclecloud.com")
+	return creator.addHostedDriverFromEnv("oke", "OKE_DRIVER_VERSION", "OKE_DRIVER_HASH", "oraclecontainer", true, "*.oraclecloud.com")
 }
 
 func cleanupImportDriver(creator driverCreator) error {
