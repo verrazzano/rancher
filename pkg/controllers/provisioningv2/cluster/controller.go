@@ -176,11 +176,17 @@ func (h *handler) generateProvisioningClusterFromLegacyCluster(cluster *v3.Clust
 	if !h.isLegacyCluster(cluster) || cluster.Spec.FleetWorkspaceName == "" {
 		return nil, status, nil
 	}
+
+	namespace := fleetconst.ClustersDefaultNamespace
+	if cluster.Spec.FleetWorkspaceName != "" {
+		namespace = cluster.Spec.FleetWorkspaceName
+	}
+
 	return []runtime.Object{
 		&v1.Cluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:        cluster.Name,
-				Namespace:   cluster.Spec.FleetWorkspaceName,
+				Namespace:   namespace,
 				Labels:      yaml.CleanAnnotationsForExport(cluster.Labels),
 				Annotations: yaml.CleanAnnotationsForExport(cluster.Annotations),
 			},
