@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"k8s.io/kubernetes/pkg/apis/core"
 	"reflect"
 	"strings"
 	"time"
@@ -502,7 +501,7 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	if apierrors.IsNotFound(err) {
 		return nil
 	}
-	
+
 	if err := m.cleanupCAPICluster(ns, o); err != nil {
 		return err
 	}
@@ -517,7 +516,7 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	return err
 }
 
-func (m *mgr) cleanupCAPICluster(ns *core.Namespace, o v1.Object) error {
+func (m *mgr) cleanupCAPICluster(ns *v12.Namespace, o v1.Object) error {
 	err := m.mgmt.Wrangler.CAPI.Cluster().Delete(ns.Name, o.GetName(), &v1.DeleteOptions{})
 	if err != nil && !apierrors.IsNotFound(err) {
 		return err
