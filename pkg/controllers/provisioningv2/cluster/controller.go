@@ -173,7 +173,7 @@ func (h *handler) isLegacyCluster(cluster interface{}) bool {
 // cluster FleetWorkspaceName is empty or if the cluster name does not match (c-XXXXX|local) where XXXXX is a random
 // string of characters.
 func (h *handler) generateProvisioningClusterFromLegacyCluster(cluster *v3.Cluster, status v3.ClusterStatus) ([]runtime.Object, v3.ClusterStatus, error) {
-	if !h.isLegacyCluster(cluster) || cluster.Spec.FleetWorkspaceName == "" {
+	if !h.isLegacyCluster(cluster) {
 		return nil, status, nil
 	}
 
