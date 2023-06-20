@@ -1,7 +1,6 @@
 package image
 
 import (
-	"fmt"
 	"path"
 	"strings"
 
@@ -20,13 +19,7 @@ func ResolveWithCluster(image string, cluster *v1.Cluster) string {
 }
 
 func resolve(reg, image string) string {
-	fmt.Println(fmt.Sprintf("provisioning2.resolve: reg: %s, image: %s", reg, image))
 	if reg != "" && !strings.HasPrefix(image, reg) {
-		////Images from Dockerhub Library repo, we add rancher prefix when using private registry
-		//if !strings.Contains(image, "/") {
-		//	image = "rancher/" + image
-		//}
-		//return path.Join(reg, image)
 		/*
 			Separating the image from the default registry url through split
 			Ex:
@@ -43,9 +36,7 @@ func resolve(reg, image string) string {
 		*/
 		imageSplit := strings.SplitN(image, "/", 2)
 		//Concatenating only the image name with the private registry url.
-		imagePath := path.Join(reg, imageSplit[1])
-		fmt.Println(fmt.Sprintf("provisioning2.resolve: imagePath: %s", imagePath))
-		return imagePath
+		return path.Join(reg, imageSplit[1])
 	}
 
 	return image

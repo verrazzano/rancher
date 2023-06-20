@@ -44,7 +44,6 @@ func Resolve(image string) string {
 
 func ResolveWithCluster(image string, cluster *v3.Cluster) string {
 	reg := util.GetPrivateRegistryURL(cluster)
-	fmt.Println(fmt.Sprintf("resolve: reg: %s, image: %s", reg, image))
 	if reg != "" && !strings.HasPrefix(image, reg) {
 		/*
 			Separating the image from the default registry url through split
@@ -62,9 +61,7 @@ func ResolveWithCluster(image string, cluster *v3.Cluster) string {
 		*/
 		imageSplit := strings.SplitN(image, "/", 2)
 		//Concatenating only the image name with the private registry url.
-		imagePath := path.Join(reg, imageSplit[1])
-		fmt.Println(fmt.Sprintf("provisioning2.resolve: imagePath: %s", imagePath))
-		return imagePath
+		return path.Join(reg, imageSplit[1])
 	}
 	return image
 }
