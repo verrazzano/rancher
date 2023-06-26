@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"context"
+	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	"regexp"
 	"strconv"
 
@@ -46,6 +47,9 @@ var (
 )
 
 type handler struct {
+	capiClustersCache capicontrollers.ClusterCache
+	capiClusters      capicontrollers.ClusterClient
+	capiMachinesCache capicontrollers.MachineCache
 	mgmtClusterCache  mgmtcontrollers.ClusterCache
 	mgmtClusters      mgmtcontrollers.ClusterController
 	clusterTokenCache mgmtcontrollers.ClusterRegistrationTokenCache
@@ -54,6 +58,7 @@ type handler struct {
 	featureClient     mgmtcontrollers.FeatureClient
 	clusters          rocontrollers.ClusterController
 	clusterCache      rocontrollers.ClusterCache
+
 	secretCache       corecontrollers.SecretCache
 	kubeconfigManager *kubeconfig.Manager
 	apply             apply.Apply
@@ -71,6 +76,9 @@ func Register(
 		featureClient:     clients.Mgmt.Feature(),
 		clusters:          clients.Provisioning.Cluster(),
 		clusterCache:      clients.Provisioning.Cluster().Cache(),
+		capiClustersCache: clients.CAPI.Cluster().Cache(),
+		capiClusters:      clients.CAPI.Cluster(),
+		capiMachinesCache: clients.CAPI.Machine().Cache(),
 		secretCache:       clients.Core.Secret().Cache(),
 		kubeconfigManager: kubeconfig.New(clients),
 		apply: clients.Apply.WithCacheTypes(

@@ -2,6 +2,8 @@ package cluster
 
 import (
 	"fmt"
+	"k8s.io/apimachinery/pkg/labels"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	"time"
 
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
@@ -84,6 +86,34 @@ func (h *handler) doClusterRemove(cluster *v1.Cluster) func() (string, error) {
 					}
 				}
 			}
+		}
+
+		capiCluster, capiClusterErr := h.capiClustersCache.Get(cluster.Namespace, cluster.Name)
+		if capiClusterErr != nil && !apierrors.IsNotFound(capiClusterErr) {
+			return "", capiClusterErr
+		}
+
+		if capiCluster != nil {
+			if capiCluster.DeletionTimestamp == nil {
+				// Deleting the CAPI cluster will start the process of deleting Machines, Bootstraps, etc.
+				if err := h.capiClusters.Delete(capiCluster.Namespace, capiCluster.Name, &metav1.DeleteOptions{}); err != nil && !apierrors.IsNotFound(err) {
+					return "", err
+				}
+			}
+		}
+
+		machines, err := h.capiMachinesCache.List(cluster.Namespace, labels.SelectorFromSet(labels.Set{capi.ClusterLabelName: cluster.Name}))
+		if err != nil {
+			return "", err
+		}
+
+		// Machines will delete first so report their status, if any exist.
+		if len(machines) > 0 {
+			return rke2.GetMachineDeletionStatus(machines)
+		}
+
+		if capiClusterErr == nil {
+			return fmt.Sprintf("waiting for cluster-api cluster [%s] to delete", cluster.Name), nil
 		}
 
 		return "", h.kubeconfigManager.DeleteUser(cluster.Namespace, cluster.Name)
