@@ -502,7 +502,7 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 		return nil
 	}
 
-	if err := m.cleanupCAPICluster(ns, o); err != nil {
+	if err := m.waitForCAPIClusterDeletion(ns, o); err != nil {
 		return err
 	}
 
@@ -516,7 +516,7 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 	return err
 }
 
-func (m *mgr) cleanupCAPICluster(ns *v12.Namespace, o v1.Object) error {
+func (m *mgr) waitForCAPIClusterDeletion(ns *v12.Namespace, o v1.Object) error {
 	for {
 		c, err := m.mgmt.Wrangler.CAPI.Cluster().Get(ns.Name, o.GetName(), v1.GetOptions{})
 		if err != nil {
