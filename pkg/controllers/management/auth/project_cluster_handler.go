@@ -502,6 +502,10 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 		return nil
 	}
 
+	if err := m.cleanupCAPICluster(ns, o); err != nil {
+		return err
+	}
+
 	if ns.Status.Phase != v12.NamespaceTerminating {
 		logrus.Infof("[%v] Deleting namespace %v", controller, o.GetName())
 		err = nsClient.Delete(context.TODO(), o.GetName(), v1.DeleteOptions{})
@@ -510,6 +514,22 @@ func (m *mgr) deleteNamespace(obj runtime.Object, controller string) error {
 		}
 	}
 	return err
+}
+
+func (m *mgr) cleanupCAPICluster(ns *v12.Namespace, o v1.Object) error {
+	for {
+		c, err := m.mgmt.Wrangler.CAPI.Cluster().Get(ns.Name, o.GetName(), v1.GetOptions{})
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				logrus.Infof("No CAPI Cluster for: %v/%v", ns.Name)
+				break
+			}
+			return err
+		}
+		logrus.Infof("Waiting for Cluster to be deleted: %v/%v", ns.Name, c.GetName())
+		time.Sleep(time.Duration(10) * time.Second)
+	}
+	return nil
 }
 
 func (m *mgr) reconcileResourceToNamespace(obj runtime.Object, controller string) (runtime.Object, error) {
