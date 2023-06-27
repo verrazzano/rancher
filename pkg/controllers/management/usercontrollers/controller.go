@@ -10,6 +10,7 @@ import (
 	"github.com/rancher/rancher/pkg/controllers/managementagent/nslabels"
 	"github.com/rancher/rancher/pkg/controllers/managementuserlegacy/helm"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/rancher/rancher/pkg/image"
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
@@ -169,7 +170,7 @@ func (c *ClusterLifecycleCleanup) cleanupImportedCluster(cluster *v3.Cluster) er
 		return err
 	}
 
-	job, err := c.createCleanupJob(userContext, sa.Name)
+	job, err := c.createCleanupJob(userContext, sa.Name, cluster)
 	if err != nil {
 		return err
 	}
@@ -286,7 +287,7 @@ func (c *ClusterLifecycleCleanup) createCleanupClusterRoleBinding(
 	return userContext.K8sClient.RbacV1().ClusterRoleBindings().Create(context.TODO(), &clusterRoleBinding, metav1.CreateOptions{})
 }
 
-func (c *ClusterLifecycleCleanup) createCleanupJob(userContext *config.UserContext, sa string) (*batchV1.Job, error) {
+func (c *ClusterLifecycleCleanup) createCleanupJob(userContext *config.UserContext, sa string, cluster *v3.Cluster) (*batchV1.Job, error) {
 	meta := metav1.ObjectMeta{
 		GenerateName: "cattle-cleanup-",
 		Namespace:    "default",
@@ -302,7 +303,7 @@ func (c *ClusterLifecycleCleanup) createCleanupJob(userContext *config.UserConte
 					Containers: []coreV1.Container{
 						coreV1.Container{
 							Name:  "cleanup-agent",
-							Image: settings.AgentImage.Get(),
+							Image: image.ResolveWithCluster(settings.AgentImage.Get(), cluster),
 							Env: []coreV1.EnvVar{
 								coreV1.EnvVar{
 									Name:  "CLUSTER_CLEANUP",
