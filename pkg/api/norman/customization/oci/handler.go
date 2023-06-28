@@ -37,10 +37,12 @@ type Credentials struct {
 
 // Cloud Credential Secret Fields
 var requiredDataFields = map[string]string{
-	"fingerprint":        "ocicredentialConfig-fingerprint",
-	"tenancyId":          "ocicredentialConfig-tenancyId",
-	"userId":             "ocicredentialConfig-userId",
-	"privateKeyContents": "ocicredentialConfig-privateKeyContents",
+	"fingerprint":          "ocicredentialConfig-fingerprint",
+	"tenancyId":            "ocicredentialConfig-tenancyId",
+	"userId":               "ocicredentialConfig-userId",
+	"privateKeyContents":   "ocicredentialConfig-privateKeyContents",
+	"privateKeyPassphrase": "ocicredentialConfig-passphrase",
+	"region":               "ocicredentialConfig-region",
 }
 
 type handler struct {
@@ -204,6 +206,8 @@ func (handler *handler) extractCreds(req *http.Request, creds *Credentials) (int
 		region := req.URL.Query().Get("region")
 		if region != "" {
 			creds.Region = region
+		} else {
+			creds.Region = string(cc.Data[requiredDataFields["region"]])
 		}
 		compartment := req.URL.Query().Get("compartment")
 		if compartment != "" {
