@@ -9,6 +9,7 @@ import (
 	"github.com/oracle/oci-go-sdk/v53/common"
 	"github.com/oracle/oci-go-sdk/v53/core"
 	"github.com/rancher/norman/httperror"
+	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -17,40 +18,47 @@ import (
 )
 
 type OCNEConfig struct {
-	CalicoImagePath       string   `json:"calicoImagePath"`
-	CalicoImageRegistry   string   `json:"calicoImageRegistry"`
-	CcmImage              string   `json:"ccmImage"`
+	ApplyYamls            []string `json:"applyYamls"`
 	CloudCredentialID     string   `json:"cloudCredentialId"`
 	ClusterCidr           string   `json:"clusterCidr"`
+	ClusterName           string   `json:"clusterName"`
+	CnePath               string   `json:"cnePath"`
 	CompartmentID         string   `json:"compartmentId"`
 	ControlPlaneMemoryGbs int      `json:"controlPlaneMemoryGbs"`
 	ControlPlaneOcpus     int      `json:"controlPlaneOcpus"`
-	ControlPlaneRegistry  string   `json:"controlPlaneRegistry"`
 	ControlPlaneShape     string   `json:"controlPlaneShape"`
 	ControlPlaneSubnet    string   `json:"controlPlaneSubnet"`
 	ControlPlaneVolumeGbs int      `json:"controlPlaneVolumeGbs"`
-	CsiRegistry           string   `json:"csiRegistry"`
+	CorednsImageTag       string   `json:"corednsImageTag"`
 	DisplayName           string   `json:"displayName"`
 	DriverName            string   `json:"driverName"`
+	EtcdImageTag          string   `json:"etcdImageTag"`
 	ImageDisplayName      string   `json:"imageDisplayName"`
+	ImageID               string   `json:"imageId"`
 	InstallCalico         bool     `json:"installCalico"`
 	InstallCcm            bool     `json:"installCcm"`
-	InstallCsi            bool     `json:"installCsi"`
 	InstallVerrazzano     bool     `json:"installVerrazzano"`
 	KubernetesVersion     string   `json:"kubernetesVersion"`
 	LoadBalancerSubnet    string   `json:"loadBalancerSubnet"`
 	Name                  string   `json:"name"`
 	NodePools             []string `json:"nodePools"`
 	NodePublicKeyContents string   `json:"nodePublicKeyContents"`
+	NodeShape             string   `json:"nodeShape"`
 	NumControlPlaneNodes  int      `json:"numControlPlaneNodes"`
-	OciCsiImage           string   `json:"ociCsiImage"`
+	NumWorkerNodes        int      `json:"numWorkerNodes"`
+	OcneVersion           string   `json:"ocneVersion"`
 	PodCidr               string   `json:"podCidr"`
+	PrivateRegistry       string   `json:"privateRegistry"`
 	ProxyEndpoint         string   `json:"proxyEndpoint"`
 	Region                string   `json:"region"`
+	SkipOcneInstall       bool     `json:"skipOcneInstall"`
+	TigeraImageTag        string   `json:"tigeraImageTag"`
+	Type                  string   `json:"type"`
 	UseNodePvEncryption   bool     `json:"useNodePvEncryption"`
 	VcnID                 string   `json:"vcnId"`
-	VerrazzanoImage       string   `json:"verrazzanoImage"`
 	VerrazzanoResource    string   `json:"verrazzanoResource"`
+	VerrazzanoTag         string   `json:"verrazzanoTag"`
+	VerrazzanoVersion     string   `json:"verrazzanoVersion"`
 	WorkerNodeSubnet      string   `json:"workerNodeSubnet"`
 
 	net *core.VirtualNetworkClient
@@ -86,6 +94,9 @@ func (v *Validator) ValidateOCNE(ocneConfig map[string]interface{}) error {
 		},
 		func() {
 			v.validateOCNECluster(errorChannel, o)
+		},
+		func() {
+			v.validateAdditionalYAMLs(errorChannel, o)
 		},
 	}
 
@@ -237,10 +248,6 @@ func (v *Validator) validateControlPlane(o *OCNEConfig) error {
 	return nil
 }
 
-func (o *OCNEConfig) isQuickCreateNetworking() bool {
-	return o.VcnID == "" && o.LoadBalancerSubnet == "" && o.ControlPlaneSubnet == "" && o.WorkerNodeSubnet == ""
-}
-
 func (o *OCNEConfig) setOCIClients(cc *v1.Secret) error {
 	user := string(cc.Data["ocicredentialConfig-userId"])
 	fingerprint := string(cc.Data["ocicredentialConfig-fingerprint"])
@@ -278,4 +285,16 @@ func unmarshallNodePools(serialized []string) ([]NodePool, error) {
 	}
 
 	return nodePools, nil
+}
+
+func (v *Validator) validateAdditionalYAMLs(errorChannel chan error, o *OCNEConfig) {
+	for _, y := range o.ApplyYamls {
+		u := &unstructured.Unstructured{}
+		err := yaml.Unmarshal([]byte(y), u)
+		if err != nil {
+			errorChannel <- httperror.NewAPIError(BadRequest, "Verify Additional Cluster YAMLs are valid YAML.")
+			return
+		}
+	}
+	errorChannel <- nil
 }
