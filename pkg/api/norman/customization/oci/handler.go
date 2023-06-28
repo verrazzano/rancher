@@ -37,10 +37,11 @@ type Credentials struct {
 
 // Cloud Credential Secret Fields
 var requiredDataFields = map[string]string{
-	"fingerprint":        "ocicredentialConfig-fingerprint",
-	"tenancyId":          "ocicredentialConfig-tenancyId",
-	"userId":             "ocicredentialConfig-userId",
-	"privateKeyContents": "ocicredentialConfig-privateKeyContents",
+	"fingerprint":          "ocicredentialConfig-fingerprint",
+	"tenancyId":            "ocicredentialConfig-tenancyId",
+	"userId":               "ocicredentialConfig-userId",
+	"privateKeyContents":   "ocicredentialConfig-privateKeyContents",
+	"privateKeyPassphrase": "ocicredentialConfig-passphrase",
 }
 
 type handler struct {
