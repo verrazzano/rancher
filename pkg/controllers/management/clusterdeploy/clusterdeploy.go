@@ -219,6 +219,7 @@ func redeployAgent(cluster *apimgmtv3.Cluster, desiredAgent, desiredAuth string,
 	}
 
 	na, ca := getAgentImages(cluster.Name)
+	logrus.Infof("About to check if redeploy necessary.  na = [%s], ca = [%s], cluster.Status.AgentImage = [%s]", na, ca, cluster.Status.AgentImage)
 	if (cluster.Status.AgentImage != na && cluster.Status.Driver == apimgmtv3.ClusterDriverRKE) || cluster.Status.AgentImage != ca {
 		// downstream agent does not match, kick a redeploy with settings agent
 		logrus.Infof("clusterDeploy: redeployAgent: redeploy Rancher agents due to downstream agent image mismatch for [%s]: was [%s] and will be [%s]",
