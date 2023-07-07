@@ -263,12 +263,20 @@ func PlanSecretFromBootstrapName(bootstrapName string) string {
 }
 
 func DoRemoveAndUpdateStatus(obj metav1.Object, doRemove func() (string, error), enqueueAfter func(string, string, time.Duration)) error {
-	if !Deleting.IsTrue(obj) || !Waiting.IsTrue(obj) || !Pending.IsTrue(obj) {
+	Deleting.SetStatus(obj, "True")
+	Deleting.SetStatusBool(obj, true)
+	Deleting.Reason(obj, "")
+	Deleting.Message(obj, "")
+	if !Provisioned.IsTrue(obj) || !Waiting.IsTrue(obj) || !Pending.IsTrue(obj) {
 		// Ensure the Removed obj appears in the UI.
 		Waiting.SetStatus(obj, "True")
 		Pending.SetStatus(obj, "True")
-		Deleting.SetStatus(obj, "True")
+		Provisioned.SetStatus(obj, "True")
 	}
+	Deleting.SetStatus(obj, "True")
+	Deleting.SetStatusBool(obj, true)
+	Deleting.Reason(obj, "")
+	Deleting.Message(obj, "")
 	message, err := doRemove()
 	if errors.Is(err, generic.ErrSkip) {
 		// If generic.ErrSkip is returned, we don't want to update the status.

@@ -14,6 +14,10 @@ import (
 )
 
 func (h *handler) OnMgmtClusterRemove(_ string, cluster *v3.Cluster) (*v3.Cluster, error) {
+	rke2.Deleting.SetStatus(cluster, "True")
+	rke2.Deleting.SetStatusBool(cluster, true)
+	rke2.Deleting.Reason(cluster, "")
+	rke2.Deleting.Message(cluster, "")
 	provisioningClusters, err := h.clusterCache.GetByIndex(ByCluster, cluster.Name)
 	if err != nil {
 		return nil, err
