@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"fmt"
+	"github.com/rancher/wrangler/pkg/genericcondition"
 	"time"
 
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
@@ -46,7 +47,16 @@ func (h *handler) OnMgmtClusterRemove(_ string, cluster *v3.Cluster) (*v3.Cluste
 func (h *handler) OnClusterRemove(_ string, cluster *v1.Cluster) (*v1.Cluster, error) {
 	oldStatus := cluster.Status
 	cluster = cluster.DeepCopy()
-
+	// set status as "Deleting"
+	rke2.Deleting.SetStatus(cluster, "True")
+	rke2.Deleting.SetStatusBool(cluster, true)
+	rke2.Deleting.Reason(cluster, "")
+	rke2.Deleting.Message(cluster, "")
+	newCond := genericcondition.GenericCondition{
+		Type:   "Deleting",
+		Status: "True",
+	}
+	cluster.Status.Conditions = append(cluster.Status.Conditions, newCond)
 	err := rke2.DoRemoveAndUpdateStatus(cluster, h.doClusterRemove(cluster), h.clusters.EnqueueAfter)
 
 	if equality.Semantic.DeepEqual(oldStatus, cluster.Status) {
