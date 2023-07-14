@@ -277,6 +277,20 @@ func (r *refresher) refreshAttributes(attribs *v3.UserAttribute) (*v3.UserAttrib
 			}
 			userPrincipal, err := providers.GetPrincipal(principalID, token)
 			if err != nil {
+				// If the token is no longer valid, delete the token
+				if strings.Contains(err.Error(), "Token is not active") ||
+					strings.Contains(err.Error(), "Session not active") ||
+					strings.Contains(err.Error(), "invalid token") {
+					logrus.Infof("Deleting the inactive token")
+					err := r.tokens.Delete(token.Name, &metav1.DeleteOptions{})
+					if err != nil {
+						if !apierrors.IsNotFound(err) {
+							return nil, err
+						}
+					}
+					logrus.Infof("Deleted the inactive token successfully")
+					return attribs, nil
+				}
 				return nil, err
 			}
 			userExtraInfo := providers.GetUserExtraAttributes(providerName, userPrincipal)
