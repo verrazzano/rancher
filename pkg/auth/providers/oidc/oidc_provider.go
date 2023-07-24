@@ -400,6 +400,11 @@ func (o *OpenIDCProvider) getUserInfo(ctx *context.Context, config *v32.OIDCConf
 	}
 	reusedToken, err := oauth2.ReuseTokenSource(oauth2Token, oauthConfig.TokenSource(updatedContext, oauth2Token)).Token()
 	if err != nil {
+		if strings.Contains(err.Error(), "Token is not active") ||
+			strings.Contains(err.Error(), "Session not active") ||
+			strings.Contains(err.Error(), "invalid token") {
+			err = errors.Errorf("Session no longer active. Igonore the error")
+		}
 		return userInfo, oauth2Token, err
 	}
 	if !reflect.DeepEqual(oauth2Token, reusedToken) {
