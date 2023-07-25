@@ -108,6 +108,20 @@ rules:
 
 ---
 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cattle-cluster-agent
+  namespace: cattle-system
+spec:
+  podSelector:
+    matchLabels:
+      app: cattle-cluster-agent
+  policyTypes:
+    - Ingress
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
