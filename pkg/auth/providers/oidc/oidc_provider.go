@@ -403,7 +403,7 @@ func (o *OpenIDCProvider) getUserInfo(ctx *context.Context, config *v32.OIDCConf
 		if strings.Contains(err.Error(), "Token is not active") ||
 			strings.Contains(err.Error(), "Session not active") ||
 			strings.Contains(err.Error(), "invalid token") {
-			err = errors.Errorf("Session no longer active. Igonore the error")
+			err = errors.Errorf("Session no longer active. Ignore the error")
 		}
 		return userInfo, oauth2Token, err
 	}
