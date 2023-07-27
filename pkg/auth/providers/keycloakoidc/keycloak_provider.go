@@ -3,6 +3,7 @@ package keycloakoidc
 import (
 	"context"
 	"encoding/json"
+	"github.com/rancher/rancher/pkg/auth/util"
 	"reflect"
 	"strings"
 
@@ -64,12 +65,7 @@ func (k *keyCloakOIDCProvider) newClient(config *v32.OIDCConfig, token v3.Token)
 	// get, refresh and update token
 	oauthToken, err := k.getRefreshAndUpdateToken(ctx, oauthConfig, token)
 	if err != nil {
-		if strings.Contains(err.Error(), "Token is not active") ||
-			strings.Contains(err.Error(), "Session not active") ||
-			strings.Contains(err.Error(), "invalid token") {
-			err = errors.Errorf("Session no longer active. Ignore the error")
-		}
-		return nil, err
+		return nil, util.ModifyErrorForInactiveSession(err)
 	}
 	keyCloakClient := &KeyCloakClient{
 		httpClient: oauthConfig.Client(ctx, oauthToken),

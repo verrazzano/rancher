@@ -2,8 +2,10 @@ package util
 
 import (
 	"encoding/json"
+	"github.com/pkg/errors"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -25,6 +27,16 @@ func ReturnHTTPError(w http.ResponseWriter, r *http.Request, httpStatus int, err
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
 	enc.Encode(err)
+}
+
+// ModifyErrorForInactiveSession modifies the error message for inactive token or session error
+func ModifyErrorForInactiveSession(err error) error {
+	if strings.Contains(err.Error(), "Token is not active") ||
+		strings.Contains(err.Error(), "Session not active") ||
+		strings.Contains(err.Error(), "invalid token") {
+		return errors.Errorf("Session is not active, token refresh will be retried")
+	}
+	return err
 }
 
 func GetHTTPErrorCode(httpStatus int) string {
