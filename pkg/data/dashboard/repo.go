@@ -4,13 +4,10 @@ import (
 	"context"
 	"strings"
 
-	"github.com/rancher/rancher/pkg/features"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-
-	"github.com/rancher/rancher/pkg/settings"
-
 	v1 "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
+	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/wrangler"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -42,15 +39,5 @@ func addRepos(ctx context.Context, wrangler *wrangler.Context) error {
 	if err := addRepo(wrangler, "rancher-charts", settings.ChartDefaultBranch.Get()); err != nil {
 		return err
 	}
-	if err := addRepo(wrangler, "rancher-partner-charts", settings.PartnerChartDefaultBranch.Get()); err != nil {
-		return err
-	}
-
-	if features.RKE2.Enabled() {
-		if err := addRepo(wrangler, "rancher-rke2-charts", settings.RKE2ChartDefaultBranch.Get()); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
