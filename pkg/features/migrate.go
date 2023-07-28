@@ -31,10 +31,6 @@ func MigrateFeatures(featuresClient managementv3.FeatureClient, crdClient v1.Cus
 			if err := enableMCMIfPreviouslyEnabled(&feature, featuresClient, crdClient); err != nil {
 				return err
 			}
-		case RKE2.Name():
-			if err := enableRKE2IfClustersExist(&feature, featuresClient, mgmtClusterClient); err != nil {
-				return err
-			}
 		}
 	}
 
