@@ -1,5 +1,8 @@
 #!/bin/bash
+
 set -e
+source /etc/profile.d/git.sh
+git version
 
 source $(dirname $0)/version
 
@@ -7,9 +10,8 @@ source package-env
 
 cd $(dirname $0)/../package
 
-../scripts/k3s-images.sh
-
-cp ../bin/rancher ../bin/agent ../bin/data.json ../bin/k3s-airgap-images.tar .
+cp ../bin/rancher ../bin/agent ../bin/data.json .
+cp ../LICENSE ../README.md ../THIRD_PARTY_LICENSES.txt .
 
 # Make sure the used data.json is a release artifact
 cp ../bin/data.json ../bin/rancher-data.json
@@ -21,7 +23,35 @@ if [ ${ARCH} == s390x ]; then
     ETCD_UNSUPPORTED_ARCH=s390x
 fi
 
-docker build --build-arg VERSION=${TAG} --build-arg ETCD_UNSUPPORTED_ARCH=${ETCD_UNSUPPORTED_ARCH} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} -t ${IMAGE} .
+echo "The value of CATTLE_DASHBOARD_TAR_URL is ${CATTLE_DASHBOARD_TAR_URL}"
+echo "The value of CATTLE_UI_TAR_URL IS ${CATTLE_UI_TAR_URL}"
+echo "The value of OCI_OCNE_DRIVER_VERSION is ${OCI_OCNE_DRIVER_VERSION}"
+echo "The value of OCI_OCNE_DRIVER_HASH is ${OCI_OCNE_DRIVER_HASH}"
+echo "The value of OKE_DRIVER_VERSION is ${OKE_DRIVER_VERSION}"
+echo "The value of OKE_DRIVER_HASH is ${OKE_DRIVER_HASH}"
+
+# Compose build args for Rancher Docker image
+BUILD_ARGS="--build-arg VERSION=${TAG} --build-arg ARCH=${ARCH}  --build-arg ETCD_UNSUPPORTED_ARCH=${ETCD_UNSUPPORTED_ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH}"
+if [ -n "${CATTLE_DASHBOARD_TAR_URL}" ]; then
+    BUILD_ARGS="${BUILD_ARGS} --build-arg CATTLE_DASHBOARD_TAR_URL=${CATTLE_DASHBOARD_TAR_URL}"
+fi
+if [ -n "${CATTLE_UI_TAR_URL}" ]; then
+    BUILD_ARGS="${BUILD_ARGS} --build-arg CATTLE_UI_TAR_URL=${CATTLE_UI_TAR_URL}"
+fi
+if [ -n "${OCI_OCNE_DRIVER_VERSION}" ]; then
+    BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_VERSION=${OCI_OCNE_DRIVER_VERSION}"
+fi
+if [ -n "${OCI_OCNE_DRIVER_HASH}" ]; then
+  BUILD_ARGS="${BUILD_ARGS} --build-arg OCI_OCNE_DRIVER_HASH=${OCI_OCNE_DRIVER_HASH}"
+fi
+if [ -n "${OKE_DRIVER_VERSION}" ]; then
+    BUILD_ARGS="${BUILD_ARGS} --build-arg OKE_DRIVER_VERSION=${OKE_DRIVER_VERSION}"
+fi
+if [ -n "${OKE_DRIVER_HASH}" ]; then
+  BUILD_ARGS="${BUILD_ARGS} --build-arg OKE_DRIVER_HASH=${OKE_DRIVER_HASH}"
+fi
+
+docker build $BUILD_ARGS -t ${IMAGE} .
 
 docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f Dockerfile.agent .
 
@@ -33,10 +63,6 @@ echo
 
 cd ../bin
 
-if [ ! -d build/system-charts ]; then
-    mkdir -p build
-    git clone --depth=1 --no-tags --branch $SYSTEM_CHART_DEFAULT_BRANCH https://github.com/rancher/system-charts $SYSTEM_CHART_REPO_DIR
-fi
 
 if [ ! -d $CHART_REPO_DIR ]; then
     git clone --branch $CHART_DEFAULT_BRANCH https://github.com/rancher/charts $CHART_REPO_DIR
@@ -44,7 +70,7 @@ fi
 
 if [ ${ARCH} == amd64 ]; then
     # Move this out of ARCH check for local dev on non-amd64 hardware.
-    TAG=$TAG REPO=${REPO} go run ../pkg/image/export/main.go $SYSTEM_CHART_REPO_DIR $CHART_REPO_DIR $IMAGE $AGENT_IMAGE $SYSTEM_AGENT_UPGRADE_IMAGE $WINS_AGENT_UPGRADE_IMAGE ${SYSTEM_AGENT_INSTALLER_RKE2_IMAGES[@]} ${SYSTEM_AGENT_INSTALLER_K3S_IMAGES[@]}
+    TAG=$TAG REPO=${REPO} go run ../pkg/image/export/main.go $CHART_REPO_DIR $IMAGE $AGENT_IMAGE ${SYSTEM_AGENT_INSTALLER_K3S_IMAGES[@]}
 fi
 
 # Create components file used for pre-release notes
