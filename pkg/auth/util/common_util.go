@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
+
+	"github.com/pkg/errors"
 )
 
 var (
@@ -58,4 +61,14 @@ type AuthError struct {
 	Type    string `json:"type"`
 	Status  string `json:"status"`
 	Message string `json:"message"`
+}
+
+// ModifyErrorForInactiveSession modifies the error message for inactive token or session error
+func ModifyErrorForInactiveSession(err error) error {
+	if strings.Contains(err.Error(), "Token is not active") ||
+		strings.Contains(err.Error(), "Session not active") ||
+		strings.Contains(err.Error(), "invalid token") {
+		return errors.Errorf("Session is not active, token refresh will be retried")
+	}
+	return err
 }
