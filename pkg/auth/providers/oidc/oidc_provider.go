@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/rancher/rancher/pkg/auth/util"
 	"reflect"
 	"strings"
 
@@ -400,7 +401,7 @@ func (o *OpenIDCProvider) getUserInfo(ctx *context.Context, config *v32.OIDCConf
 	}
 	reusedToken, err := oauth2.ReuseTokenSource(oauth2Token, oauthConfig.TokenSource(updatedContext, oauth2Token)).Token()
 	if err != nil {
-		return userInfo, oauth2Token, err
+		return userInfo, oauth2Token, util.ModifyErrorForInactiveSession(err)
 	}
 	if !reflect.DeepEqual(oauth2Token, reusedToken) {
 		o.UpdateToken(reusedToken, userName)
