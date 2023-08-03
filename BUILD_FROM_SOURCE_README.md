@@ -24,10 +24,11 @@ The upstream tag this release is branched from the release tag `v2.7.5`
 
 Verrazzano requires the BFS of the below image versions to be updated in the verrazzano-bom.json file to support rancher v2.7.5.
 
-- Rancher webhook - `v0.3.2`
+- Rancher webhook - `v0.3.5`
 - Rancher backup and restore operator - `v3.1.0`
-- Rancher fleet - `v0.6.0`
-- Rancher fleet-agent - `v0.6.0`
+- Rancher fleet - `v0.7.0`
+- Rancher fleet-agent - `v0.7.0`
+- Rancher gitjob - `v0.3.2`
 - kubectl - `v0.25.4`
 
 ### Create Environment Variables
