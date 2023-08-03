@@ -84,6 +84,11 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p $OKE_DRIVER_PATH  && \
     # Set up the git 2.x environment variables so that it's on the path
     source /etc/profile.d/git.sh && \
+    # Overwrite the gitjob deployment.yaml from the previous release. The deployment had changed from using "command" to \
+    # "args", however, that was causing this failure on install: \
+    #   failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "--tekton-image": executable file not found in $PATH: unknown
+    cp $RANCHER_CHARTS_DIR/charts/fleet/102.0.0+up0.6.0/charts/gitjob/templates/deployment.yaml $RANCHER_CHARTS_DIR/charts/fleet/102.1.0+up0.7.0/charts/gitjob/templates/deployment.yaml
+
     #
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     #
