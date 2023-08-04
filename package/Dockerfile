@@ -90,10 +90,6 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
     git clone -b $CATTLE_CHART_DEFAULT_BRANCH https://git.rancher.io/charts/ $RANCHER_CHARTS_DIR && \
     git -C $RANCHER_CHARTS_DIR checkout $RANCHER_CHARTS_COMMIT && \
-    # Overwrite the gitjob deployment.yaml from the previous release. The deployment had changed from using "command" to
-    # "args", however, that was causing this failure on install:
-    #   failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "--tekton-image": executable file not found in $PATH: unknown
-    cp $RANCHER_CHARTS_DIR/charts/fleet/102.0.0+up0.6.0/charts/gitjob/templates/deployment.yaml $RANCHER_CHARTS_DIR/charts/fleet/102.1.0+up0.7.0/charts/gitjob/templates/deployment.yaml && \
     # Remove charts that are not used \
     rm -rf $RANCHER_CHARTS_DIR/charts/rancher-alerting-drivers && \
     rm -rf $RANCHER_CHARTS_DIR/assets/rancher-alerting-drivers && \
