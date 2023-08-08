@@ -69,18 +69,6 @@ func runMigrations(wranglerContext *wrangler.Context) error {
 		}
 	}
 
-	if features.RKE2.Enabled() {
-		if err := migrateCAPIMachineLabelsAndAnnotationsToPlanSecret(wranglerContext); err != nil {
-			return err
-		}
-		if err := migrateEncryptionKeyRotationLeader(wranglerContext); err != nil {
-			return err
-		}
-		if err := migrateMachinePoolsDynamicSchemaLabel(wranglerContext); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
