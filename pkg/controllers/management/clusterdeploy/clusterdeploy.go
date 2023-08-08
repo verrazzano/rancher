@@ -262,7 +262,6 @@ func (cd *clusterDeploy) getDesiredFeatures(cluster *apimgmtv3.Cluster) map[stri
 		features.MCM.Name():                false,
 		features.MCMAgent.Name():           true,
 		features.Fleet.Name():              false,
-		features.RKE2.Name():               false,
 		features.ProvisioningV2.Name():     false,
 		features.EmbeddedClusterAPI.Name(): false,
 		features.MonitoringV1.Name():       cluster.Spec.EnableClusterMonitoring,
