@@ -138,7 +138,7 @@ RUN mkdir -p /var/lib/rancher/k3s/agent/images/ && \
     mkdir -p /var/lib/rancher-data/driver-metadata
 
 # Versions for UI, DASHBOARD and CLI will be the same as 2.6 until new releases are made to these
-ENV CATTLE_UI_VERSION 2.7.7
+ENV CATTLE_UI_VERSION 2.7.6
 ENV CATTLE_DASHBOARD_UI_VERSION v2.7.5
 ENV CATTLE_CLI_VERSION v2.7.0
 
