@@ -51,6 +51,8 @@ if [ -n "${OKE_DRIVER_HASH}" ]; then
   BUILD_ARGS="${BUILD_ARGS} --build-arg OKE_DRIVER_HASH=${OKE_DRIVER_HASH}"
 fi
 
+echo "The value of BUILD_ARGS is ${BUILD_ARGS}"
+
 docker build $BUILD_ARGS -t ${IMAGE} .
 
 docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f Dockerfile.agent .
