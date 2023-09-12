@@ -55,7 +55,6 @@ ENV DOCKER_MACHINE_LINODE_VERSION v0.1.8
 ENV LINODE_UI_DRIVER_VERSION v0.5.0
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
-ENV HELM_VERSION 3.9.0-rancher1
 ENV OCI_OCNE_DRIVER_VERSION=$OCI_OCNE_DRIVER_VERSION
 ENV OCI_OCNE_DRIVER_HASH=$OCI_OCNE_DRIVER_HASH
 ENV OCI_OCNE_DRIVER_PATH=/var/lib/rancher-data/drivers/ociocne/$OCI_OCNE_DRIVER_VERSION
