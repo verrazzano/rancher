@@ -15,7 +15,6 @@ import (
 	"github.com/rancher/rancher/pkg/controllers/management/secretmigrator/assemblers"
 	"github.com/rancher/rancher/pkg/controllers/managementagent/podresources"
 	"github.com/rancher/rancher/pkg/controllers/managementlegacy/compose/common"
-	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	provcontrollers "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
 	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
@@ -27,7 +26,6 @@ import (
 	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -58,7 +56,6 @@ type nodesSyncer struct {
 	sysImages            v3.RkeK8sSystemImageInterface
 	secretLister         v1.SecretLister
 	provClusterCache     provcontrollers.ClusterCache
-	capiClusterCache     capicontrollers.ClusterCache
 }
 
 type nodeDrain struct {
@@ -91,7 +88,6 @@ func Register(ctx context.Context, cluster *config.UserContext, kubeConfigGetter
 		sysImages:            cluster.Management.Management.RkeK8sSystemImages(""),
 		secretLister:         cluster.Management.Core.Secrets("").Controller().Lister(),
 		provClusterCache:     cluster.Management.Wrangler.Provisioning.Cluster().Cache(),
-		capiClusterCache:     cluster.Management.Wrangler.CAPI.Cluster().Cache(),
 	}
 
 	n := &nodeSyncer{
@@ -831,22 +827,6 @@ func (m *nodesSyncer) isClusterRestoring() (bool, error) {
 	}
 	if cluster.Status.Driver == "imported" {
 		return false, nil
-	}
-	if strings.HasPrefix(cluster.Name, "c-m-") {
-		provCluster, err := m.provClusterCache.Get(cluster.Spec.FleetWorkspaceName, cluster.Spec.DisplayName)
-		if err != nil {
-			return false, err
-		}
-		capiCluster, err := m.capiClusterCache.Get(provCluster.Namespace, provCluster.Name)
-		if apierrors.IsNotFound(err) {
-			return false, nil
-		}
-		if err != nil {
-			return false, err
-		}
-		if capiCluster.Spec.ControlPlaneRef.Kind != "RKEControlPlane" || capiCluster.Spec.ControlPlaneRef.APIVersion != "rke.cattle.io/v1" {
-			return false, nil
-		}
 	}
 
 	return false, nil
