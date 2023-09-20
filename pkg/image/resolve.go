@@ -51,13 +51,24 @@ func Resolve(image string) string {
 func ResolveWithCluster(image string, cluster *v3.Cluster) string {
 	reg := util.GetPrivateRegistryURL(cluster)
 	if reg != "" && !strings.HasPrefix(image, reg) {
-		// Images from Dockerhub Library repo, we add rancher prefix when using private registry
-		if !strings.Contains(image, "/") {
-			image = "rancher/" + image
-		}
-		return path.Join(reg, image)
-	}
+		/*
+			Separating the image from the default registry url through split
+			Ex:
+			input:
+			reg (private registry url) -> myreg.io/myrepo
+			image ->  ghcr.io/verrazzano/rancher-agent:1.2.3
 
+			imageSplit := strings.SplitN(image, "/", 2)
+
+			output: imageSplit -> [ghcr.io verrazzano/rancher-agent:1.2.3]
+			path.Join(reg, imageSplit[1]) -> myreg.io/myrepo/verrazzano/rancher-agent:1.2.3
+			Therefore, we only use the imageSplit[1] -> verrazzano/rancher-agent:1.2.3
+			for concatenation with the reg.
+		*/
+		imageSplit := strings.SplitN(image, "/", 2)
+		//Concatenating only the image name with the private registry url.
+		return path.Join(reg, imageSplit[1])
+	}
 	return image
 }
 

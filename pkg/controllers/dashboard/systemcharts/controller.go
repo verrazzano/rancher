@@ -1,44 +1,30 @@
-// Package systemcharts handles the reconciliation of systemcharts installed by rancher in the rancher-charts repo.
 package systemcharts
 
 import (
 	"context"
+	"os"
 
 	catalog "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/controllers/dashboard/chart"
 	"github.com/rancher/rancher/pkg/features"
-	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
-	"github.com/rancher/rancher/pkg/namespace"
+	namespace "github.com/rancher/rancher/pkg/namespace"
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/wrangler"
-	"github.com/rancher/wrangler/pkg/data"
 	corecontrollers "github.com/rancher/wrangler/pkg/generated/controllers/core/v1"
 	"github.com/rancher/wrangler/pkg/relatedresource"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
+	apierror "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
 const (
 	repoName         = "rancher-charts"
-	priorityClassKey = "priorityClassName"
+	webhookChartName = "rancher-webhook"
+	webhookImage     = "rancher/rancher-webhook"
 )
 
-var (
-	primaryImages = map[string]string{
-		chart.WebhookChartName:          "rancher/rancher-webhook",
-		chart.ProvisioningCAPIChartName: "rancher/mirrored-cluster-api-controller",
-	}
-	watchedSettings = map[string]struct{}{
-		settings.RancherWebhookMinVersion.Name: {},
-		settings.RancherWebhookVersion.Name:    {},
-		settings.SystemDefaultRegistry.Name:    {},
-		settings.ShellImage.Name:               {},
-	}
-)
-
-// Register is called to create a new handler and subscribe to change events.
 func Register(ctx context.Context, wContext *wrangler.Context, registryOverride string) error {
 	h := &handler{
 		manager:          wContext.SystemChartsManager,
@@ -48,12 +34,20 @@ func Register(ctx context.Context, wContext *wrangler.Context, registryOverride 
 	}
 
 	wContext.Catalog.ClusterRepo().OnChange(ctx, "bootstrap-charts", h.onRepo)
-	relatedresource.WatchClusterScoped(ctx, "bootstrap-charts", relatedFeatures, wContext.Catalog.ClusterRepo(), wContext.Mgmt.Feature())
+	relatedresource.WatchClusterScoped(ctx, "bootstrap-charts", func(namespace, name string, obj runtime.Object) ([]relatedresource.Key, error) {
+		return []relatedresource.Key{{
+			Name: repoName,
+		}}, nil
+	}, wContext.Catalog.ClusterRepo(), wContext.Mgmt.Feature())
 
-	relatedresource.WatchClusterScoped(ctx, "bootstrap-settings-charts", relatedSettings, wContext.Catalog.ClusterRepo(), wContext.Mgmt.Setting())
-
-	// ensure the system charts are installed with the correct values when there are changes to the rancher config map
-	relatedresource.WatchClusterScoped(ctx, "bootstrap-configmap-charts", relatedConfigMaps, wContext.Catalog.ClusterRepo(), wContext.Core.ConfigMap())
+	relatedresource.WatchClusterScoped(ctx, "bootstrap-settings-charts", func(namespace, name string, obj runtime.Object) ([]relatedresource.Key, error) {
+		if s, ok := obj.(*v3.Setting); ok && (s.Name == "rancher-webhook-version" || s.Name == "rancher-webhook-min-version") {
+			return []relatedresource.Key{{
+				Name: repoName,
+			}}, nil
+		}
+		return nil, nil
+	}, wContext.Catalog.ClusterRepo(), wContext.Mgmt.Setting())
 	return nil
 }
 
@@ -107,9 +101,7 @@ func (h *handler) onRepo(key string, repo *catalog.ClusterRepo) (*catalog.Cluste
 			if !ok {
 				imageSettings = map[string]interface{}{}
 			}
-			if image, ok := primaryImages[chartDef.ChartName]; ok {
-				imageSettings["repository"] = h.registryOverride + "/" + image
-			}
+			imageSettings["repository"] = h.registryOverride + "/" + webhookImage
 			values["image"] = imageSettings
 			installImageOverride = h.registryOverride + "/" + settings.ShellImage.Get()
 		}
@@ -118,15 +110,18 @@ func (h *handler) onRepo(key string, repo *catalog.ClusterRepo) (*catalog.Cluste
 				values[k] = v
 			}
 		}
+
+		if chartDef.ChartName == webhookChartName {
+			overrideRancherWebhookImage(values)
+		}
 		// webhook needs to be able to adopt the MutatingWebhookConfiguration which originally wasn't a part of the
 		// chart definition, but is now part of the chart definition
 		minVersion := chartDef.MinVersionSetting.Get()
 		exactVersion := chartDef.ExactVersionSetting.Get()
-		if chartDef.ChartName == chart.WebhookChartName && minVersion != "" {
+		if chartDef.ChartName == webhookChartName && minVersion != "" {
 			exactVersion = ""
 		}
-		forceAdopt := chartDef.ChartName == chart.WebhookChartName || chartDef.ChartName == chart.ProvisioningCAPIChartName
-		if err := h.manager.Ensure(chartDef.ReleaseNamespace, chartDef.ChartName, minVersion, exactVersion, values, forceAdopt, installImageOverride); err != nil {
+		if err := h.manager.Ensure(chartDef.ReleaseNamespace, chartDef.ChartName, minVersion, exactVersion, values, chartDef.ChartName == webhookChartName, installImageOverride); err != nil {
 			return repo, err
 		}
 	}
@@ -138,36 +133,31 @@ func (h *handler) getChartsToInstall() []*chart.Definition {
 	return []*chart.Definition{
 		{
 			ReleaseNamespace:    namespace.System,
-			ChartName:           chart.WebhookChartName,
+			ChartName:           webhookChartName,
 			MinVersionSetting:   settings.RancherWebhookMinVersion,
 			ExactVersionSetting: settings.RancherWebhookVersion,
 			Values: func() map[string]interface{} {
 				values := map[string]interface{}{
 					"capi": map[string]interface{}{
-						"enabled": false,
+						"enabled": features.EmbeddedClusterAPI.Enabled(),
 					},
 					"mcm": map[string]interface{}{
 						"enabled": features.MCM.Enabled(),
 					},
 				}
-				// add priority class value
-				if priorityClassName, err := h.chartsConfig.GetGlobalValue(chart.PriorityClassKey); err != nil {
-					if !chart.IsNotFoundError(err) {
-						logrus.Warnf("Failed to get rancher %s for 'rancher-webhook': %s", chart.PriorityClassKey, err.Error())
+				// add priority class value.
+				if priorityClassName, err := h.chartsConfig.GetPriorityClassName(); err != nil {
+					if !apierror.IsNotFound(err) {
+						logrus.Warnf("Failed to get rancher priorityClassName for 'rancher-webhook': %v", err)
 					}
 				} else {
-					values[priorityClassKey] = priorityClassName
+					values[chart.PriorityClassKey] = priorityClassName
 				}
-
-				// get custom values for the rancher-webhook
-				configMapValues, err := h.chartsConfig.GetChartValues(chart.WebhookChartName)
-				if err != nil && !chart.IsNotFoundError(err) {
-					logrus.Warnf("Failed to get rancher rancherWebhookValues %s", err.Error())
-				}
-
-				return data.MergeMaps(values, configMapValues)
+				return values
 			},
-			Enabled: func() bool { return true },
+			Enabled: func() bool {
+				return features.MCM.Enabled() || features.EmbeddedClusterAPI.Enabled()
+			},
 		},
 		{
 			ReleaseNamespace: "rancher-operator-system",
@@ -175,60 +165,21 @@ func (h *handler) getChartsToInstall() []*chart.Definition {
 			Uninstall:        true,
 			RemoveNamespace:  true,
 		},
-		{
-			ReleaseNamespace: namespace.ProvisioningCAPINamespace,
-			ChartName:        chart.ProvisioningCAPIChartName,
-			Values: func() map[string]interface{} {
-				values := map[string]interface{}{}
-				// add priority class value
-				if priorityClassName, err := h.chartsConfig.GetGlobalValue(chart.PriorityClassKey); err != nil {
-					if !chart.IsNotFoundError(err) {
-						logrus.Warnf("Failed to get rancher %s for 'rancher-provisioning-capi': %s", chart.PriorityClassKey, err.Error())
-					}
-				} else {
-					values[priorityClassKey] = priorityClassName
-				}
-
-				// get custom values for the rancher-provisioning-capi
-				configMapValues, err := h.chartsConfig.GetChartValues(chart.ProvisioningCAPIChartName)
-				if err != nil && !chart.IsNotFoundError(err) {
-					logrus.Warnf("Failed to get rancher-provisioning-capi %s", err.Error())
-				}
-
-				return data.MergeMaps(values, configMapValues)
-			},
-			Enabled:         func() bool { return true },
-			Uninstall:       !features.EmbeddedClusterAPI.Enabled(),
-			RemoveNamespace: !features.EmbeddedClusterAPI.Enabled(),
-		},
 	}
 }
 
-func relatedFeatures(_, _ string, obj runtime.Object) ([]relatedresource.Key, error) {
-	if _, ok := obj.(*v3.Feature); ok {
-		return []relatedresource.Key{{
-			Name: repoName,
-		}}, nil
-	}
-	return nil, nil
-}
+// overrideRancherWebhookImage sets Helm chart values to override the Rancher Webhook image name and/or tag based on environment variables.
+func overrideRancherWebhookImage(rancherWebhookChartValues map[string]interface{}) {
+	chartValues := make(map[string]interface{})
 
-func relatedSettings(_, _ string, obj runtime.Object) ([]relatedresource.Key, error) {
-	if f, ok := obj.(*v3.Setting); ok {
-		if _, ok := watchedSettings[f.Name]; ok {
-			return []relatedresource.Key{{
-				Name: repoName,
-			}}, nil
-		}
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE"); ok {
+		chartValues["repository"] = envVal
 	}
-	return nil, nil
-}
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE_TAG"); ok {
+		chartValues["tag"] = envVal
+	}
 
-func relatedConfigMaps(_, _ string, obj runtime.Object) ([]relatedresource.Key, error) {
-	if configMap, ok := obj.(*v1.ConfigMap); ok && configMap.Namespace == namespace.System && (configMap.Name == chart.CustomValueMapName || configMap.Name == settings.ConfigMapName.Get()) {
-		return []relatedresource.Key{{
-			Name: repoName,
-		}}, nil
+	if len(chartValues) > 0 {
+		rancherWebhookChartValues["image"] = chartValues
 	}
-	return nil, nil
 }

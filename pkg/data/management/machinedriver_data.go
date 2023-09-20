@@ -2,17 +2,15 @@ package management
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
 	"reflect"
 	"strings"
 
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/features"
+	"github.com/rancher/rancher/pkg/data/management/utils"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 )
 
 const (
@@ -33,195 +31,227 @@ const (
 	Vmwaredriver       = "vmwarevsphere"
 	GoogleDriver       = "google"
 	OutscaleDriver     = "outscale"
+	driverNameLabel    = "io.cattle.node_driver.name"
 )
 
-var DriverData = map[string]map[string][]string{
-	Amazonec2driver:    {"publicCredentialFields": []string{"accessKey"}, "privateCredentialFields": []string{"secretKey"}},
-	Azuredriver:        {"publicCredentialFields": []string{"clientId", "subscriptionId", "tenantId", "environment"}, "privateCredentialFields": []string{"clientSecret"}, "optionalCredentialFields": []string{"tenantId"}},
-	DigitalOceandriver: {"privateCredentialFields": []string{"accessToken"}},
-	ExoscaleDriver:     {"privateCredentialFields": []string{"apiSecretKey"}},
-	HarvesterDriver:    {"publicCredentialFields": []string{"clusterType", "clusterId"}, "privateCredentialFields": []string{"kubeconfigContent"}, "optionalCredentialFields": []string{"clusterId"}},
-	Linodedriver:       {"privateCredentialFields": []string{"token"}, "passwordFields": []string{"rootPass"}},
-	NutanixDriver:      {"publicCredentialFields": []string{"endpoint", "username", "port"}, "privateCredentialFields": []string{"password"}},
-	OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
-	OTCDriver:          {"privateCredentialFields": []string{"accessKeySecret"}},
-	OpenstackDriver:    {"privateCredentialFields": []string{"password"}},
-	PacketDriver:       {"privateCredentialFields": []string{"apiKey"}},
-	PhoenixNAPDriver:   {"publicCredentialFields": []string{"clientIdentifier"}, "privateCredentialFields": []string{"clientSecret"}},
-	RackspaceDriver:    {"privateCredentialFields": []string{"apiKey"}},
-	SoftLayerDriver:    {"privateCredentialFields": []string{"apiKey"}},
-	Vmwaredriver:       {"publicCredentialFields": []string{"username", "vcenter", "vcenterPort"}, "privateCredentialFields": []string{"password"}},
-	GoogleDriver:       {"privateCredentialFields": []string{"authEncodedJson"}},
-	OutscaleDriver:     {"publicCredentialFields": []string{"accessKey", "region"}, "privateCredentialFields": []string{"secretKey"}},
+var (
+	DriverToSchemaFields = map[string]map[string]string{
+		"aliyunecs":     {"sshKeypath": "sshKeyContents"},
+		"amazonec2":     {"sshKeypath": "sshKeyContents", "userdata": "userdata"},
+		"azure":         {"customData": "customData"},
+		"digitalocean":  {"sshKeyPath": "sshKeyContents", "userdata": "userdata"},
+		"exoscale":      {"sshKey": "sshKey", "userdata": "userdata"},
+		"openstack":     {"cacert": "cacert", "privateKeyFile": "privateKeyFile", "userDataFile": "userDataFile"},
+		"otc":           {"privateKeyFile": "privateKeyFile"},
+		"packet":        {"userdata": "userdata"},
+		"pod":           {"userdata": "userdata"},
+		"vmwarevsphere": {"cloud-config": "cloudConfig"},
+		"google":        {"authEncodedJson": "authEncodedJson"},
+	}
+	DriverData = map[string]map[string][]string{
+		Amazonec2driver:    {"publicCredentialFields": []string{"accessKey"}, "privateCredentialFields": []string{"secretKey"}},
+		Azuredriver:        {"publicCredentialFields": []string{"clientId", "subscriptionId", "tenantId", "environment"}, "privateCredentialFields": []string{"clientSecret"}, "optionalCredentialFields": []string{"tenantId"}},
+		DigitalOceandriver: {"privateCredentialFields": []string{"accessToken"}},
+		ExoscaleDriver:     {"privateCredentialFields": []string{"apiSecretKey"}},
+		HarvesterDriver:    {"publicCredentialFields": []string{"clusterType", "clusterId"}, "privateCredentialFields": []string{"kubeconfigContent"}, "optionalCredentialFields": []string{"clusterId"}},
+		Linodedriver:       {"privateCredentialFields": []string{"token"}, "passwordFields": []string{"rootPass"}},
+		NutanixDriver:      {"publicCredentialFields": []string{"endpoint", "username", "port"}, "privateCredentialFields": []string{"password"}},
+		OCIDriver:          {"publicCredentialFields": []string{"tenancyId", "userId", "fingerprint", "region", "passphrase"}, "privateCredentialFields": []string{"privateKeyContents"}, "passwordFields": []string{"privateKeyPassphrase"}},
+		OTCDriver:          {"privateCredentialFields": []string{"accessKeySecret"}},
+		OpenstackDriver:    {"privateCredentialFields": []string{"password"}},
+		PacketDriver:       {"privateCredentialFields": []string{"apiKey"}},
+		PhoenixNAPDriver:   {"publicCredentialFields": []string{"clientIdentifier"}, "privateCredentialFields": []string{"clientSecret"}},
+		RackspaceDriver:    {"privateCredentialFields": []string{"apiKey"}},
+		SoftLayerDriver:    {"privateCredentialFields": []string{"apiKey"}},
+		Vmwaredriver:       {"publicCredentialFields": []string{"username", "vcenter", "vcenterPort"}, "privateCredentialFields": []string{"password"}},
+		GoogleDriver:       {"privateCredentialFields": []string{"authEncodedJson"}},
+		OutscaleDriver:     {"publicCredentialFields": []string{"accessKey", "region"}, "privateCredentialFields": []string{"secretKey"}},
+	}
+
+	SSHKeyFields = map[string]bool{
+		"sshKeyContents": true,
+		"sshKey":         true,
+		"privateKeyFile": true,
+	}
+)
+
+type DynamicSchemaClients struct {
+	schemaClient v3.DynamicSchemaInterface
+	schemaLister v3.DynamicSchemaLister
 }
 
-var driverDefaults = map[string]map[string]string{
-	HarvesterDriver: {"clusterType": "imported"},
-	Vmwaredriver:    {"vcenterPort": "443"},
+func addCloudCredentials(management *config.ManagementContext) error {
+	dc := DynamicSchemaClients{
+		schemaClient: management.Management.DynamicSchemas(""),
+		schemaLister: management.Management.DynamicSchemas("").Controller().Lister(),
+	}
+	if err := dc.addCloudCredential(Amazonec2driver); err != nil {
+		return err
+	}
+	if err := dc.addCloudCredential(Azuredriver); err != nil {
+		return err
+	}
+
+	if err := dc.addCloudCredential(GoogleDriver); err != nil {
+		return err
+	}
+	return dc.addCloudCredential(OCIDriver)
 }
 
-type machineDriverCompare struct {
-	builtin            bool
-	addCloudCredential bool
-	url                string
-	uiURL              string
-	checksum           string
-	name               string
-	whitelist          []string
-	annotations        map[string]string
-}
-
-func addMachineDrivers(management *config.ManagementContext) error {
-	if err := addMachineDriver("pinganyunecs", "https://drivers.rancher.cn/node-driver-pinganyun/0.3.0/docker-machine-driver-pinganyunecs-linux.tgz", "https://drivers.rancher.cn/node-driver-pinganyun/0.3.0/component.js", "f84ccec11c2c1970d76d30150916933efe8ca49fe4c422c8954fc37f71273bb5", []string{"drivers.rancher.cn"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver("aliyunecs", "https://drivers.rancher.cn/node-driver-aliyun/1.0.4/docker-machine-driver-aliyunecs.tgz", "", "5990d40d71c421a85563df9caf069466f300cd75723effe4581751b0de9a6a0e", []string{"ecs.aliyuncs.com"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(Amazonec2driver, "local://", "", "",
-		[]string{"iam.amazonaws.com", "iam.us-gov.amazonaws.com", "iam.%.amazonaws.com.cn", "ec2.%.amazonaws.com", "ec2.%.amazonaws.com.cn", "eks.%.amazonaws.com", "eks.%.amazonaws.com.cn", "kms.%.amazonaws.com", "kms.%.amazonaws.com.cn"},
-		true, true, true, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(Azuredriver, "local://", "", "", nil, true, true, true, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver("cloudca", "https://github.com/cloud-ca/docker-machine-driver-cloudca/files/2446837/docker-machine-driver-cloudca_v2.0.0_linux-amd64.zip", "https://objects-east.cloud.ca/v1/5ef827605f884961b94881e928e7a250/ui-driver-cloudca/v2.1.2/component.js", "2a55efd6d62d5f7fd27ce877d49596f4", []string{"objects-east.cloud.ca"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver("cloudscale", "https://github.com/cloudscale-ch/docker-machine-driver-cloudscale/releases/download/v1.2.0/docker-machine-driver-cloudscale_v1.2.0_linux_amd64.tar.gz", "https://objects.rma.cloudscale.ch/cloudscale-rancher-v2-ui-driver/component.js", "e33fbd6c2f87b1c470bcb653cc8aa50baf914a9d641a2f18f86a07c398cfb544", []string{"objects.rma.cloudscale.ch"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(DigitalOceandriver, "local://", "", "", []string{"api.digitalocean.com"}, true, true, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(ExoscaleDriver, "local://", "", "", []string{"api.exoscale.ch"}, false, true, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(GoogleDriver, "local://", "", "", nil, false, true, true, management); err != nil {
-		return err
-	}
-	harvesterEnabled := features.GetFeatureByName(HarvesterDriver).Enabled()
-	// make sure the version number is consistent with the one at Line 40 of package/Dockerfile
-	if err := addMachineDriver(HarvesterDriver, "https://releases.rancher.com/harvester-node-driver/v0.6.5/docker-machine-driver-harvester-amd64.tar.gz", "", "8de48b07dd2e8b7ee60ec99b8456925e9c16a7523affb61a5f1788868bb1f8f6", []string{"releases.rancher.com"}, harvesterEnabled, harvesterEnabled, false, management); err != nil {
-		return err
-	}
-	linodeBuiltin := true
-	if dl := os.Getenv("CATTLE_DEV_MODE"); dl != "" {
-		linodeBuiltin = isCommandAvailable("docker-machine-driver-linode")
-	}
-	if err := addMachineDriver(Linodedriver, "https://github.com/linode/docker-machine-driver-linode/releases/download/v0.1.11/docker-machine-driver-linode_linux-amd64.zip", "/assets/rancher-ui-driver-linode/component.js", "b31b6a504c59ee758d2dda83029fe4a85b3f5601e22dfa58700a5e6c8f450dc7", []string{"api.linode.com"}, linodeBuiltin, linodeBuiltin, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(OCIDriver, "https://github.com/rancher-plugins/rancher-machine-driver-oci/releases/download/v1.3.0/docker-machine-driver-oci-linux", "", "0a1afa6a0af85ecf3d77cc554960e36e1be5fd12b22b0155717b9289669e4021", []string{"*.oraclecloud.com"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(OpenstackDriver, "local://", "", "", nil, false, true, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(OTCDriver, "https://github.com/rancher-plugins/docker-machine-driver-otc/releases/download/v2019.5.7/docker-machine-driver-otc", "", "3f793ebb0ebd9477b9166ec542f77e25", nil, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(PacketDriver, "https://github.com/equinix/docker-machine-driver-metal/releases/download/v0.6.0/docker-machine-driver-metal_linux-amd64.zip", "https://rancher-drivers.equinixmetal.net/1.0.2/component.js", "fad5e551a35d2ef2db742b07ca6d61bb9c9b574d322d3000f0c557d5fb90a734", []string{"api.packet.net", "api.equinix.com", "rancher-drivers.equinixmetal.net"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(PhoenixNAPDriver, "https://github.com/phoenixnap/docker-machine-driver-pnap/releases/download/v0.4.0/docker-machine-driver-pnap_0.4.0_linux_amd64.zip", "", "0bc81bdc80ab258fa0db67918f3b04435ed2c81f84c942c9123a0729f884190b", []string{"api.securedservers.com", "api.phoenixnap.com", "auth.phoenixnap.com"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(RackspaceDriver, "local://", "", "", nil, false, true, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(SoftLayerDriver, "local://", "", "", nil, false, true, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(NutanixDriver, "https://github.com/nutanix/docker-machine/releases/download/v3.4.0/docker-machine-driver-nutanix", "https://nutanix.github.io/rancher-ui-driver/v3.4.0/component.js", "65dbf92e2df2b4c6d1a6b1f77c542f2cb13a052a62f236eeee697a1151ede62c", []string{"nutanix.github.io"}, false, false, false, management); err != nil {
-		return err
-	}
-	if err := addMachineDriver(OutscaleDriver, "https://github.com/outscale/docker-machine-driver-outscale/releases/download/v0.2.0/docker-machine-driver-outscale_0.2.0_linux_amd64.zip", "https://oos.eu-west-2.outscale.com/rancher-ui-driver-outscale/v0.2.0/component.js", "bb539ed4e2b0f1a1083b29cbdbab59bde3efed0a3145fefc0b2f47026c48bfe0", []string{"oos.eu-west-2.outscale.com"}, false, false, false, management); err != nil {
-		return err
-	}
-	return addMachineDriver(Vmwaredriver, "local://", "", "", nil, true, true, false, management)
-}
-
-func addMachineDriver(name, url, uiURL, checksum string, whitelist []string, active, builtin, addCloudCredential bool, management *config.ManagementContext) error {
-	lister := management.Management.NodeDrivers("").Controller().Lister()
-	cli := management.Management.NodeDrivers("")
-	m, _ := lister.Get("", name)
+func (d *DynamicSchemaClients) addCloudCredential(name string) error {
 	// annotations can have keys cred and password, values []string to be considered as a part of cloud credential
 	annotations := map[string]string{}
-	if m != nil {
-		for k, v := range m.Annotations {
-			annotations[k] = v
-		}
-	}
 	for key, fields := range DriverData[name] {
 		annotations[key] = strings.Join(fields, ",")
 	}
-	defaults := []string{}
-	for key, val := range driverDefaults[name] {
-		defaults = append(defaults, fmt.Sprintf("%s:%s", key, val))
+
+	flags, err := utils.GetCreateFlagsForDriver(name)
+	if err != nil {
+		return err
 	}
-	if len(defaults) > 0 {
-		annotations["defaults"] = strings.Join(defaults, ",")
+	credFields := map[string]v32.Field{}
+	resourceFields := map[string]v32.Field{}
+
+	pubCredFields, privateCredFields, passwordFields, defaults, optionals := utils.GetCredFields(annotations)
+	for _, flag := range flags {
+
+		name, field, err := utils.FlagToField(flag)
+		if err != nil {
+			return err
+		}
+		if aliases, ok := DriverToSchemaFields[name]; ok {
+			// convert path fields to their alias to take file contents
+			if alias, ok := aliases[name]; ok {
+				name = alias
+				field.Description = fmt.Sprintf("File contents for %v", alias)
+			}
+		}
+
+		if privateCredFields[name] || passwordFields[name] || SSHKeyFields[name] {
+			field.Type = "password"
+		}
+
+		if pubCredFields[name] || privateCredFields[name] {
+			credField := field
+			credField.Required = !optionals[name]
+			if val, ok := defaults[name]; ok {
+				credField = utils.UpdateDefault(credField, val, field.Type)
+			}
+			credFields[name] = credField
+		}
+
+		resourceFields[name] = field
 	}
-	if m != nil {
-		old := machineDriverCompare{
-			builtin:            m.Spec.Builtin,
-			addCloudCredential: m.Spec.AddCloudCredential,
-			url:                m.Spec.URL,
-			uiURL:              m.Spec.UIURL,
-			checksum:           m.Spec.Checksum,
-			name:               m.Spec.DisplayName,
-			whitelist:          m.Spec.WhitelistDomains,
-			annotations:        m.Annotations,
+	err = d.createCredSchema(name, credFields)
+	if err != nil {
+		return err
+	}
+	// Creating dynamic schema cloud credential config objects
+	return d.createOrUpdateNodeForEmbeddedTypeCredential(utils.CredentialConfigSchemaName(name),
+		name+"credentialConfig", true)
+}
+
+func (d *DynamicSchemaClients) createCredSchema(driverDisplayName string, credFields map[string]v32.Field) error {
+
+	name := utils.CredentialConfigSchemaName(driverDisplayName)
+	credSchema, err := d.schemaLister.Get("", name)
+
+	if name == "amazonec2credentialconfig" {
+		credFields["defaultRegion"] = v32.Field{
+			Type:         "string",
+			Description:  "AWS Default Region",
+			DynamicField: true,
+			Create:       true,
+			Update:       true,
 		}
-		new := machineDriverCompare{
-			builtin:            builtin,
-			addCloudCredential: addCloudCredential,
-			url:                url,
-			uiURL:              uiURL,
-			checksum:           checksum,
-			name:               name,
-			whitelist:          whitelist,
-			annotations:        annotations,
+	}
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			credentialSchema := &v3.DynamicSchema{
+				Spec: v32.DynamicSchemaSpec{
+					ResourceFields: credFields,
+				},
+			}
+			credentialSchema.Name = name
+			_, err := d.schemaClient.Create(credentialSchema)
+			return err
 		}
-		if !reflect.DeepEqual(new, old) {
-			logrus.Infof("Updating node driver %v", name)
-			m.Spec.Builtin = builtin
-			m.Spec.AddCloudCredential = addCloudCredential
-			m.Spec.URL = url
-			m.Spec.UIURL = uiURL
-			m.Spec.Checksum = checksum
-			m.Spec.DisplayName = name
-			m.Spec.WhitelistDomains = whitelist
-			m.Annotations = annotations
-			_, err := cli.Update(m)
+		return err
+	} else if !reflect.DeepEqual(credSchema.Spec.ResourceFields, credFields) {
+		toUpdate := credSchema.DeepCopy()
+		toUpdate.Spec.ResourceFields = credFields
+		_, err := d.schemaClient.Update(toUpdate)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (d *DynamicSchemaClients) createOrUpdateNodeForEmbeddedTypeCredential(embeddedType, fieldName string, embedded bool) error {
+	return d.createOrUpdateNodeForEmbeddedTypeWithParents(embeddedType, fieldName, "credentialconfig", "cloudCredential", embedded, true)
+}
+
+func (d *DynamicSchemaClients) createOrUpdateNodeForEmbeddedTypeWithParents(embeddedType, fieldName, schemaID, parentID string, embedded, update bool) error {
+	nodeSchema, err := d.schemaLister.Get("", schemaID)
+	if err != nil && !errors.IsNotFound(err) {
+		return err
+	} else if errors.IsNotFound(err) {
+		resourceField := map[string]v32.Field{}
+		if embedded {
+			resourceField[fieldName] = v32.Field{
+				Create:   true,
+				Nullable: true,
+				Update:   update,
+				Type:     embeddedType,
+			}
+		}
+		dynamicSchema := &v3.DynamicSchema{}
+		dynamicSchema.Name = schemaID
+		dynamicSchema.Spec.ResourceFields = resourceField
+		dynamicSchema.Spec.Embed = true
+		dynamicSchema.Spec.EmbedType = parentID
+		_, err := d.schemaClient.Create(dynamicSchema)
+		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	logrus.Infof("Creating node driver %v", name)
-	_, err := cli.Create(&v3.NodeDriver{
-		ObjectMeta: v1.ObjectMeta{
-			Name:        name,
-			Annotations: annotations,
-		},
-		Spec: v32.NodeDriverSpec{
-			Active:             active,
-			Builtin:            builtin,
-			AddCloudCredential: addCloudCredential,
-			URL:                url,
-			UIURL:              uiURL,
-			DisplayName:        name,
-			Checksum:           checksum,
-			WhitelistDomains:   whitelist,
-		},
-	})
+	nodeSchema = nodeSchema.DeepCopy()
 
-	return err
-}
+	shouldUpdate := false
+	if embedded {
+		if nodeSchema.Spec.ResourceFields == nil {
+			nodeSchema.Spec.ResourceFields = map[string]v32.Field{}
+		}
+		if _, ok := nodeSchema.Spec.ResourceFields[fieldName]; !ok {
+			// if embedded we add the type to schema
+			logrus.Infof("uploading %s to %s schema", fieldName, schemaID)
+			nodeSchema.Spec.ResourceFields[fieldName] = v32.Field{
+				Create:   true,
+				Nullable: true,
+				Update:   update,
+				Type:     embeddedType,
+			}
+			shouldUpdate = true
+		}
+	} else {
+		// if not we delete it from schema
+		if _, ok := nodeSchema.Spec.ResourceFields[fieldName]; ok {
+			logrus.Infof("deleting %s from %s schema", fieldName, schemaID)
+			delete(nodeSchema.Spec.ResourceFields, fieldName)
+			shouldUpdate = true
+		}
+	}
 
-func isCommandAvailable(name string) bool {
-	return exec.Command("command", "-v", name).Run() == nil
+	if shouldUpdate {
+		_, err = d.schemaClient.Update(nodeSchema)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

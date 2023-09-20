@@ -61,16 +61,10 @@ var (
 		false)
 	EmbeddedClusterAPI = newFeature(
 		"embedded-cluster-api",
-		"Enable a Rancher-managed instance of cluster-api core controller",
-		true,
+		"Enable an embedded instance of cluster-api core controller",
+		false,
 		false,
 		false)
-	RKE2 = newFeature(
-		"rke2",
-		"Enable provisioning of RKE2",
-		true,
-		false,
-		true)
 	Legacy = newFeature(
 		"legacy",
 		"Enable legacy features",
@@ -98,7 +92,7 @@ var (
 	Harvester = newFeature(
 		"harvester",
 		"Enable Harvester integration, with ability to import and manage Harvester clusters",
-		true,
+		false,
 		true,
 		true)
 	RKE1CustomNodeCleanup = newFeature(

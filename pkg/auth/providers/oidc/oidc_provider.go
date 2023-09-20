@@ -15,6 +15,7 @@ import (
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/auth/providers/common"
 	"github.com/rancher/rancher/pkg/auth/tokens"
+	"github.com/rancher/rancher/pkg/auth/util"
 	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
 	publicclient "github.com/rancher/rancher/pkg/client/generated/management/v3public"
 	corev1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
@@ -394,7 +395,7 @@ func (o *OpenIDCProvider) getUserInfo(ctx *context.Context, config *v32.OIDCConf
 	}
 	reusedToken, err := oauth2.ReuseTokenSource(oauth2Token, oauthConfig.TokenSource(updatedContext, oauth2Token)).Token()
 	if err != nil {
-		return userInfo, oauth2Token, err
+		return userInfo, oauth2Token, util.ModifyErrorForInactiveSession(err)
 	}
 	if !reflect.DeepEqual(oauth2Token, reusedToken) {
 		o.UpdateToken(reusedToken, userName)

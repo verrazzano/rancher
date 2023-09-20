@@ -12,6 +12,7 @@ import (
 	"github.com/rancher/rancher/pkg/auth/providers/common"
 	"github.com/rancher/rancher/pkg/auth/providers/oidc"
 	"github.com/rancher/rancher/pkg/auth/tokens"
+	"github.com/rancher/rancher/pkg/auth/util"
 	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/types/config"
@@ -64,7 +65,7 @@ func (k *keyCloakOIDCProvider) newClient(config *v32.OIDCConfig, token v3.Token)
 	// get, refresh and update token
 	oauthToken, err := k.getRefreshAndUpdateToken(ctx, oauthConfig, token)
 	if err != nil {
-		return nil, err
+		return nil, util.ModifyErrorForInactiveSession(err)
 	}
 	keyCloakClient := &KeyCloakClient{
 		httpClient: oauthConfig.Client(ctx, oauthToken),
