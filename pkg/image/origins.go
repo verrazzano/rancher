@@ -96,6 +96,8 @@ var OriginMap = map[string]string{
 	"mirrored-cilium-certgen":                                 "https://github.com/cilium/certgen",
 	"mirrored-cilium-cilium":                                  "https://github.com/cilium/cilium",
 	"mirrored-cilium-cilium-etcd-operator":                    "https://github.com/cilium/cilium-etcd-operator",
+	"mirrored-cilium-cilium-envoy":                    		   "https://github.com/cilium/cilium-envoy",
+	"mirrored-cilium-kvstoremesh":                             "https://github.com/cilium/kvstoremesh",
 	"mirrored-cilium-clustermesh-apiserver":                   "https://github.com/cilium/clustermesh-apiserver",
 	"mirrored-cilium-hubble-relay":                            "https://github.com/cilium/hubble",
 	"mirrored-cilium-hubble-ui":                               "https://github.com/cilium/hubble-ui",
