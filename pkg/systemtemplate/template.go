@@ -108,6 +108,20 @@ rules:
 
 ---
 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cattle-cluster-agent
+  namespace: cattle-system
+spec:
+  podSelector:
+    matchLabels:
+      app: cattle-cluster-agent
+  policyTypes:
+    - Ingress
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -160,6 +174,14 @@ spec:
           - name: CATTLE_FEATURES
             value: "{{.Features}}"
           {{- end }}
+          {{- if ne .WebhookImage "" }}
+          - name: RANCHER_WEBHOOK_IMAGE
+            value: "{{.WebhookImage}}"
+          {{- end }}
+          {{- if ne .WebhookImageTag "" }}
+          - name: RANCHER_WEBHOOK_IMAGE_TAG
+            value: "{{.WebhookImageTag}}"
+          {{- end }}
           - name: CATTLE_IS_RKE
             value: "{{.IsRKE}}"
           - name: CATTLE_SERVER
@@ -172,6 +194,8 @@ spec:
             value: "true"
           - name: CATTLE_CLUSTER_REGISTRY
             value: "{{.ClusterRegistry}}"
+          - name: CATTLE_SHELL_IMAGE
+            value: "{{.ShellImage}}"
       {{- if .AgentEnvVars}}
 {{ .AgentEnvVars | indent 10 }}
       {{- end }}

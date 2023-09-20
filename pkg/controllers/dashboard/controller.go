@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/rancher/rancher/pkg/controllers/capi"
-	"github.com/rancher/rancher/pkg/controllers/capr"
 	"github.com/rancher/rancher/pkg/controllers/dashboard/apiservice"
 	"github.com/rancher/rancher/pkg/controllers/dashboard/clusterindex"
 	"github.com/rancher/rancher/pkg/controllers/dashboard/clusterregistrationtoken"
@@ -67,9 +66,6 @@ func Register(ctx context.Context, wrangler *wrangler.Context, embedded bool, re
 		kubeconfigManager := kubeconfig.New(wrangler)
 		clusterindex.Register(ctx, wrangler)
 		provisioningv2.Register(ctx, wrangler, kubeconfigManager)
-		if features.RKE2.Enabled() {
-			capr.Register(ctx, wrangler, kubeconfigManager)
-		}
 	}
 
 	if features.EmbeddedClusterAPI.Enabled() {
