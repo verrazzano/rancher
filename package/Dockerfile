@@ -1,5 +1,6 @@
 ARG RANCHER_BASE_TAG=base
 ARG RANCHER_REPO=rancher
+# Use the build of Dockerfile.base as the FROM image
 FROM ${RANCHER_REPO}/rancher:${RANCHER_BASE_TAG}
 
 ARG ARCH=amd64
