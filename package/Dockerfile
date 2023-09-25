@@ -39,6 +39,9 @@ ARG OCI_OCNE_DRIVER_HASH="e410fd9b7ac5533b656277e82f1a321a995a5cd5e0329c2e79091e
 # Specific version of OKE Driver
 ARG OKE_DRIVER_VERSION=v1.8.4
 ARG OKE_DRIVER_HASH="dd971c8630f3e7d17dde21ef23cfc007862770a4c0ce21f3101929ff39961259"
+# Specific version of OKE CAPI Driver
+ARG OKE_CAPI_DRIVER_VERSION=v0.1.0
+ARG OKE_CAPI_DRIVER_HASH="26ce7697fde90b532b5a104f224aa3b73550b2c6062ef3e53516fb9fcadb1e56"
 
 ENV CATTLE_SYSTEM_CHART_DEFAULT_BRANCH=$SYSTEM_CHART_DEFAULT_BRANCH
 ENV CATTLE_CHART_DEFAULT_BRANCH=release-v2.7
@@ -63,6 +66,10 @@ ENV OKE_DRIVER_VERSION=$OKE_DRIVER_VERSION
 ENV OKE_DRIVER_HASH=$OKE_DRIVER_HASH
 ENV OKE_DRIVER_PATH=/var/lib/rancher-data/drivers/oke/$OKE_DRIVER_VERSION
 ENV OKE_DRIVER_BINARY=kontainer-engine-driver-oke-linux
+ENV OKE_CAPI_DRIVER_VERSION=$OKE_CAPI_DRIVER_VERSION
+ENV OKE_CAPI_DRIVER_HASH=$OKE_CAPI_DRIVER_HASH
+ENV OKE_CAPI_DRIVER_PATH=/var/lib/rancher-data/drivers/okecapi/$OKE_CAPI_DRIVER_VERSION
+ENV OKE_CAPI_DRIVER_BINARY=kontainer-engine-driver-okecapi-linux
 
 # System charts minimal version
 ENV CATTLE_FLEET_MIN_VERSION=102.2.0+up0.8.0
@@ -83,6 +90,7 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/v2 && \
     mkdir -p $OCI_OCNE_DRIVER_PATH  && \
     mkdir -p $OKE_DRIVER_PATH  && \
+    mkdir -p $OKE_CAPI_DRIVER_PATH  && \
     # Set up the git 2.x environment variables so that it's on the path
     source /etc/profile.d/git.sh && \
     #
@@ -126,8 +134,10 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     git clone -b master --depth 1 https://github.com/rancher/helm3-charts /var/lib/rancher-data/local-catalogs/helm3-library && \
     # Download the OCI OCNE Driver
     curl -sLf https://github.com/verrazzano/kontainer-engine-driver-ociocne/releases/download/${OCI_OCNE_DRIVER_VERSION}/${OCI_OCNE_DRIVER_BINARY} > ${OCI_OCNE_DRIVER_PATH}/${OCI_OCNE_DRIVER_BINARY} && \
-     # Download the OKE Driver
-    curl -sLf https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/${OKE_DRIVER_VERSION}/${OKE_DRIVER_BINARY} > ${OKE_DRIVER_PATH}/${OKE_DRIVER_BINARY}
+    # Download the OKE Driver
+    curl -sLf https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/${OKE_DRIVER_VERSION}/${OKE_DRIVER_BINARY} > ${OKE_DRIVER_PATH}/${OKE_DRIVER_BINARY} &&  \
+    # Download the OKE CAPI Driver
+    curl -sLf https://github.com/verrazzano/kontainer-engine-driver-oke-capi/releases/download/${OKE_CAPI_DRIVER_VERSION}/${OKE_CAPI_DRIVER_BINARY} > ${OKE_CAPI_DRIVER_PATH}/${OKE_CAPI_DRIVER_BINARY}
 
 
 
