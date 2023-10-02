@@ -345,7 +345,7 @@ func processImages(provider common.ConfigurationProvider, compartment string) ([
 	return data, http.StatusOK, err
 }
 
-func processNodeOkeImages(provider common.ConfigurationProvider) ([]byte, int, error) {
+func processNodeOkeImages(provider common.ConfigurationProvider, compartmentId string) ([]byte, int, error) {
 	logrus.Debugf("[oci-handler] listing node OKE images")
 	containerClient, err := containerengine.NewContainerEngineClientWithConfigurationProvider(provider)
 	if err != nil {
@@ -354,6 +354,7 @@ func processNodeOkeImages(provider common.ConfigurationProvider) ([]byte, int, e
 	}
 	nodePoolOptionsReq := containerengine.GetNodePoolOptionsRequest{
 		NodePoolOptionId: common.String("all"),
+		CompartmentId:    &compartmentId,
 	}
 	nodePoolOptionsResp, err := containerClient.GetNodePoolOptions(context.Background(), nodePoolOptionsReq)
 	if err != nil {

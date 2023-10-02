@@ -149,7 +149,7 @@ func (handler *handler) ServeHTTP(writer http.ResponseWriter, req *http.Request)
 		}
 		writer.Write(serialized)
 	case "nodeOkeImages":
-		if serialized, errCode, err = processNodeOkeImages(provider); err != nil {
+		if serialized, errCode, err = processNodeOkeImages(provider, creds.Compartment); err != nil {
 			logrus.Debugf("[oci-handler] error processing OKE images: %v", err)
 			util.ReturnHTTPError(writer, req, errCode, err.Error())
 			return
