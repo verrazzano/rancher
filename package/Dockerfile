@@ -82,7 +82,7 @@ ENV CATTLE_CSP_ADAPTER_MIN_VERSION=2.0.2
 ENV RANCHER_CHARTS_DIR=/var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721
 
 # System chart commits
-ENV RANCHER_CHARTS_COMMIT=b573e1310cd9cb7716650928e81d73f9222f4be6
+ENV RANCHER_CHARTS_COMMIT=f63f05431cdb2d969b550174d6427d3a571b6e95
 
 RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \

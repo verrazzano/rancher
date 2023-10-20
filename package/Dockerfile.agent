@@ -23,7 +23,7 @@ LABEL io.cattle.agent true
 ENV AGENT_IMAGE rancher/rancher-agent:${VERSION}
 ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=''
 # For now, this value needs to be manually synced with the one in the main Dockerfile. This pins downstream webhook's version.
-ENV CATTLE_RANCHER_WEBHOOK_VERSION=2.0.5+up0.3.5
+ENV CATTLE_RANCHER_WEBHOOK_VERSION=2.0.6+up0.3.6
 ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
 
 # Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH

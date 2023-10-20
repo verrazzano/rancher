@@ -6,28 +6,28 @@ The Rancher Dockerfile used to build the Rancher image uses `git clone` to embed
 
 To fix this problem, we have modified the [Dockerfile](package/Dockerfile#L95-L102) to checkout specific commits in the system chart repositories. When building a new version of Rancher from source, you must determine the commit ids that are used in the upstream Rancher image and set them in the [Dockerfile](package/Dockerfile#L80-L82). The easiest way to determine the commit ids is to run the upstream Rancher image interactively and use `git`
 
-For example, to find the relevant chart git commits for v2.7.6:
+For example, to find the relevant chart git commits for v2.7.8:
 
-The rancher charts commit below must be updated from the latest commit on the Verrazzano fork of the rancher charts BFS oracle/release/2.7.6 branch.
+The rancher charts commit below must be updated from the latest commit on the Verrazzano fork of the rancher charts BFS oracle/release/2.7.8 branch.
 ```
-$ docker run --privileged -it --entrypoint=bash rancher/rancher:v2.7.6
+$ docker run --privileged -it --entrypoint=bash rancher/rancher:v2.7.8
 
 de667f186d5d:/var/lib/rancher # git -C /var/lib/rancher-data/local-catalogs/v2/rancher-charts/4b40cac650031b74776e87c1a726b0484d0877c3ec137da0872547ff9b73a721 rev-parse HEAD
-b573e1310cd9cb7716650928e81d73f9222f4be6
+f63f05431cdb2d969b550174d6427d3a571b6e95
 ```
 
 ## Build Instructions
 
-The upstream tag this release is branched from the release tag `v2.7.6`
+The upstream tag this release is branched from the release tag `v2.7.8`
 
-## BFS chart Updates for release `v2.7.6`
+## BFS chart Updates for release `v2.7.8`
 
-Verrazzano requires the BFS of the below image versions to be updated in the verrazzano-bom.json file to support rancher v2.7.6.
+Verrazzano requires the BFS of the below image versions to be updated in the verrazzano-bom.json file to support rancher v2.7.8.
 
-- Rancher webhook - `v0.3.5`
+- Rancher webhook - `v0.3.6`
 - Rancher backup and restore operator - `v3.1.0`
-- Rancher fleet - `v0.7.1`
-- Rancher fleet-agent - `v0.7.1`
+- Rancher fleet - `v0.8.0`
+- Rancher fleet-agent - `v0.8.0`
 - Rancher gitjob - `v0.3.2`
 - kubectl - `v0.25.4`
 
