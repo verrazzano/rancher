@@ -7,9 +7,6 @@ func RequiredCRDs() []string {
 	requiredCRDS := BasicCRDs()
 	if features.ProvisioningV2.Enabled() {
 		requiredCRDS = append(requiredCRDS, ProvisioningV2CRDs()...)
-		if features.RKE2.Enabled() {
-			requiredCRDS = append(requiredCRDS, RKE2CRDs()...)
-		}
 		if features.EmbeddedClusterAPI.Enabled() {
 			requiredCRDS = append(requiredCRDS, CAPICRDs()...)
 		}
