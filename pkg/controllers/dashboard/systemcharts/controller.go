@@ -152,9 +152,7 @@ func (h *handler) getChartsToInstall() []*chart.Definition {
 						"enabled": false,
 					},
 					"mcm": map[string]interface{}{
-						"enabled": func() bool {
-							return features.MCM.Enabled() || features.EmbeddedClusterAPI.Enabled()
-						},
+						"enabled": features.MCM.Enabled(),
 					},
 				}
 				// add priority class value
