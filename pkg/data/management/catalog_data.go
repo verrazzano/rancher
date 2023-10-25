@@ -3,7 +3,6 @@ package management
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"reflect"
 	"strings"
 	"time"
@@ -142,32 +141,6 @@ func syncCatalogs(management *config.ManagementContext) error {
 				return nil
 			}
 			return doAddCatalogs(management, helm3LibraryName, helm3LibraryURL, helm3LibraryBranch, helm3HelmVersion, bundledMode)
-		},
-		// add system-charts
-		func() error {
-			if err := doAddCatalogs(management, systemLibraryName, systemLibraryURL, systemLibraryBranch, "", bundledMode); err != nil {
-				return err
-			}
-			desiredDefaultURL := systemLibraryURL
-			desiredDefaultBranch := ""
-			if devMode := os.Getenv("CATTLE_DEV_MODE"); devMode != "" {
-				desiredDefaultBranch = "dev"
-			}
-
-			if fromEnvURL := os.Getenv("CATTLE_SYSTEM_CHART_DEFAULT_URL"); fromEnvURL != "" {
-				desiredDefaultURL = fromEnvURL
-			}
-
-			if fromEnvBranch := os.Getenv("CATTLE_SYSTEM_CHART_DEFAULT_BRANCH"); fromEnvBranch != "" {
-				desiredDefaultBranch = fromEnvBranch
-			}
-
-			if desiredDefaultBranch == "" {
-				panic(fmt.Errorf("If you are developing, set CATTLE_DEV_MODE environment variable to \"true\"." +
-					"Otherwise, set CATTLE_SYSTEM_CHART_DEFAULT_to desired default branch."))
-			}
-
-			return updateCatalogURL(management.Management.Catalogs(""), desiredDefaultURL, desiredDefaultBranch)
 		},
 	)
 }

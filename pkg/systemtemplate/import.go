@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strings"
 	"text/template"
@@ -33,6 +34,7 @@ type context struct {
 	Features              string
 	CAChecksum            string
 	AgentImage            string
+	ShellImage            string
 	AgentEnvVars          string
 	AuthImage             string
 	TokenKey              string
@@ -48,6 +50,8 @@ type context struct {
 	Affinity              string
 	ResourceRequirements  string
 	ClusterRegistry       string
+	WebhookImage          string
+	WebhookImageTag       string
 }
 
 func toFeatureString(features map[string]bool) string {
@@ -99,6 +103,16 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 
 	agentEnvVars = templates.ToYAML(envVars)
 
+	// Handle override of rancher-webhook image
+	var webhookImage = ""
+	var webhookImageTag = ""
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE"); ok {
+		webhookImage = envVal
+	}
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE_TAG"); ok {
+		webhookImageTag = envVal
+	}
+
 	if appendTolerations := util.GetClusterAgentTolerations(cluster); appendTolerations != nil {
 		agentAppendTolerations = templates.ToYAML(appendTolerations)
 		if agentAppendTolerations == "" {
@@ -126,6 +140,7 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 		Features:              toFeatureString(features),
 		CAChecksum:            CAChecksum(),
 		AgentImage:            agentImage,
+		ShellImage:            GetEnvWithDefault("CATTLE_SHELL_IMAGE", "rancher/shell:v0.1.19"),
 		AgentEnvVars:          agentEnvVars,
 		AuthImage:             authImage,
 		TokenKey:              tokenKey,
@@ -141,6 +156,8 @@ func SystemTemplate(resp io.Writer, agentImage, authImage, namespace, token, url
 		Affinity:              agentAffinity,
 		ResourceRequirements:  agentResourceRequirements,
 		ClusterRegistry:       registryURL,
+		WebhookImage:          webhookImage,
+		WebhookImageTag:       webhookImageTag,
 	}
 
 	return t.Execute(resp, context)
@@ -151,7 +168,6 @@ func GetDesiredFeatures(cluster *apimgmtv3.Cluster) map[string]bool {
 		features.MCM.Name():                false,
 		features.MCMAgent.Name():           true,
 		features.Fleet.Name():              false,
-		features.RKE2.Name():               false,
 		features.ProvisioningV2.Name():     false,
 		features.EmbeddedClusterAPI.Name(): false,
 		features.MonitoringV1.Name():       cluster.Spec.EnableClusterMonitoring,
@@ -214,4 +230,13 @@ func GetDesiredAuthImage(cluster *apimgmtv3.Cluster) string {
 	}
 	logrus.Tracef("clusterDeploy: deployAgent: desiredAuth is [%s] for cluster [%s]", desiredAuth, cluster.Name)
 	return desiredAuth
+}
+
+// GetEnvWithDefault returns if a value is set in env, else the default value
+func GetEnvWithDefault(key, defaultValue string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		return defaultValue
+	}
+	return value
 }

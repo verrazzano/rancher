@@ -45,5 +45,5 @@ func Add(ctx context.Context, wrangler *wrangler.Context, management *config.Man
 		return err
 	}
 
-	return addMachineDrivers(management)
+	return addCloudCredentials(management)
 }

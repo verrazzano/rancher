@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/oracle/oci-go-sdk/common"
+	"github.com/oracle/oci-go-sdk/v53/common"
 	"github.com/rancher/norman/api/access"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/norman/types"
@@ -32,14 +32,17 @@ type Credentials struct {
 	PrivateKey           string `json:"privateKey"`
 	PrivateKeyPassphrase string `json:"privateKeyPassphrase"`
 	Compartment          string `json:"compartmentOCID"`
+	VCN                  string `json:"vcnOCID"`
 }
 
 // Cloud Credential Secret Fields
 var requiredDataFields = map[string]string{
-	"fingerprint":        "ocicredentialConfig-fingerprint",
-	"tenancyId":          "ocicredentialConfig-tenancyId",
-	"userId":             "ocicredentialConfig-userId",
-	"privateKeyContents": "ocicredentialConfig-privateKeyContents",
+	"fingerprint":          "ocicredentialConfig-fingerprint",
+	"tenancyId":            "ocicredentialConfig-tenancyId",
+	"userId":               "ocicredentialConfig-userId",
+	"privateKeyContents":   "ocicredentialConfig-privateKeyContents",
+	"privateKeyPassphrase": "ocicredentialConfig-passphrase",
+	"region":               "ocicredentialConfig-region",
 }
 
 type handler struct {
@@ -82,6 +85,27 @@ func (handler *handler) ServeHTTP(writer http.ResponseWriter, req *http.Request)
 	var serialized []byte
 
 	switch resourceType {
+	case "compartments":
+		if serialized, errCode, err = processCompartments(provider, creds.Tenancy); err != nil {
+			logrus.Debugf("[oci-handler] error processing vcn ids: %v", err)
+			util.ReturnHTTPError(writer, req, errCode, err.Error())
+			return
+		}
+		writer.Write(serialized)
+	case "vcnIds":
+		if serialized, errCode, err = processVcnsWithIds(provider, creds.Compartment); err != nil {
+			logrus.Debugf("[oci-handler] error processing vcn ids: %v", err)
+			util.ReturnHTTPError(writer, req, errCode, err.Error())
+			return
+		}
+		writer.Write(serialized)
+	case "subnets":
+		if serialized, errCode, err = processSubnets(provider, creds.Compartment, creds.VCN); err != nil {
+			logrus.Debugf("[oci-handler] error processing subnets: %v", err)
+			util.ReturnHTTPError(writer, req, errCode, err.Error())
+			return
+		}
+		writer.Write(serialized)
 	case "vcns":
 		if serialized, errCode, err = processVcns(provider, creds.Compartment); err != nil {
 			logrus.Debugf("[oci-handler] error processing VCNs: %v", err)
@@ -125,7 +149,7 @@ func (handler *handler) ServeHTTP(writer http.ResponseWriter, req *http.Request)
 		}
 		writer.Write(serialized)
 	case "nodeOkeImages":
-		if serialized, errCode, err = processNodeOkeImages(provider); err != nil {
+		if serialized, errCode, err = processNodeOkeImages(provider, creds.Compartment); err != nil {
 			logrus.Debugf("[oci-handler] error processing OKE images: %v", err)
 			util.ReturnHTTPError(writer, req, errCode, err.Error())
 			return
@@ -182,10 +206,16 @@ func (handler *handler) extractCreds(req *http.Request, creds *Credentials) (int
 		region := req.URL.Query().Get("region")
 		if region != "" {
 			creds.Region = region
+		} else {
+			creds.Region = string(cc.Data[requiredDataFields["region"]])
 		}
 		compartment := req.URL.Query().Get("compartment")
 		if compartment != "" {
 			creds.Compartment = compartment
+		}
+		vcn := req.URL.Query().Get("vcn")
+		if vcn != "" {
+			creds.VCN = vcn
 		}
 	} else if req.Method == http.MethodPost {
 		// Get credentials from body

@@ -6,13 +6,108 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/oracle/oci-go-sdk/common"
-	"github.com/oracle/oci-go-sdk/containerengine"
-	"github.com/oracle/oci-go-sdk/core"
-	"github.com/oracle/oci-go-sdk/identity"
+	"github.com/oracle/oci-go-sdk/v53/common"
+	"github.com/oracle/oci-go-sdk/v53/containerengine"
+	"github.com/oracle/oci-go-sdk/v53/core"
+	"github.com/oracle/oci-go-sdk/v53/identity"
 	"github.com/rancher/norman/httperror"
 	"github.com/sirupsen/logrus"
 )
+
+func responseError(response *http.Response) int {
+	httpErr := httperror.ErrorCode{}
+	if response != nil {
+		httpErr.Status = response.StatusCode
+	} else {
+		httpErr.Status = httperror.ServerError.Status
+	}
+	return httpErr.Status
+}
+
+type CompartmentTree struct {
+	Name         string             `json:"name"`
+	Id           string             `json:"id"`
+	Compartments []*CompartmentTree `json:"compartments,omitempty"`
+}
+
+func processCompartments(provider common.ConfigurationProvider, tenancy string) ([]byte, int, error) {
+	client, err := identity.NewIdentityClientWithConfigurationProvider(provider)
+	if err != nil {
+		return nil, httperror.ServerError.Status, err
+	}
+
+	compartments, code, err := paginateCompartments(client, tenancy)
+	if err != nil {
+		return nil, code, err
+	}
+	root := &CompartmentTree{
+		Name:         "root",
+		Id:           tenancy,
+		Compartments: []*CompartmentTree{},
+	}
+	buildCompartmentTree(root, compartments)
+	treeBytes, err := json.Marshal(root)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+	return treeBytes, http.StatusOK, err
+}
+
+func paginateCompartments(client identity.IdentityClient, tenancy string) ([]identity.Compartment, int, error) {
+	var compartments []identity.Compartment
+	done := false
+	var opcNextPage *string
+	for {
+		if done {
+			break
+		}
+		compartmentIdInSubtree := true
+		compartmentsRequest := identity.ListCompartmentsRequest{
+			CompartmentId:          &tenancy,
+			AccessLevel:            identity.ListCompartmentsAccessLevelAccessible,
+			CompartmentIdInSubtree: &compartmentIdInSubtree,
+			RequestMetadata:        common.RequestMetadata{},
+			// set next page if present
+			Page: opcNextPage,
+		}
+
+		compartmentResponse, err := client.ListCompartments(context.Background(), compartmentsRequest)
+		if err != nil {
+			return nil, compartmentResponse.RawResponse.StatusCode, err
+		}
+		compartments = append(compartments, compartmentResponse.Items...)
+		opcNextPage = compartmentResponse.OpcNextPage
+		if opcNextPage == nil {
+			done = true
+		}
+	}
+
+	return compartments, 0, nil
+}
+
+// buildCompartmentTree constructs a tree of compartments from an unsorted compartment list
+func buildCompartmentTree(root *CompartmentTree, ociCompartments []identity.Compartment) {
+	// memoize visited compartments
+	compartmentMap := map[string]*CompartmentTree{
+		root.Id: root,
+	}
+	for _, compartment := range ociCompartments {
+		node := &CompartmentTree{
+			Name:         *compartment.Name,
+			Id:           *compartment.Id,
+			Compartments: []*CompartmentTree{},
+		}
+		// cache the visisted compartment
+		compartmentMap[*compartment.Id] = node
+	}
+
+	for _, compartment := range ociCompartments {
+		if node, ok := compartmentMap[*compartment.Id]; ok {
+			// add the node as a child of its parent
+			compartmentMap[*compartment.CompartmentId].Compartments = append(compartmentMap[*compartment.CompartmentId].Compartments, node)
+		}
+	}
+}
 
 func processVcns(provider common.ConfigurationProvider, compartment string) ([]byte, int, error) {
 	logrus.Debugf("[oci-handler] listing VCNs in compartment: %s", compartment)
@@ -26,14 +121,7 @@ func processVcns(provider common.ConfigurationProvider, compartment string) ([]b
 	}
 	vcnResponse, err := virtualNetworkClient.ListVcns(context.Background(), vcnRequest)
 	if err != nil {
-		httpErr := httperror.ErrorCode{}
-		if vcnResponse.RawResponse != nil {
-			httpErr.Status = vcnResponse.RawResponse.StatusCode
-		} else {
-			httpErr.Status = httperror.ServerError.Status
-		}
-		logrus.Debugf("[oci-handler] error listing VCNs with Virtual Network client: %v", err)
-		return nil, httpErr.Status, err
+		return nil, responseError(vcnResponse.RawResponse), err
 	}
 
 	var vcnDisplayNames []string
@@ -46,6 +134,61 @@ func processVcns(provider common.ConfigurationProvider, compartment string) ([]b
 		return data, httperror.ServerError.Status, err
 	}
 
+	return data, http.StatusOK, err
+}
+
+func processVcnsWithIds(provider common.ConfigurationProvider, compartment string) ([]byte, int, error) {
+	logrus.Debugf("[oci-handler] listing VCNs Ids in compartment: %s", compartment)
+	virtualNetworkClient, err := core.NewVirtualNetworkClientWithConfigurationProvider(provider)
+	if err != nil {
+		logrus.Debugf("[oci-handler] error creating Virtual Network client: %v", err)
+		return nil, httperror.ServerError.Status, err
+	}
+	vcnRequest := core.ListVcnsRequest{
+		CompartmentId: &compartment,
+	}
+	vcnResponse, err := virtualNetworkClient.ListVcns(context.Background(), vcnRequest)
+	if err != nil {
+		return nil, responseError(vcnResponse.RawResponse), err
+	}
+
+	response := map[string]string{}
+	for _, vcn := range vcnResponse.Items {
+		response[*vcn.DisplayName] = *vcn.Id
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return data, httperror.ServerError.Status, err
+	}
+	return data, http.StatusOK, err
+}
+
+func processSubnets(provider common.ConfigurationProvider, compartment, vcn string) ([]byte, int, error) {
+	logrus.Debug("[oci-handler] listing subnetResponse")
+	virtualNetworkClient, err := core.NewVirtualNetworkClientWithConfigurationProvider(provider)
+	if err != nil {
+		logrus.Debugf("[oci-handler] error creating Virtual Network client: %v", err)
+		return nil, httperror.ServerError.Status, err
+	}
+	subnetRequest := core.ListSubnetsRequest{
+		CompartmentId: &compartment,
+		VcnId:         &vcn,
+	}
+	subnetResponse, err := virtualNetworkClient.ListSubnets(context.Background(), subnetRequest)
+	if err != nil {
+		return nil, responseError(subnetResponse.RawResponse), err
+	}
+
+	response := map[string]string{}
+	for _, subnet := range subnetResponse.Items {
+		response[*subnet.DisplayName] = *subnet.Id
+	}
+
+	data, err := json.Marshal(response)
+	if err != nil {
+		return data, httperror.ServerError.Status, err
+	}
 	return data, http.StatusOK, err
 }
 
@@ -202,7 +345,7 @@ func processImages(provider common.ConfigurationProvider, compartment string) ([
 	return data, http.StatusOK, err
 }
 
-func processNodeOkeImages(provider common.ConfigurationProvider) ([]byte, int, error) {
+func processNodeOkeImages(provider common.ConfigurationProvider, compartmentId string) ([]byte, int, error) {
 	logrus.Debugf("[oci-handler] listing node OKE images")
 	containerClient, err := containerengine.NewContainerEngineClientWithConfigurationProvider(provider)
 	if err != nil {
@@ -211,6 +354,7 @@ func processNodeOkeImages(provider common.ConfigurationProvider) ([]byte, int, e
 	}
 	nodePoolOptionsReq := containerengine.GetNodePoolOptionsRequest{
 		NodePoolOptionId: common.String("all"),
+		CompartmentId:    &compartmentId,
 	}
 	nodePoolOptionsResp, err := containerClient.GetNodePoolOptions(context.Background(), nodePoolOptionsReq)
 	if err != nil {

@@ -10,10 +10,8 @@ import (
 	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/features"
 	fleetconst "github.com/rancher/rancher/pkg/fleet"
-	capicontrollers "github.com/rancher/rancher/pkg/generated/controllers/cluster.x-k8s.io/v1beta1"
 	mgmtcontrollers "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
 	rocontrollers "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
-	rkecontrollers "github.com/rancher/rancher/pkg/generated/controllers/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/provisioningv2/image"
 	"github.com/rancher/rancher/pkg/provisioningv2/kubeconfig"
 	"github.com/rancher/rancher/pkg/settings"
@@ -33,7 +31,6 @@ import (
 	apierror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -49,44 +46,33 @@ var (
 )
 
 type handler struct {
-	mgmtClusterCache      mgmtcontrollers.ClusterCache
-	mgmtClusters          mgmtcontrollers.ClusterController
-	clusterTokenCache     mgmtcontrollers.ClusterRegistrationTokenCache
-	clusterTokens         mgmtcontrollers.ClusterRegistrationTokenClient
-	featureCache          mgmtcontrollers.FeatureCache
-	featureClient         mgmtcontrollers.FeatureClient
-	clusters              rocontrollers.ClusterController
-	clusterCache          rocontrollers.ClusterCache
-	rkeControlPlanes      rkecontrollers.RKEControlPlaneClient
-	rkeControlPlanesCache rkecontrollers.RKEControlPlaneCache
-	secretCache           corecontrollers.SecretCache
-	kubeconfigManager     *kubeconfig.Manager
-	apply                 apply.Apply
-
-	capiClustersCache capicontrollers.ClusterCache
-	capiClusters      capicontrollers.ClusterClient
-	capiMachinesCache capicontrollers.MachineCache
+	mgmtClusterCache  mgmtcontrollers.ClusterCache
+	mgmtClusters      mgmtcontrollers.ClusterController
+	clusterTokenCache mgmtcontrollers.ClusterRegistrationTokenCache
+	clusterTokens     mgmtcontrollers.ClusterRegistrationTokenClient
+	featureCache      mgmtcontrollers.FeatureCache
+	featureClient     mgmtcontrollers.FeatureClient
+	clusters          rocontrollers.ClusterController
+	clusterCache      rocontrollers.ClusterCache
+	secretCache       corecontrollers.SecretCache
+	kubeconfigManager *kubeconfig.Manager
+	apply             apply.Apply
 }
 
 func Register(
 	ctx context.Context,
 	clients *wrangler.Context, kubeconfigManager *kubeconfig.Manager) {
 	h := handler{
-		mgmtClusterCache:      clients.Mgmt.Cluster().Cache(),
-		mgmtClusters:          clients.Mgmt.Cluster(),
-		clusterTokenCache:     clients.Mgmt.ClusterRegistrationToken().Cache(),
-		clusterTokens:         clients.Mgmt.ClusterRegistrationToken(),
-		featureCache:          clients.Mgmt.Feature().Cache(),
-		featureClient:         clients.Mgmt.Feature(),
-		clusters:              clients.Provisioning.Cluster(),
-		clusterCache:          clients.Provisioning.Cluster().Cache(),
-		rkeControlPlanes:      clients.RKE.RKEControlPlane(),
-		rkeControlPlanesCache: clients.RKE.RKEControlPlane().Cache(),
-		secretCache:           clients.Core.Secret().Cache(),
-		capiClustersCache:     clients.CAPI.Cluster().Cache(),
-		capiClusters:          clients.CAPI.Cluster(),
-		capiMachinesCache:     clients.CAPI.Machine().Cache(),
-		kubeconfigManager:     kubeconfigManager,
+		mgmtClusterCache:  clients.Mgmt.Cluster().Cache(),
+		mgmtClusters:      clients.Mgmt.Cluster(),
+		clusterTokenCache: clients.Mgmt.ClusterRegistrationToken().Cache(),
+		clusterTokens:     clients.Mgmt.ClusterRegistrationToken(),
+		featureCache:      clients.Mgmt.Feature().Cache(),
+		featureClient:     clients.Mgmt.Feature(),
+		clusters:          clients.Provisioning.Cluster(),
+		clusterCache:      clients.Provisioning.Cluster().Cache(),
+		secretCache:       clients.Core.Secret().Cache(),
+		kubeconfigManager: kubeconfig.New(clients),
 		apply: clients.Apply.WithCacheTypes(
 			clients.Provisioning.Cluster(),
 			clients.Mgmt.Cluster()),
@@ -187,13 +173,19 @@ func (h *handler) isLegacyCluster(cluster interface{}) bool {
 // cluster FleetWorkspaceName is empty or if the cluster name does not match (c-XXXXX|local) where XXXXX is a random
 // string of characters.
 func (h *handler) generateProvisioningClusterFromLegacyCluster(cluster *v3.Cluster, status v3.ClusterStatus) ([]runtime.Object, v3.ClusterStatus, error) {
-	if !h.isLegacyCluster(cluster) || cluster.Spec.FleetWorkspaceName == "" {
+	if !h.isLegacyCluster(cluster) {
 		return nil, status, nil
 	}
+
+	namespace := fleetconst.ClustersDefaultNamespace
+	if cluster.Spec.FleetWorkspaceName != "" {
+		namespace = cluster.Spec.FleetWorkspaceName
+	}
+
 	provCluster := &v1.Cluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        cluster.Name,
-			Namespace:   cluster.Spec.FleetWorkspaceName,
+			Namespace:   namespace,
 			Labels:      yaml.CleanAnnotationsForExport(cluster.Labels),
 			Annotations: yaml.CleanAnnotationsForExport(cluster.Annotations),
 		},
@@ -336,12 +328,6 @@ func (h *handler) createNewCluster(cluster *v1.Cluster, status v1.ClusterStatus,
 		}
 	}
 
-	if cluster.Spec.RKEConfig != nil {
-		if err := h.updateFeatureLockedValue(true); err != nil {
-			return nil, status, err
-		}
-	}
-
 	spec.LocalClusterAuthEndpoint = v3.LocalClusterAuthEndpoint{
 		FQDN:    cluster.Spec.LocalClusterAuthEndpoint.FQDN,
 		CACerts: cluster.Spec.LocalClusterAuthEndpoint.CACerts,
@@ -472,35 +458,4 @@ func (h *handler) updateStatus(objs []runtime.Object, cluster *v1.Cluster, statu
 	}
 
 	return objs, status, nil
-}
-
-func (h *handler) updateFeatureLockedValue(lockValueToTrue bool) error {
-	feature, err := h.featureCache.Get(features.RKE2.Name())
-	if err != nil {
-		return err
-	}
-
-	if feature.Status.LockedValue == nil && !lockValueToTrue || feature.Status.LockedValue != nil && *feature.Status.LockedValue == lockValueToTrue {
-		return nil
-	}
-
-	feature = feature.DeepCopy()
-	if lockValueToTrue {
-		feature.Status.LockedValue = &lockValueToTrue
-	} else {
-		clusters, err := h.clusters.Cache().List("", labels.Everything())
-		if err != nil {
-			return err
-		}
-
-		for _, cluster := range clusters {
-			if cluster.DeletionTimestamp.IsZero() && !h.isLegacyCluster(cluster) && cluster.Spec.RKEConfig != nil {
-				return nil
-			}
-		}
-		feature.Status.LockedValue = nil
-	}
-
-	_, err = h.featureClient.Update(feature)
-	return err
 }

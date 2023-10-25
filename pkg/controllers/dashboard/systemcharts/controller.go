@@ -3,6 +3,7 @@ package systemcharts
 
 import (
 	"context"
+	"os"
 
 	catalog "github.com/rancher/rancher/pkg/apis/catalog.cattle.io/v1"
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
@@ -118,6 +119,10 @@ func (h *handler) onRepo(key string, repo *catalog.ClusterRepo) (*catalog.Cluste
 				values[k] = v
 			}
 		}
+
+		if chartDef.ChartName == chart.WebhookChartName {
+			overrideRancherWebhookImage(values)
+		}
 		// webhook needs to be able to adopt the MutatingWebhookConfiguration which originally wasn't a part of the
 		// chart definition, but is now part of the chart definition
 		minVersion := chartDef.MinVersionSetting.Get()
@@ -231,4 +236,20 @@ func relatedConfigMaps(_, _ string, obj runtime.Object) ([]relatedresource.Key, 
 		}}, nil
 	}
 	return nil, nil
+}
+
+// overrideRancherWebhookImage sets Helm chart values to override the Rancher Webhook image name and/or tag based on environment variables.
+func overrideRancherWebhookImage(rancherWebhookChartValues map[string]interface{}) {
+	chartValues := make(map[string]interface{})
+
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE"); ok {
+		chartValues["repository"] = envVal
+	}
+	if envVal, ok := os.LookupEnv("RANCHER_WEBHOOK_IMAGE_TAG"); ok {
+		chartValues["tag"] = envVal
+	}
+
+	if len(chartValues) > 0 {
+		rancherWebhookChartValues["image"] = chartValues
+	}
 }

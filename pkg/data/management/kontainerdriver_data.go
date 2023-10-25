@@ -1,18 +1,20 @@
 package management
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
-
 	"github.com/rancher/rancher/pkg/controllers/management/drivers/kontainerdriver"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
+	"github.com/rancher/rancher/pkg/namespace"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
 func addKontainerDrivers(management *config.ManagementContext) error {
@@ -25,13 +27,14 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 	creator := driverCreator{
 		driversLister: management.Management.KontainerDrivers("").Controller().Lister(),
 		drivers:       management.Management.KontainerDrivers(""),
+		k8s:           management.K8sClient,
 	}
 
 	if err := cleanupImportDriver(creator); err != nil {
 		return err
 	}
 
-	if err := creator.add("rancherKubernetesEngine"); err != nil {
+	if err := removeUnsupportedDrivers(creator); err != nil {
 		return err
 	}
 
@@ -47,78 +50,15 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		return err
 	}
 
-	if err := creator.addCustomDriver(
-		"baiducloudcontainerengine",
-		"https://drivers.rancher.cn/kontainer-engine-driver-baidu/0.2.0/kontainer-engine-driver-baidu-linux",
-		"4613e3be3ae5487b0e21dfa761b95de2144f80f98bf76847411e5fcada343d5e",
-		"https://drivers.rancher.cn/kontainer-engine-driver-baidu/0.2.0/component.js",
-		false,
-		"drivers.rancher.cn", "*.baidubce.com",
-	); err != nil {
+	if err := creator.addHostedDriverFromEnv("ociocne", "OCI_OCNE_DRIVER_VERSION", "OCI_OCNE_DRIVER_HASH", "ociocneengine", false); err != nil {
 		return err
 	}
 
-	if err := creator.addCustomDriver(
-		"aliyunkubernetescontainerservice",
-		"https://drivers.rancher.cn/kontainer-engine-driver-aliyun/0.2.6/kontainer-engine-driver-aliyun-linux",
-		"8a5360269ec803e3d8cf2c9cc94c66879da03a1fd2b580912c1a83454509c84c",
-		"https://drivers.rancher.cn/pandaria/ui/cluster-driver-aliyun/0.1.1/component.js",
-		false,
-		"*.aliyuncs.com",
-	); err != nil {
+	if err := creator.addHostedDriverFromEnv("okecapi", "OKE_CAPI_DRIVER_VERSION", "OKE_CAPI_DRIVER_HASH", "okecapi", false); err != nil {
 		return err
 	}
 
-	if err := creator.addCustomDriver(
-		"tencentkubernetesengine",
-		"https://drivers.rancher.cn/kontainer-engine-driver-tencent/0.3.0/kontainer-engine-driver-tencent-linux",
-		"ad5406502daf826874889963d7bdaed78db4689f147889ecf97394bc4e8d3d76",
-		"",
-		false,
-		"*.tencentcloudapi.com", "*.qcloud.com",
-	); err != nil {
-		return err
-	}
-
-	if err := creator.addCustomDriver(
-		"huaweicontainercloudengine",
-		"https://drivers.rancher.cn/kontainer-engine-driver-huawei/0.1.2/kontainer-engine-driver-huawei-linux",
-		"0b6c1dfaa477a60a3bd9f8a60a55fcafd883866c2c5c387aec75b95d6ba81d45",
-		"",
-		false,
-		"*.myhuaweicloud.com",
-	); err != nil {
-		return err
-	}
-	if err := creator.addCustomDriver(
-		"oraclecontainerengine",
-		"https://github.com/rancher-plugins/kontainer-engine-driver-oke/releases/download/v1.8.3/kontainer-engine-driver-oke-linux",
-		"7bfde567e6d478f1da8d36531f765d348bff1cd3abe83c70ddf7766f46112170",
-		"",
-		false,
-		"*.oraclecloud.com",
-	); err != nil {
-		return err
-	}
-	if err := creator.addCustomDriver(
-		"linodekubernetesengine",
-		"https://github.com/linode/kontainer-engine-driver-lke/releases/download/v0.0.6/kontainer-engine-driver-lke-linux-amd64",
-		"233cbd550a93ded322906b9fc6ebc88b8791e53d31f0d21d501feb0bad77461c",
-		"",
-		false,
-		"api.linode.com",
-	); err != nil {
-		return err
-	}
-
-	return creator.addCustomDriver(
-		"opentelekomcloudcontainerengine",
-		"https://otc-rancher.obs.eu-de.otc.t-systems.com/cluster/driver/1.0.2/kontainer-engine-driver-otccce_linux_amd64.tar.gz",
-		"f2c0a8d1195cd51ae1ccdeb4a8defd2c3147b9a2c7510b091be0c12028740f5f",
-		"https://otc-rancher.obs.eu-de.otc.t-systems.com/cluster/ui/v1.1.0/component.js",
-		false,
-		"*.otc.t-systems.com",
-	)
+	return creator.addHostedDriverFromEnv("oke", "OKE_DRIVER_VERSION", "OKE_DRIVER_HASH", "oraclecontainerengine", true, "*.oraclecloud.com")
 }
 
 func cleanupImportDriver(creator driverCreator) error {
@@ -134,13 +74,33 @@ func cleanupImportDriver(creator driverCreator) error {
 	return nil
 }
 
+// removeUnsupportedDrivers - remove unsupported drivers
+func removeUnsupportedDrivers(creator driverCreator) error {
+	driverList := []string{"aliyunkubernetescontainerservice", "baiducloudcontainerengine", "huaweicontainercloudengine",
+		"linodekubernetesengine", "opentelekomcloudcontainerengine", "rancherkubernetesengine", "tencentkubernetesengine"}
+
+	var err error
+
+	for _, driver := range driverList {
+		if _, err = creator.driversLister.Get("", driver); err == nil {
+			logrus.Infof("removing kontainer drvier %s", driver)
+			err = creator.drivers.Delete(driver, &v1.DeleteOptions{})
+		}
+		if err != nil && !errors.IsNotFound(err) {
+			return err
+		}
+	}
+	return nil
+}
+
 type driverCreator struct {
 	driversLister v3.KontainerDriverLister
 	drivers       v3.KontainerDriverInterface
+	k8s           kubernetes.Interface
 }
 
 func (c *driverCreator) add(name string) error {
-	logrus.Infof("adding kontainer driver %v", name)
+	logrus.Infof("adding kontainer driver %s", name)
 
 	driver, err := c.driversLister.Get("", name)
 	if err != nil {
@@ -177,9 +137,32 @@ func (c *driverCreator) add(name string) error {
 	return nil
 }
 
+func (c *driverCreator) addHostedDriverFromEnv(name, versionEnv, checksumEnv, driverName string, active bool, domains ...string) error {
+	version := os.Getenv(versionEnv)
+	checksum := os.Getenv(checksumEnv)
+	// don't add driver if not present in environment
+	if version == "" || checksum == "" {
+		return nil
+	}
+
+	ingress, err := c.k8s.NetworkingV1().Ingresses(namespace.System).Get(context.Background(), "rancher", v1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if ingress.Annotations != nil {
+		if commonName, ok := ingress.Annotations["cert-manager.io/common-name"]; ok {
+			url := fmt.Sprintf("https://%s/kontainerdriver/%s/%s/kontainer-engine-driver-%s-linux", commonName, name, version, name)
+			return c.addCustomDriver(driverName, url, checksum, "", active, domains...)
+		}
+	}
+
+	return fmt.Errorf("failed to create hosted driver, %s/rancher ingress not ready", namespace.System)
+}
+
 func (c *driverCreator) addCustomDriver(name, url, checksum, uiURL string, active bool, domains ...string) error {
 	logrus.Infof("adding kontainer driver %v", name)
-	_, err := c.driversLister.Get("", name)
+	driver, err := c.driversLister.Get("", name)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			_, err = c.drivers.Create(&v3.KontainerDriver{
@@ -201,9 +184,22 @@ func (c *driverCreator) addCustomDriver(name, url, checksum, uiURL string, activ
 			if err != nil && !errors.IsAlreadyExists(err) {
 				return fmt.Errorf("error creating driver: %v", err)
 			}
-		} else {
-			return fmt.Errorf("error getting driver: %v", err)
+			return nil
 		}
+
+		return fmt.Errorf("error getting driver: %v", err)
+	}
+
+	// do an update if the driver already exists
+	driver.Spec.URL = url
+	driver.Spec.BuiltIn = false
+	driver.Spec.Checksum = checksum
+	driver.Spec.UIURL = uiURL
+	driver.Spec.WhitelistDomains = domains
+
+	_, err = c.drivers.Update(driver)
+	if err != nil {
+		return fmt.Errorf("error updating driver: %v", err)
 	}
 	return nil
 }
