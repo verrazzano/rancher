@@ -12,9 +12,7 @@ RUN useradd rancher && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
-    rm -f /bin/sh && ln -s /bin/bash /bin/sh && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+    rm -f /bin/sh && ln -s /bin/bash /bin/sh
 
 ENV KUSTOMIZE_VERSION v4.5.5
 
