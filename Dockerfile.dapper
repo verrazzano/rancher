@@ -57,8 +57,5 @@ VOLUME /var/lib/rancher
 VOLUME /var/lib/kubelet
 WORKDIR ${DAPPER_SOURCE}
 
-# Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
-RUN cat /etc/profile.d/git.sh >> /etc/profile
-
 ENTRYPOINT ["./scripts/entry"]
 CMD ["ci"]
