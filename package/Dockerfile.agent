@@ -11,9 +11,6 @@ ARG ARCH=amd64
 
 RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
 
-# Update PATH to make sure git 2.27 is on the path
-ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
-
 ENV LOGLEVEL_VERSION v0.1.5
 
 RUN curl -sLf https://github.com/rancher/loglevel/releases/download/${LOGLEVEL_VERSION}/loglevel-${ARCH}-${LOGLEVEL_VERSION}.tar.gz | tar xvzf - -C /usr/bin
@@ -25,9 +22,6 @@ ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=''
 # For now, this value needs to be manually synced with the one in the main Dockerfile. This pins downstream webhook's version.
 ENV CATTLE_RANCHER_WEBHOOK_VERSION=2.0.5+up0.3.5
 ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
-
-# Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
-RUN cat /etc/profile.d/git.sh >> /etc/profile
 
 COPY agent run.sh kubectl-shell.sh shell-setup.sh /usr/bin/
 COPY --from=rancher /var/lib/rancher-data /var/lib/rancher-data

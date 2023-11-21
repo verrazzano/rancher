@@ -1,8 +1,5 @@
 #!/bin/bash
-
 set -e
-source /etc/profile.d/git.sh
-git version
 
 source $(dirname $0)/version
 

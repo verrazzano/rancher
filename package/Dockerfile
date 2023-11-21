@@ -12,9 +12,7 @@ RUN useradd rancher && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
-    rm -f /bin/sh && ln -s /bin/bash /bin/sh && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+    rm -f /bin/sh && ln -s /bin/bash /bin/sh
 
 ENV KUSTOMIZE_VERSION v4.5.5
 
@@ -91,8 +89,6 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p $OCI_OCNE_DRIVER_PATH  && \
     mkdir -p $OKE_DRIVER_PATH  && \
     mkdir -p $OKE_CAPI_DRIVER_PATH  && \
-    # Set up the git 2.x environment variables so that it's on the path
-    source /etc/profile.d/git.sh && \
     #
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     #
