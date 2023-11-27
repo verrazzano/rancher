@@ -201,7 +201,7 @@ COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /go/src/github.com/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
-COPY --from=build /go/src/github.com/rancher/rancher/bin/data.json /var/lib/rancher-data/driver-metadata/
+COPY --from=build /go/src/github.com/rancher/rancher/package/data.json /var/lib/rancher-data/driver-metadata/
 
 # Force use of rancher-agent image built from source for Verrazzano.
 ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
