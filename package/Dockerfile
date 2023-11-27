@@ -1,5 +1,18 @@
 ARG RANCHER_BASE_TAG=base
 ARG RANCHER_REPO=rancher
+
+FROM ghcr.io/oracle/oraclelinux:8-slim as build
+ARG ARCH
+ENV ARCH=$ARCH
+
+COPY . /go/src/github.com/rancher/gitjob/
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git && \
+    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
+    cd /go/src/github.com/rancher/rancher/scripts && \
+    ./build
+
 # Use the build of Dockerfile.base as the FROM image
 FROM ${RANCHER_REPO}/rancher:${RANCHER_BASE_TAG}
 
@@ -179,7 +192,7 @@ ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSIO
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION ${VERSION}
-COPY entrypoint.sh rancher /usr/bin/
+COPY --from=build entrypoint.sh rancher /usr/bin/
 COPY kustomize.sh /usr/bin/
 COPY jailer.sh /usr/bin/
 RUN mkdir /license
