@@ -5,7 +5,7 @@ FROM ghcr.io/oracle/oraclelinux:8-slim as build
 ARG ARCH
 ENV ARCH=$ARCH
 
-COPY . ${DAPPER_SOURCE}
+COPY . /go/src/github.com/rancher/rancher/
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y git && \
@@ -192,15 +192,15 @@ ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSIO
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION ${VERSION}
-COPY --from=build ${DAPPER_SOURCE}/package/entrypoint.sh rancher /usr/bin/
-COPY --from=build ${DAPPER_SOURCE}/package/kustomize.sh /usr/bin/
-COPY --from=build ${DAPPER_SOURCE}/package/jailer.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/entrypoint.sh rancher /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/kustomize.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/jailer.sh /usr/bin/
 RUN mkdir /license
-COPY --from=build ${DAPPER_SOURCE}/LICENSE ${DAPPER_SOURCE}/README.md ${DAPPER_SOURCE}/THIRD_PARTY_LICENSES.txt /license/
+COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /go/src/github.com/rancher/rancher/README.md /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
-COPY --from=build ${DAPPER_SOURCE}/bin/data.json /var/lib/rancher-data/driver-metadata/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/data.json /var/lib/rancher-data/driver-metadata/
 
 # Force use of rancher-agent image built from source for Verrazzano.
 ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
