@@ -1,7 +1,6 @@
 FROM ghcr.io/oracle/oraclelinux:8-slim
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
-    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
     microdnf install -y git gcc vim file wget unzip jq nc mkisofs && \
     microdnf install -y glibc-static --enablerepo=ol8_codeready_builder && \
     microdnf install -y openssl-devel libffi-devel python3 iproute bash-completion sysstat hostname && \
