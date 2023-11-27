@@ -193,6 +193,7 @@ ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSIO
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION ${VERSION}
 COPY --from=build /go/src/github.com/rancher/rancher/package/entrypoint.sh rancher /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/rancher /usr/bin/
 COPY --from=build /go/src/github.com/rancher/rancher/package/kustomize.sh /usr/bin/
 COPY --from=build /go/src/github.com/rancher/rancher/package/jailer.sh /usr/bin/
 RUN mkdir /license
