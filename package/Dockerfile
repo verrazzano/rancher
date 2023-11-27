@@ -192,15 +192,15 @@ ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSIO
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION ${VERSION}
-COPY --from=build entrypoint.sh rancher /usr/bin/
-COPY --from=build kustomize.sh /usr/bin/
-COPY --from=build jailer.sh /usr/bin/
+COPY --from=build package/entrypoint.sh rancher /usr/bin/
+COPY --from=build package/kustomize.sh /usr/bin/
+COPY --from=build package/jailer.sh /usr/bin/
 RUN mkdir /license
 COPY --from=build LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
-COPY --from=build data.json /var/lib/rancher-data/driver-metadata/
+COPY --from=build bin/data.json /var/lib/rancher-data/driver-metadata/
 
 # Force use of rancher-agent image built from source for Verrazzano.
 ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
