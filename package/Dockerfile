@@ -1,5 +1,5 @@
 ARG RANCHER_BASE_TAG=base
-ARG RANCHER_REPO=rancher
+ARG RANCHER_BASE_REPO=rancher
 
 FROM ghcr.io/oracle/oraclelinux:8-slim as build
 ARG ARCH
@@ -14,7 +14,7 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     ./build
 
 # Use the build of Dockerfile.base as the FROM image
-FROM ${RANCHER_REPO}/rancher:${RANCHER_BASE_TAG}
+FROM ${RANCHER_BASE_REPO}/rancher:${RANCHER_BASE_TAG}
 
 ARG ARCH=amd64
 ARG ETCD_UNSUPPORTED_ARCH
