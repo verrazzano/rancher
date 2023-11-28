@@ -36,8 +36,7 @@ COPY --from=build /go/src/github.com/rancher/rancher/bin/agent /usr/bin/
 COPY --from=build /go/src/github.com/rancher/rancher/package/run.sh /usr/bin/
 COPY --from=build /go/src/github.com/rancher/rancher/package/kubectl-shell.sh /usr/bin/
 COPY --from=build /go/src/github.com/rancher/rancher/package/shell-setup.sh /usr/bin/
-COPY --from=build /var/lib/rancher-data /var/lib/rancher-data
-COPY --from=build /usr/bin/tini /usr/bin/
+#COPY --from=build /var/lib/rancher-data /var/lib/rancher-data
 RUN mkdir /license
 COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
 COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
