@@ -1,7 +1,6 @@
 FROM ghcr.io/oracle/oraclelinux:8-slim
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
-    microdnf install -y golang-1.19.13-1.module+el8.8.0+21189+9e6e1f9f.x86_64 && \
     microdnf install -y git gcc vim file wget unzip jq nc mkisofs && \
     microdnf install -y glibc-static --enablerepo=ol8_codeready_builder && \
     microdnf install -y openssl-devel libffi-devel python3 iproute bash-completion sysstat hostname && \
@@ -14,6 +13,5 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/developer/EPEL/x86_64 && \
     microdnf install -y tini-0.19.0-1.el8.x86_64 && \
     mv /usr/bin/helm /usr/bin/helm_v3 && \
-    go version && \
     microdnf clean all && \
     rm -rf /var/cache/yum /var/lib/rpm/*
