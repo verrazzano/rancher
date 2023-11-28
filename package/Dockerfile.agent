@@ -1,18 +1,30 @@
+ARG RANCHER_BASE_TAG=base
+ARG RANCHER_BASE_REPO=rancher
 ARG RANCHER_TAG=dev
 ARG RANCHER_REPO=rancher
-# Use the build of Dockerfile.base as the FROM image
+# Use the build of Dockerfile to obtain some build outputs
 FROM ${RANCHER_REPO}/rancher:${RANCHER_TAG} as rancher
 
 ARG ARCH=amd64
 
-ARG RANCHER_BASE_TAG=base
-FROM rancher/rancher:base
+FROM ghcr.io/oracle/oraclelinux:8-slim as build
+ARG ARCH
+ENV ARCH=$ARCH
+
+COPY . /go/src/github.com/rancher/rancher/
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git && \
+    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
+    cd /go/src/github.com/rancher/rancher/scripts && \
+    ./build
+
+# Use the build of Dockerfile.base as the FROM image
+FROM ${RANCHER_BASE_REPO}/rancher:${RANCHER_BASE_TAG}
+
 ARG ARCH=amd64
 
 RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
-
-# Update PATH to make sure git 2.27 is on the path
-ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
 
 ENV LOGLEVEL_VERSION v0.1.5
 
@@ -26,13 +38,14 @@ ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=''
 ENV CATTLE_RANCHER_WEBHOOK_VERSION=2.0.5+up0.3.5
 ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
 
-# Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
-RUN cat /etc/profile.d/git.sh >> /etc/profile
-
-COPY agent run.sh kubectl-shell.sh shell-setup.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/agent /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/run.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/kubectl-shell.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/shell-setup.sh /usr/bin/
 COPY --from=rancher /var/lib/rancher-data /var/lib/rancher-data
-COPY --from=rancher /usr/bin/tini /usr/bin/
 RUN mkdir /license
-COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
+COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
+COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
+COPY --from=build /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
 WORKDIR /var/lib/rancher
 ENTRYPOINT ["run.sh"]

@@ -1,8 +1,5 @@
 #!/bin/bash
-
 set -e
-source /etc/profile.d/git.sh
-git version
 
 source $(dirname $0)/version
 
@@ -60,10 +57,10 @@ if [ -n "${OKE_CAPI_DRIVER_HASH}" ]; then
 fi
 
 echo "The value of BUILD_ARGS is ${BUILD_ARGS}"
-
-docker build $BUILD_ARGS -t ${IMAGE} .
-
-docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f Dockerfile.agent .
+cd ..
+docker build $BUILD_ARGS -t ${IMAGE} -f package/Dockerfile .
+docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f package/Dockerfile.agent .
+cd package
 
 mkdir -p ../dist
 echo ${IMAGE} > ../dist/images
