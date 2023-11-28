@@ -197,7 +197,9 @@ COPY --from=build /go/src/github.com/rancher/rancher/bin/rancher /usr/bin/
 COPY --from=build /go/src/github.com/rancher/rancher/package/kustomize.sh /usr/bin/
 COPY --from=build /go/src/github.com/rancher/rancher/package/jailer.sh /usr/bin/
 RUN mkdir /license
-COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /go/src/github.com/rancher/rancher/README.md /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
+COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
+COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
+COPY --from=build /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 

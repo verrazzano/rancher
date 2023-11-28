@@ -32,10 +32,15 @@ ENV CATTLE_RANCHER_WEBHOOK_MIN_VERSION=''
 ENV CATTLE_RANCHER_WEBHOOK_VERSION=2.0.5+up0.3.5
 ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
 
-COPY agent run.sh kubectl-shell.sh shell-setup.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/agent /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/run.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/kubectl-shell.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/shell-setup.sh /usr/bin/
 COPY --from=build /var/lib/rancher-data /var/lib/rancher-data
 COPY --from=build /usr/bin/tini /usr/bin/
 RUN mkdir /license
-COPY ${HOME}/LICENSE ${HOME}/README.md ${HOME}/THIRD_PARTY_LICENSES.txt /license/
+COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
+COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
+COPY --from=build /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
 WORKDIR /var/lib/rancher
 ENTRYPOINT ["run.sh"]
