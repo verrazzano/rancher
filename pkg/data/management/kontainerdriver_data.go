@@ -54,10 +54,6 @@ func addKontainerDrivers(management *config.ManagementContext) error {
 		return err
 	}
 
-	if err := creator.addHostedDriverFromEnv("okecapi", "OKE_CAPI_DRIVER_VERSION", "OKE_CAPI_DRIVER_HASH", "okecapi", false); err != nil {
-		return err
-	}
-
 	return creator.addHostedDriverFromEnv("oke", "OKE_DRIVER_VERSION", "OKE_DRIVER_HASH", "oraclecontainerengine", true, "*.oraclecloud.com")
 }
 

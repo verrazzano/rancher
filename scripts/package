@@ -26,8 +26,6 @@ echo "The value of OCI_OCNE_DRIVER_VERSION is ${OCI_OCNE_DRIVER_VERSION}"
 echo "The value of OCI_OCNE_DRIVER_HASH is ${OCI_OCNE_DRIVER_HASH}"
 echo "The value of OKE_DRIVER_VERSION is ${OKE_DRIVER_VERSION}"
 echo "The value of OKE_DRIVER_HASH is ${OKE_DRIVER_HASH}"
-echo "The value of OKE_CAPI_DRIVER_VERSION is ${OKE_CAPI_DRIVER_VERSION}"
-echo "The value of OKE_CAPI_DRIVER_HASH is ${OKE_CAPI_DRIVER_HASH}"
 
 # Compose build args for Rancher Docker image
 BUILD_ARGS="--build-arg VERSION=${TAG} --build-arg ARCH=${ARCH}  --build-arg ETCD_UNSUPPORTED_ARCH=${ETCD_UNSUPPORTED_ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH}"
@@ -48,12 +46,6 @@ if [ -n "${OKE_DRIVER_VERSION}" ]; then
 fi
 if [ -n "${OKE_DRIVER_HASH}" ]; then
   BUILD_ARGS="${BUILD_ARGS} --build-arg OKE_DRIVER_HASH=${OKE_DRIVER_HASH}"
-fi
-if [ -n "${OKE_CAPI_DRIVER_VERSION}" ]; then
-    BUILD_ARGS="${BUILD_ARGS} --build-arg OKE_CAPI_DRIVER_VERSION=${OKE_CAPI_DRIVER_VERSION}"
-fi
-if [ -n "${OKE_CAPI_DRIVER_HASH}" ]; then
-  BUILD_ARGS="${BUILD_ARGS} --build-arg OKE_CAPI_DRIVER_HASH=${OKE_CAPI_DRIVER_HASH}"
 fi
 
 echo "The value of BUILD_ARGS is ${BUILD_ARGS}"
