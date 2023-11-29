@@ -1,7 +1,20 @@
 ARG RANCHER_BASE_TAG=base
-ARG RANCHER_REPO=rancher
+ARG RANCHER_BASE_REPO=rancher
+
+FROM ghcr.io/oracle/oraclelinux:8-slim as build
+ARG ARCH
+ENV ARCH=$ARCH
+
+COPY . /go/src/github.com/rancher/rancher/
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git && \
+    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
+    cd /go/src/github.com/rancher/rancher/scripts && \
+    ./build
+
 # Use the build of Dockerfile.base as the FROM image
-FROM ${RANCHER_REPO}/rancher:${RANCHER_BASE_TAG}
+FROM ${RANCHER_BASE_REPO}/rancher:${RANCHER_BASE_TAG}
 
 ARG ARCH=amd64
 ARG ETCD_UNSUPPORTED_ARCH
@@ -178,15 +191,18 @@ ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSIO
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION ${VERSION}
-COPY entrypoint.sh rancher /usr/bin/
-COPY kustomize.sh /usr/bin/
-COPY jailer.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/entrypoint.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/rancher /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/kustomize.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/jailer.sh /usr/bin/
 RUN mkdir /license
-COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
+COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
+COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
+COPY --from=build /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
-COPY data.json /var/lib/rancher-data/driver-metadata/
+COPY --from=build /go/src/github.com/rancher/rancher/package/data.json /var/lib/rancher-data/driver-metadata/
 
 # Force use of rancher-agent image built from source for Verrazzano.
 ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
