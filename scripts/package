@@ -32,7 +32,11 @@ else
     docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg IMAGE_REPO=${REPO} --build-arg SYSTEM_CHART_DEFAULT_BRANCH=${SYSTEM_CHART_DEFAULT_BRANCH} --build-arg CHART_DEFAULT_BRANCH=${CHART_DEFAULT_BRANCH} -t ${IMAGE} .
 fi
 
-docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f Dockerfile.agent .
+echo "The value of BUILD_ARGS is ${BUILD_ARGS}"
+cd ..
+docker build $BUILD_ARGS -t ${IMAGE} -f package/Dockerfile .
+docker build --build-arg VERSION=${TAG} --build-arg ARCH=${ARCH} --build-arg RANCHER_TAG=${TAG} --build-arg RANCHER_REPO=${REPO} -t ${AGENT_IMAGE} -f package/Dockerfile.agent .
+cd package
 
 mkdir -p ../dist
 echo ${IMAGE} > ../dist/images
