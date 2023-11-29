@@ -1,23 +1,39 @@
 ARG K3S_BUILDER=rancher/k3s:v1.25.9-k3s1
 FROM ${K3S_BUILDER} as k3s_builder
 
-FROM ghcr.io/oracle/oraclelinux:7-slim
+FROM ghcr.io/oracle/oraclelinux:8-slim as build
+ARG ARCH
+ENV ARCH=$ARCH
 
-RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons && \
-    yum update -y && \
-    # software collections repo needed for git 2.x on OL7
-    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum install -y rh-git227 curl ca-certificates unzip tar docker-cli nc mkisofs && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    # Set up needed to ensure git 2.27 from rh-git227 is on the path
-    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
-    source /etc/profile.d/git.sh && \
+COPY . /go/src/github.com/rancher/rancher/
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git && \
+    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
+    cd /go/src/github.com/rancher/rancher/scripts && \
+    ./build
+
+FROM ghcr.io/oracle/oraclelinux:8-slim
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git gcc vim file wget unzip jq nc mkisofs && \
+    microdnf install -y glibc-static --enablerepo=ol8_codeready_builder && \
+    microdnf install -y openssl-devel libffi-devel python3 iproute bash-completion sysstat hostname && \
+    microdnf install -y dnf && \
+    microdnf install -y 'dnf-command(config-manager)' && \
+    dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/olcne17/x86_64 && \
+    microdnf install -y helm-3.12.0-1.el8.x86_64 && \
+    microdnf install -y kubectl-1.26.6-1.el8.x86_64 && \
+    microdnf install -y etcd-3.5.6-4.el8.x86_64 && \
+    dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/developer/EPEL/x86_64 && \
+    microdnf install -y tini-0.19.0-1.el8.x86_64 && \
+    mv /usr/bin/helm /usr/bin/helm_v3 && \
+    microdnf clean all && \
+    rm -rf /var/cache/yum /var/lib/rpm/* && \
     git version && \
     useradd rancher && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
-    mkdir -p /var/lib/rancher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
+    mkdir -p /var/lib/ra  ncher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
     mkdir /root/.kube && \
     ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/k3s.yaml  && \
@@ -25,6 +41,7 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
     rm -f /bin/sh && ln -s /bin/bash /bin/sh
+
 WORKDIR /var/lib/rancher
 
 ARG ARCH=amd64
@@ -252,16 +269,19 @@ ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSIO
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION ${VERSION}
-COPY entrypoint.sh rancher /usr/bin/
-COPY kustomize.sh /usr/bin/
-COPY jailer.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/entrypoint.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/rancher /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/kustomize.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/jailer.sh /usr/bin/
 RUN mkdir /license
-COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
+COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
+COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
+COPY --from=build /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
 COPY k3s-airgap-images.tar /var/lib/rancher/k3s/agent/images/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
-COPY data.json /var/lib/rancher-data/driver-metadata/
+COPY --from=build /go/src/github.com/rancher/rancher/package/data.json /var/lib/rancher-data/driver-metadata/
 
 # Force use of rancher-agent image built from source for Verrazzano.
 ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
