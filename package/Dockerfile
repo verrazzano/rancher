@@ -5,10 +5,10 @@ FROM ghcr.io/oracle/oraclelinux:8-slim as build
 ARG ARCH
 ENV ARCH=$ARCH
 
-RUN echo PWD && \
-    pwd
-
 COPY . /go/src/github.com/rancher/rancher/
+
+RUN echo LS && \
+    ls /go/src/github.com/rancher/rancher
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y git && \
