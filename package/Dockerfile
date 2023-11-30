@@ -33,7 +33,7 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     git version && \
     useradd rancher && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
-    mkdir -p /var/lib/ra  ncher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
+    mkdir -p /var/lib/rancher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
     mkdir /root/.kube && \
     ln -s /etc/rancher/k3s/k3s.yaml /root/.kube/k3s.yaml  && \
