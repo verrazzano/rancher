@@ -102,8 +102,6 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/helm3-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/v2 && \
-    # Set up the git 2.x environment variables so that it's on the path
-    source /etc/profile.d/git.sh && \
     git clone -b $CATTLE_SYSTEM_CHART_DEFAULT_BRANCH --depth 1 https://github.com/rancher/system-charts /var/lib/rancher-data/local-catalogs/system-library && \
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
@@ -168,7 +166,6 @@ RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     yum install -y golang-1.19 && \
     yum clean all && \
     rm -rf /var/cache/yum && \
-    source /etc/profile.d/git.sh && \
     git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C ./helm && \
     mv ./helm/bin/helm /usr/bin/helm_v3 && \

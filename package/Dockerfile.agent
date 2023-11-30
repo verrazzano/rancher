@@ -21,11 +21,7 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
     yum -y install kubectl-1.23.11-1.el7.x86_64 && \
     yum clean all && \
-    rm -rf /var/cache/yum && \
-    # Set up needed to ensure git 2.27 from rh-git227 is on the path
-    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
-    source /etc/profile.d/git.sh && \
-    git version
+    rm -rf /var/cache/yum
 
 # Update PATH to make sure git 2.27 is on the path
 ENV PATH="/opt/rh/rh-git227/root/usr/bin:${PATH}"
@@ -38,9 +34,6 @@ ARG VERSION=dev
 LABEL io.cattle.agent true
 ENV AGENT_IMAGE rancher/rancher-agent:${VERSION}
 ENV SSL_CERT_DIR /etc/kubernetes/ssl/certs
-
-# Set up the git 2.x environment variables so that it's on the path and the needed files on the LD_LIBRARY_PATH
-RUN cat /etc/profile.d/git.sh >> /etc/profile
 
 COPY --from=rancher /var/lib/rancher-data /var/lib/rancher-data
 COPY --from=rancher /usr/bin/tini /usr/bin/
