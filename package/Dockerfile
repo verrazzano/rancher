@@ -1,19 +1,40 @@
 ARG K3S_BUILDER=rancher/k3s:v1.25.9-k3s1
 FROM ${K3S_BUILDER} as k3s_builder
 
-FROM ghcr.io/oracle/oraclelinux:7-slim
+FROM ghcr.io/oracle/oraclelinux:8-slim as build
+ARG ARCH
+ENV ARCH=$ARCH
+ENV HELM_VERSION 3.11.3-rancher1
 
-RUN yum-config-manager --enable ol7_optional_latest && \
-    yum-config-manager --enable ol7_addons && \
-    yum update -y && \
-    # software collections repo needed for git 2.x on OL7
-    yum-config-manager --add-repo=http://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64 && \
-    yum install -y rh-git227 curl ca-certificates unzip tar docker-cli nc mkisofs && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    # Set up needed to ensure git 2.27 from rh-git227 is on the path
-    ln /opt/rh/rh-git227/enable /etc/profile.d/git.sh && \
-    source /etc/profile.d/git.sh && \
+COPY . /go/src/github.com/rancher/rancher/
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git make findutils && \
+    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
+    cd /go/src/github.com/rancher/rancher/scripts && \
+    ./build && \
+    ./k3s-images.sh && \
+    # Rancher uses its own Helm fork - build and install our BFS of that fork.
+    git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
+    make -C ./helm
+
+FROM ghcr.io/oracle/oraclelinux:8-slim
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git gcc vim file wget unzip jq nc mkisofs && \
+    microdnf install -y glibc-static --enablerepo=ol8_codeready_builder && \
+    microdnf install -y openssl-devel libffi-devel python3 iproute bash-completion sysstat hostname && \
+    microdnf install -y dnf && \
+    microdnf install -y 'dnf-command(config-manager)' && \
+    dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/olcne17/x86_64 && \
+    microdnf install -y helm-3.12.0-1.el8.x86_64 && \
+    microdnf install -y kubectl-1.26.6-1.el8.x86_64 && \
+    microdnf install -y etcd-3.5.6-4.el8.x86_64 && \
+    dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/developer/EPEL/x86_64 && \
+    microdnf install -y tini-0.19.0-1.el8.x86_64 && \
+    mv /usr/bin/helm /usr/bin/helm_v3 && \
+    microdnf clean all && \
+    rm -rf /var/cache/yum /var/lib/rpm/* && \
     git version && \
     useradd rancher && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
@@ -25,6 +46,7 @@ RUN yum-config-manager --enable ol7_optional_latest && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
     rm -f /bin/sh && ln -s /bin/bash /bin/sh
+
 WORKDIR /var/lib/rancher
 
 ARG ARCH=amd64
@@ -53,7 +75,6 @@ ENV LINODE_UI_DRIVER_VERSION v0.5.0
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV DOCKER_MACHINE_HARVESTER_VERSION v0.6.3
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
-ENV HELM_VERSION 3.11.3-rancher1
 ENV KUSTOMIZE_VERSION v5.0.0
 ENV CATTLE_WINS_AGENT_VERSION v0.4.11
 ENV CATTLE_WINS_AGENT_INSTALL_SCRIPT https://raw.githubusercontent.com/rancher/wins/${CATTLE_WINS_AGENT_VERSION}/install.ps1
@@ -85,8 +106,6 @@ RUN mkdir -p /var/lib/rancher-data/local-catalogs/system-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/helm3-library && \
     mkdir -p /var/lib/rancher-data/local-catalogs/v2 && \
-    # Set up the git 2.x environment variables so that it's on the path
-    source /etc/profile.d/git.sh && \
     git clone -b $CATTLE_SYSTEM_CHART_DEFAULT_BRANCH --depth 1 https://github.com/rancher/system-charts /var/lib/rancher-data/local-catalogs/system-library && \
     # Charts need to be copied into the sha256 value of git url computed in https://github.com/rancher/rancher/blob/5ebda9ac23c06e9647b586ec38aa51cc9ff9b031/pkg/catalogv2/git/download.go#L102 to create a unique folder per url
     # After cloning the chart repo, checkout a specific commit so these builds are reproducible
@@ -132,30 +151,16 @@ ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE
     KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
-    yum -y install kubectl-1.23.11-1.el7.x86_64 && \
-    yum -y install etcd-3.5.1-2.el7.x86_64 && \
     # set up helm 2
     curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
     curl -sLf ${!TILLER_URL} > /usr/bin/rancher-tiller && \
     ln -s /usr/bin/rancher-helm /usr/bin/helm && \
     ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
     chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller && \
-    # set up helm 3
-    # Rancher uses its own Helm fork - build and install our BFS of that fork.
-    yum install -y make && \
-    yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang119 && \
-    yum install -y golang-1.19 && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    source /etc/profile.d/git.sh && \
-    git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
-    make -C ./helm && \
-    mv ./helm/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
+
+# set up helm 3
+COPY --from=build /go/src/github.com/rancher/rancher/scripts/helm/bin/helm /usr/bin/helm_v3
 
 # Set up K3s: copy the necessary binaries from the K3s image.
 COPY --from=k3s_builder \
@@ -252,16 +257,19 @@ ENV CATTLE_CLI_URL_WINDOWS https://releases.rancher.com/cli2/${CATTLE_CLI_VERSIO
 
 ARG VERSION=dev
 ENV CATTLE_SERVER_VERSION ${VERSION}
-COPY entrypoint.sh rancher /usr/bin/
-COPY kustomize.sh /usr/bin/
-COPY jailer.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/entrypoint.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/rancher /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/kustomize.sh /usr/bin/
+COPY --from=build /go/src/github.com/rancher/rancher/package/jailer.sh /usr/bin/
 RUN mkdir /license
-COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
-COPY k3s-airgap-images.tar /var/lib/rancher/k3s/agent/images/
+COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
+COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
+COPY --from=build /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/k3s-airgap-images.tar /var/lib/rancher/k3s/agent/images/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
-COPY data.json /var/lib/rancher-data/driver-metadata/
+COPY --from=build /go/src/github.com/rancher/rancher/package/data.json /var/lib/rancher-data/driver-metadata/
 
 # Force use of rancher-agent image built from source for Verrazzano.
 ENV CATTLE_AGENT_IMAGE ghcr.io/verrazzano/rancher-agent:${VERSION}
