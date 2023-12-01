@@ -159,7 +159,7 @@ RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
     chmod +x /usr/bin/kustomize
 
 # set up helm 3
-COPY --from=build /helm/bin/helm /usr/bin/helm_v3
+COPY --from=build /go/src/github.com/rancher/rancher/scripts/helm/bin/helm /usr/bin/helm_v3
 
 # Set up K3s: copy the necessary binaries from the K3s image.
 COPY --from=k3s_builder \
