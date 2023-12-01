@@ -9,7 +9,7 @@ ENV HELM_VERSION 3.11.3-rancher1
 COPY . /go/src/github.com/rancher/rancher/
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
-    microdnf install -y git make && \
+    microdnf install -y git make findutils && \
     microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
     cd /go/src/github.com/rancher/rancher/scripts && \
     ./build && \
@@ -264,7 +264,7 @@ RUN mkdir /license
 COPY --from=build /go/src/github.com/rancher/rancher/LICENSE /license/
 COPY --from=build /go/src/github.com/rancher/rancher/README.md /license/
 COPY --from=build /go/src/github.com/rancher/rancher/THIRD_PARTY_LICENSES.txt /license/
-COPY k3s-airgap-images.tar /var/lib/rancher/k3s/agent/images/
+COPY --from=build /go/src/github.com/rancher/rancher/bin/k3s-airgap-images.tar /var/lib/rancher/k3s/agent/images/
 RUN chmod +x /usr/bin/entrypoint.sh
 RUN chmod +x /usr/bin/kustomize.sh
 
