@@ -4,14 +4,18 @@ FROM ${K3S_BUILDER} as k3s_builder
 FROM ghcr.io/oracle/oraclelinux:8-slim as build
 ARG ARCH
 ENV ARCH=$ARCH
+ENV HELM_VERSION 3.11.3-rancher1
 
 COPY . /go/src/github.com/rancher/rancher/
 
 RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
-    microdnf install -y git && \
+    microdnf install -y git make && \
     microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
     cd /go/src/github.com/rancher/rancher/scripts && \
-    ./build
+    ./build && \
+    # Rancher uses its own Helm fork - build and install our BFS of that fork.
+    git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
+    make -C ./helm
 
 FROM ghcr.io/oracle/oraclelinux:8-slim
 
@@ -70,7 +74,6 @@ ENV LINODE_UI_DRIVER_VERSION v0.5.0
 # make sure the version number is consistent with the one at Line 100 of pkg/data/management/machinedriver_data.go
 ENV DOCKER_MACHINE_HARVESTER_VERSION v0.6.3
 ENV CATTLE_KDM_BRANCH ${CATTLE_KDM_BRANCH}
-ENV HELM_VERSION 3.11.3-rancher1
 ENV KUSTOMIZE_VERSION v5.0.0
 ENV CATTLE_WINS_AGENT_VERSION v0.4.11
 ENV CATTLE_WINS_AGENT_INSTALL_SCRIPT https://raw.githubusercontent.com/rancher/wins/${CATTLE_WINS_AGENT_VERSION}/install.ps1
@@ -147,29 +150,16 @@ ENV HELM_URL_V2_amd64=https://github.com/rancher/helm/releases/download/${CATTLE
     KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
 
 RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne13/x86_64/ && \
-    yum -y install docker-engine-19.03.11.ol-13.el7.x86_64 && \
-    yum-config-manager --add-repo https://yum.oracle.com/repo/OracleLinux/OL7/olcne15/x86_64/ && \
-    yum -y install kubectl-1.23.11-1.el7.x86_64 && \
-    yum -y install etcd-3.5.1-2.el7.x86_64 && \
     # set up helm 2
     curl -sLf ${!HELM_URL_V2} > /usr/bin/rancher-helm && \
     curl -sLf ${!TILLER_URL} > /usr/bin/rancher-tiller && \
     ln -s /usr/bin/rancher-helm /usr/bin/helm && \
     ln -s /usr/bin/rancher-tiller /usr/bin/tiller && \
     chmod +x /usr/bin/rancher-helm /usr/bin/rancher-tiller && \
-    # set up helm 3
-    # Rancher uses its own Helm fork - build and install our BFS of that fork.
-    yum install -y make && \
-    yum install -y oracle-golang-release-el7 && \
-    yum-config-manager --enable ol7_developer_golang119 && \
-    yum install -y golang-1.19 && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
-    git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
-    make -C ./helm && \
-    mv ./helm/bin/helm /usr/bin/helm_v3 && \
     chmod +x /usr/bin/kustomize
+
+# set up helm 3
+COPY --from=build /helm/bin/helm /usr/bin/helm_v3
 
 # Set up K3s: copy the necessary binaries from the K3s image.
 COPY --from=k3s_builder \
