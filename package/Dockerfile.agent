@@ -16,10 +16,11 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     cd /go/src/github.com/rancher/rancher/scripts && \
     ./build
 
-# Use the build of Dockerfile.base as the FROM image
-FROM ${RANCHER_BASE_REPO}/rancher:${RANCHER_BASE_TAG}
-
+FROM ghcr.io/oracle/oraclelinux:8-slim
 ARG ARCH=amd64
+
+RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
+    microdnf install -y git
 
 RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
 ENV KUBECTL_VERSION v1.23.6

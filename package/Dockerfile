@@ -13,6 +13,7 @@ RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
     microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
     cd /go/src/github.com/rancher/rancher/scripts && \
     ./build && \
+    ./k3s-images.sh && \
     # Rancher uses its own Helm fork - build and install our BFS of that fork.
     git clone --branch oracle/release/${HELM_VERSION} --depth=1 https://github.com/verrazzano/helm && \
     make -C ./helm
