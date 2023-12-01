@@ -318,17 +318,27 @@ func processImages(provider common.ConfigurationProvider, compartment string) ([
 		logrus.Debugf("[oci-handler] error creating Compute client: %v", err)
 		return nil, httperror.ServerError.Status, err
 	}
-	imageRequest := core.ListImagesRequest{
-		CompartmentId: &compartment,
-	}
-	shapeResponse, err := computeClient.ListImages(context.Background(), imageRequest)
-	if err != nil {
-		logrus.Debugf("[oci-handler] error listing images with Compute client: %v", err)
-		return nil, getErrorCode(shapeResponse.RawResponse), err
+
+	var page *string
+	var shapes []core.Image
+	for {
+		imageRequest := core.ListImagesRequest{
+			Page:          page,
+			CompartmentId: &compartment,
+		}
+		shapeResponse, err := computeClient.ListImages(context.Background(), imageRequest)
+		if err != nil {
+			logrus.Debugf("[oci-handler] error listing images with Compute client: %v", err)
+			return nil, getErrorCode(shapeResponse.RawResponse), err
+		}
+		shapes = append(shapes, shapeResponse.Items...)
+		if page = shapeResponse.OpcNextPage; shapeResponse.OpcNextPage == nil {
+			break
+		}
 	}
 
 	var nodeImages []string
-	for _, item := range shapeResponse.Items {
+	for _, item := range shapes {
 		if !strings.Contains(*item.DisplayName, "GPU") &&
 			!strings.Contains(*item.DisplayName, "Oracle-Linux-6") &&
 			strings.Contains(*item.DisplayName, "Oracle-Linux") &&
