@@ -1,7 +1,7 @@
 TARGETS := $(shell ls scripts)
 
 GO ?= CGO_ENABLED=0 GO111MODULE=on go
-DAPPER_VERSION = v0.6.0-v8o-1
+DAPPER_VERSION = v0.6.0-v8o-2
 
 # find or download dapper
 DAPPER_PATH := $(shell eval go env GOPATH)
