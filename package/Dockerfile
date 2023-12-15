@@ -1,16 +1,15 @@
 ARG K3S_BUILDER=rancher/k3s:v1.25.9-k3s1
 FROM ${K3S_BUILDER} as k3s_builder
 
-FROM ghcr.io/oracle/oraclelinux:8-slim as build
+FROM ghcr.io/verrazzano/golang:v1.20.12 as build
 ARG ARCH
 ENV ARCH=$ARCH
 ENV HELM_VERSION 3.11.3-rancher1
 
 COPY . /go/src/github.com/rancher/rancher/
 
-RUN microdnf update -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs && \
-    microdnf install -y git make findutils && \
-    microdnf install -y golang-1.20.10-1.module+el8.9.0+90068+08775a1f.x86_64 && \
+RUN dnf config-manager --enable ol8_appstream && \
+    dnf install -y git make findutils && \
     cd /go/src/github.com/rancher/rancher/scripts && \
     ./build && \
     ./k3s-images.sh && \
