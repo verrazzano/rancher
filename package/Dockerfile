@@ -18,7 +18,8 @@ FROM ${RANCHER_BASE_REPO}/rancher:${RANCHER_BASE_TAG}
 ARG ARCH=amd64
 ARG ETCD_UNSUPPORTED_ARCH
 
-RUN microdnf install -y kustomize-4.5.7-1.el8.x86_64 && \
+RUN dnf config-manager --add-repo http://yum.oracle.com/repo/OracleLinux/OL8/developer/olcne/x86_64 && \
+    microdnf install -y kustomize-4.5.7-1.el8.x86_64 && \
     microdnf clean all && \
     useradd rancher && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
