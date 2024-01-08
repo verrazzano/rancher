@@ -18,20 +18,15 @@ FROM ${RANCHER_BASE_REPO}/rancher:${RANCHER_BASE_TAG}
 ARG ARCH=amd64
 ARG ETCD_UNSUPPORTED_ARCH
 
-RUN useradd rancher && \
+RUN microdnf install -y kustomize-4.5.7-1.el8.x86_64 && \
+    microdnf clean all && \
+    useradd rancher && \
     rm -rf /tmp/* /var/tmp/* /usr/share/doc/packages/* && \
     mkdir -p /var/lib/rancher /var/lib/cattle /opt/jail /opt/drivers/management-state/bin && \
     chown -R rancher /var/lib/rancher /var/lib/cattle /usr/local/bin && \
     ln -s /usr/bin/rancher /usr/bin/reset-password && \
     ln -s /usr/bin/rancher /usr/bin/ensure-default-admin && \
     rm -f /bin/sh && ln -s /bin/bash /bin/sh
-
-ENV KUSTOMIZE_VERSION v4.5.5
-
-ENV KUSTOMIZE_URL=https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
-
-RUN curl -sLf ${KUSTOMIZE_URL} | tar -xzf - -C /usr/bin && \
-    chmod +x /usr/bin/kustomize
 
 WORKDIR /var/lib/rancher
 
