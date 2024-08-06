@@ -1,7 +1,7 @@
 ARG RANCHER_BASE_TAG=base
 ARG RANCHER_BASE_REPO=rancher
 
-FROM ghcr.io/verrazzano/golang:v1.20.12 as build
+FROM  ghcr.io/verrazzano/golang:v1.21.12 as build
 ARG ARCH
 ENV ARCH=$ARCH
 

@@ -7,7 +7,7 @@ FROM ${RANCHER_REPO}/rancher:${RANCHER_TAG} as rancher
 
 ARG ARCH=amd64
 
-FROM ghcr.io/verrazzano/golang:v1.20.12 as build
+FROM  ghcr.io/verrazzano/golang:v1.21.12 as build
 ARG ARCH
 ENV ARCH=$ARCH
 
