@@ -91,6 +91,7 @@ const (
 	Waiting                      = condition.Cond("Waiting")
 	Pending                      = condition.Cond("Pending")
 	Removed                      = condition.Cond("Removed")
+	Deleting                     = condition.Cond("Deleting")
 	PlanApplied                  = condition.Cond("PlanApplied")
 	InfrastructureReady          = condition.Cond(capi.InfrastructureReadyCondition)
 	SystemUpgradeControllerReady = condition.Cond("SystemUpgradeControllerReady")
@@ -264,9 +265,9 @@ func PlanSecretFromBootstrapName(bootstrapName string) string {
 func DoRemoveAndUpdateStatus(obj metav1.Object, doRemove func() (string, error), enqueueAfter func(string, string, time.Duration)) error {
 	if !Provisioned.IsTrue(obj) || !Waiting.IsTrue(obj) || !Pending.IsTrue(obj) {
 		// Ensure the Removed obj appears in the UI.
-		Provisioned.SetStatus(obj, "True")
 		Waiting.SetStatus(obj, "True")
 		Pending.SetStatus(obj, "True")
+		Provisioned.SetStatus(obj, "True")
 	}
 	message, err := doRemove()
 	if errors.Is(err, generic.ErrSkip) {
